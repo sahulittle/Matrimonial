@@ -8,7 +8,7 @@ const FindSomeOne = () => {
       icon: <FaUserPlus size={40} />,
       title: "Sign Up",
       description: "Register for free & put up your Matrimony Profile",
-      link: "/signup",
+      link: "/register",
     },
     {
       icon: <FaLink size={40} />,
