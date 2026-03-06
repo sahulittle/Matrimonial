@@ -7,6 +7,7 @@ import { Route, Routes, useLocation } from "react-router-dom";
 import Preloader from "./component/Preloader";
 import Packages from "./component/packages/Packages";
 import SignUp from "./component/SignUp";
+import Members from "./component/members/Members";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
@@ -34,6 +35,7 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/packages" element={<Packages/>}/>
             <Route path="/signup" element={<SignUp/>}/>
+            <Route path="/members" element={<Members/>}/>
           </Routes>
         </>
       )}

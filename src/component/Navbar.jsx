@@ -82,7 +82,7 @@ const Navbar = () => {
         <ul className="hidden lg:flex items-center gap-8 text-base font-medium text-gray-600">
           <li><Link to="/" className="transition hover:text-pink-600">Home</Link></li>
           <li><a href="/packages" className="transition hover:text-pink-600">Packages</a></li>
-          <li><a href="#" className="transition hover:text-pink-600">Members</a></li>
+          <li><Link to="/members" className="transition hover:text-pink-600">Members</Link></li>
           <li><a href="#" className="transition hover:text-pink-600">Stories</a></li>
           <li><a href="#" className="transition hover:text-pink-600">Contact</a></li>
         </ul>
@@ -115,7 +115,7 @@ const Navbar = () => {
                 <ul className="flex flex-col items-center gap-4 text-base font-medium text-gray-600 w-full">
                     <li><Link to="/" className="transition hover:text-pink-600" onClick={() => setIsMobileMenuOpen(false)}>Home</Link></li>
                     <li><a href="#" className="transition hover:text-pink-600" onClick={() => setIsMobileMenuOpen(false)}>Packages</a></li>
-                    <li><a href="#" className="transition hover:text-pink-600" onClick={() => setIsMobileMenuOpen(false)}>Members</a></li>
+                    <li><Link to="/members" className="transition hover:text-pink-600" onClick={() => setIsMobileMenuOpen(false)}>Members</Link></li>
                     <li><a href="#" className="transition hover:text-pink-600" onClick={() => setIsMobileMenuOpen(false)}>Stories</a></li>
                     <li><a href="#" className="transition hover:text-pink-600" onClick={() => setIsMobileMenuOpen(false)}>Contact</a></li>
                 </ul>
