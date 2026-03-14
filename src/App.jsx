@@ -1,25 +1,45 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "./component/Navbar";
-import Login from "./component/Login";
-import Home from "./component/home/Home";
-import Register from "./component/Register";
 import { Route, Routes, useLocation } from "react-router-dom";
-import Preloader from "./component/Preloader";
-import Packages from "./component/packages/Packages";
-import Members from "./component/members/Members";
+import { Toaster } from "react-hot-toast";
+import { initializeDemoData } from "./user/component/afterlogin/utils/demoSeeder";
 
-const App = () => {
+// User Components
+import UserNavbar from "./user/component/Navbar";
+import Login from "./user/component/Login";
+import Home from "./user/component/home/Home";
+import Register from "./user/component/Register";
+import Preloader from "./user/component/Preloader";
+import Packages from "./user/component/packages/Packages";
+import Stories from "./user/component/stories/Stories";
+import Contact from "./user/component/contact/Contact";
+
+// Admin Components
+import Admin from "./admin/Admin";
+import AfterLogin from "./user/component/afterlogin/AfterLogin";
+
+// Utility: Scrolls to top on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
+
+// This component handles the layout for the user-facing part of the site
+const UserLayout = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
-    // On any location change, we want to show the loader.
     setLoading(true);
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 1500); // Using a 1.5 second delay for all loads
+    }, 1500);
     return () => clearTimeout(timer);
-  }, [location]); // Re-run the effect when the location changes
+  }, [location.pathname]); // Re-run the effect when the pathname changes
 
   return (
     <div>
@@ -27,18 +47,38 @@ const App = () => {
         <Preloader />
       ) : (
         <>
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/packages" element={<Packages/>}/>
-            <Route path="/members" element={<Members/>}/>
-          </Routes>
+          <UserNavbar />
+          <main>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/packages" element={<Packages />} />
+              <Route path="/stories" element={<Stories />} />
+              <Route path="/contact" element={<Contact />} />
+            </Routes>
+          </main>
         </>
       )}
     </div>
   );
 };
 
-export default App;
+// This is the main App component that orchestrates the routing
+export default function App() {
+  useEffect(() => {
+    initializeDemoData();
+  }, []);
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Toaster position="top-right" />
+      <ScrollToTop />
+      <Routes>
+        <Route path="/afterlogin/*" element={<AfterLogin />} />
+        <Route path="/admin/*" element={<Admin />} />
+        <Route path="/*" element={<UserLayout />} />
+      </Routes>
+    </div>
+  );
+}
