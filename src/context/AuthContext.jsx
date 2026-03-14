@@ -9,7 +9,7 @@ import {
   getInterestsForUser,
   getUserNotifications,
   getProfiles,
-} from '../user/component/afterlogin/utils/storage';
+} from '../utils/storage';
 import { useLocation } from 'react-router-dom';
 
 const AuthContext = createContext(null);
@@ -32,7 +32,12 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     const currentUser = getCurrentUser();
     if (currentUser) {
-      setUser(currentUser);
+      // Ensure role is set (default to 'user' if not specified)
+      const userWithRole = {
+        ...currentUser,
+        role: currentUser.role || 'user',
+      };
+      setUser(userWithRole);
       const userProfile = getUserProfile(currentUser.id);
       setProfile(userProfile);
 
@@ -61,6 +66,20 @@ export const AuthProvider = ({ children }) => {
     loadData();
   }, [location.pathname, loadData]);
 
+  /**
+   * Login a user - sets user data with role
+   * @param {Object} userData - User data including id, name, email, role
+   */
+  const login = useCallback((userData) => {
+    const userWithRole = {
+      ...userData,
+      role: userData.role || 'user',
+    };
+    setUser(userWithRole);
+    const userProfile = getUserProfile(userWithRole.id);
+    setProfile(userProfile);
+  }, []);
+
   const updateProfile = useCallback(async (newProfileData) => {
     if (user) {
       const updatedProfile = { ...profile, ...newProfileData };
@@ -77,7 +96,7 @@ export const AuthProvider = ({ children }) => {
     window.location.replace("/login");
   }, []);
 
-  const value = { user, profile, loading, appData, updateProfile, logout, refreshData: loadData };
+  const value = { user, profile, loading, appData, login, updateProfile, logout, refreshData: loadData };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

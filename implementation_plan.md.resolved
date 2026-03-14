@@ -1,0 +1,226 @@
+# Matrimonial Project Reorganization — Role-Based Architecture
+
+Reorganize the existing React Matrimonial project into a clean, scalable, role-based architecture with protected routing, separate layouts, and professional folder structure — **without breaking existing UI or functionality**.
+
+## User Review Required
+
+> [!IMPORTANT]
+> **File move strategy:** All files will be moved to new locations with updated imports. The old `src/admin/` and `src/user/` directories will be removed after migration. Existing component internals remain untouched.
+
+> [!WARNING]
+> **The existing `AuthContext.jsx` will be enhanced** with a `role` field (`"admin"` or `"user"`) and login/register functions will set the role. The current `user` object from `storage.js` will be extended — no data loss.
+
+> [!IMPORTANT]
+> **Route URL changes:** User dashboard pages currently at `/afterlogin/dashboard`, `/afterlogin/profile`, etc. will move to `/user/dashboard`, `/user/profile`, etc. Admin routes remain at `/admin/*`. Public pages stay at `/`, `/login`, `/register`, etc.
+
+---
+
+## Proposed Changes
+
+### New Folder Structure
+
+```
+src/
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   └── styles/
+│       └── Preloader.css
+│
+├── components/
+│   ├── common/
+│   │   ├── Preloader.jsx
+│   │   └── ScrollToTop.jsx
+│   └── ui/
+│       ├── ChatMessage.jsx
+│       ├── InterestCard.jsx
+│       ├── MatchCard.jsx
+│       ├── NotificationItem.jsx
+│       └── ProfileCard.jsx
+│
+├── layouts/
+│   ├── AdminLayout.jsx        ← extracted from Admin.jsx
+│   ├── UserPublicLayout.jsx   ← extracted from App.jsx UserLayout
+│   └── UserDashboardLayout.jsx ← renamed from MainLayout.jsx
+│
+├── pages/
+│   ├── public/
+│   │   ├── Home.jsx (re-export from home/)
+│   │   ├── home/
+│   │   │   ├── Home.jsx
+│   │   │   ├── HeroSection.jsx
+│   │   │   ├── AboutUs.jsx
+│   │   │   ├── FindSomeOne.jsx
+│   │   │   ├── HowitWork.jsx
+│   │   │   ├── Matrimonialpackage.jsx
+│   │   │   ├── SuccessStory.jsx
+│   │   │   ├── Testimonial.jsx
+│   │   │   ├── FrequentQuestion.jsx
+│   │   │   └── Footer.jsx
+│   │   ├── Login.jsx
+│   │   ├── Register.jsx
+│   │   ├── SignUp.jsx
+│   │   ├── contact/
+│   │   │   └── Contact.jsx
+│   │   ├── packages/
+│   │   │   └── Packages.jsx
+│   │   ├── stories/
+│   │   │   └── Stories.jsx
+│   │   ├── members/
+│   │   │   └── Members.jsx
+│   │   └── Unauthorized.jsx     [NEW]
+│   │
+│   ├── admin/
+│   │   ├── Dashboard.jsx
+│   │   ├── ManagePackages.jsx
+│   │   ├── ... (all 34 admin page files)
+│   │
+│   └── user/
+│       ├── Dashboard.jsx
+│       ├── Profile.jsx
+│       ├── ProfileView.jsx
+│       ├── Matches.jsx
+│       ├── Search.jsx
+│       ├── Interests.jsx
+│       ├── Messages.jsx
+│       ├── Shortlist.jsx
+│       ├── Visitors.jsx
+│       ├── Notifications.jsx
+│       ├── Settings.jsx
+│       └── Signup.jsx
+│
+├── routes/
+│   ├── ProtectedRoute.jsx      [NEW]
+│   ├── AdminRoutes.jsx          [NEW]
+│   ├── UserRoutes.jsx           [NEW]
+│   └── PublicRoutes.jsx         [NEW]
+│
+├── context/
+│   └── AuthContext.jsx          (enhanced with role)
+│
+├── services/
+│   └── api.js                   [NEW] (placeholder)
+│
+├── hooks/                       [NEW] (empty, for future)
+│
+├── utils/
+│   ├── storage.js
+│   └── demoSeeder.js
+│
+├── App.jsx                      (rewritten to use route files)
+├── main.jsx                     (unchanged)
+└── index.css                    (unchanged)
+```
+
+---
+
+### Routes
+
+#### [NEW] [ProtectedRoute.jsx](file:///d:/Project_new/React/Matrimonial/src/routes/ProtectedRoute.jsx)
+
+Reusable wrapper that:
+- Checks if `user` exists in `AuthContext` → if not, redirects to `/login`
+- Checks `user.role` against an `allowedRoles` prop → if wrong role, redirects to `/unauthorized`
+- Renders `<Outlet />` if authorized
+
+#### [NEW] [AdminRoutes.jsx](file:///d:/Project_new/React/Matrimonial/src/routes/AdminRoutes.jsx)
+
+Defines all `/admin/*` routes wrapped in `ProtectedRoute` with `allowedRoles={["admin"]}` and `AdminLayout`.
+
+#### [NEW] [UserRoutes.jsx](file:///d:/Project_new/React/Matrimonial/src/routes/UserRoutes.jsx)
+
+Defines all `/user/*` routes wrapped in `ProtectedRoute` with `allowedRoles={["user"]}` and `UserDashboardLayout`.
+
+#### [NEW] [PublicRoutes.jsx](file:///d:/Project_new/React/Matrimonial/src/routes/PublicRoutes.jsx)
+
+Defines public routes (`/`, `/login`, `/register`, `/packages`, etc.) with `UserPublicLayout`.
+
+---
+
+### Layouts
+
+#### [NEW] [AdminLayout.jsx](file:///d:/Project_new/React/Matrimonial/src/layouts/AdminLayout.jsx)
+
+Extracted from `Admin.jsx`: renders admin `Navbar` + `Sidebar` + `<Outlet />`. No route definitions inside.
+
+#### [NEW] [UserPublicLayout.jsx](file:///d:/Project_new/React/Matrimonial/src/layouts/UserPublicLayout.jsx)
+
+Extracted from `App.jsx` `UserLayout`: renders public `Navbar` + `Preloader` logic + `<Outlet />`.
+
+#### [NEW] [UserDashboardLayout.jsx](file:///d:/Project_new/React/Matrimonial/src/layouts/UserDashboardLayout.jsx)
+
+Renamed/moved from `MainLayout.jsx`: renders user dashboard `Navbar` + `Sidebar` + `<Outlet />`.
+
+---
+
+### Context
+
+#### [MODIFY] [AuthContext.jsx](file:///d:/Project_new/React/Matrimonial/src/context/AuthContext.jsx)
+
+- Add `role` field to user object (read from stored user data)
+- Add `login(userData)` function that sets user with role
+- Ensure backward compatibility with existing `loadData()` logic
+
+---
+
+### Pages
+
+#### [NEW] [Unauthorized.jsx](file:///d:/Project_new/React/Matrimonial/src/pages/public/Unauthorized.jsx)
+
+Simple page shown when a user tries to access routes outside their role.
+
+#### [NEW] [api.js](file:///d:/Project_new/React/Matrimonial/src/services/api.js)
+
+Placeholder API service module for future backend integration.
+
+---
+
+### App Entry
+
+#### [MODIFY] [App.jsx](file:///d:/Project_new/React/Matrimonial/src/App.jsx)
+
+Rewritten to compose routes from `PublicRoutes`, `AdminRoutes`, and `UserRoutes`. Keeps `ScrollToTop`, `Toaster`, and `initializeDemoData` logic.
+
+---
+
+### Component File Moves (no internal changes)
+
+| Current Location | New Location |
+|---|---|
+| `src/admin/component/pages/*.jsx` (34 files) | `src/pages/admin/*.jsx` |
+| `src/admin/component/dashboard/Dashboard.jsx` | `src/pages/admin/Dashboard.jsx` |
+| `src/admin/component/sidebar/Sidebar.jsx` | `src/components/admin/Sidebar.jsx` |
+| `src/admin/Navbar.jsx` | `src/components/admin/Navbar.jsx` |
+| `src/user/component/afterlogin/pages/*.jsx` (12 files) | `src/pages/user/*.jsx` |
+| `src/user/component/afterlogin/components/ui/*.jsx` (5 files) | `src/components/ui/*.jsx` |
+| `src/user/component/afterlogin/components/layout/*.jsx` (3 files) | `src/layouts/` and `src/components/user/` |
+| `src/user/component/home/*.jsx` (10 files) | `src/pages/public/home/*.jsx` |
+| `src/user/component/Login.jsx`, `Register.jsx`, etc. | `src/pages/public/*.jsx` |
+| `src/user/component/Navbar.jsx` | `src/components/user/Navbar.jsx` |
+| `src/user/component/afterlogin/utils/*.js` | `src/utils/*.js` |
+
+---
+
+## Verification Plan
+
+### Automated Tests
+
+No existing test suite was found in the project. Verification will be done via build and browser testing.
+
+1. **Build check** — Run `npm run build` from `d:\Project_new\React\Matrimonial` to confirm zero compilation/import errors
+2. **Dev server** — Run `npm run dev` and verify the app starts
+
+### Browser Testing
+
+Test the following flows in the browser:
+
+1. **Public pages**: Navigate to `/`, `/login`, `/register`, `/packages`, `/stories`, `/contact` — all should render correctly with the public navbar
+2. **Admin routes**: Navigate to `/admin/dashboard` — should render admin layout (sidebar + navbar + dashboard). Try other admin sub-routes like `/admin/users/all`, `/admin/payments/all`
+3. **User dashboard routes**: Navigate to `/user/dashboard`, `/user/profile`, `/user/matches` — should render with user dashboard layout (sidebar + navbar)
+4. **Role protection**: Without being logged in, navigating to `/admin/dashboard` or `/user/dashboard` should redirect to `/login`
+5. **Unauthorized page**: A logged-in user with `role="user"` navigating to `/admin/dashboard` should be redirected to `/unauthorized`
+
+### Manual Verification (User)
+
+- Visually confirm that **no UI changes** occurred — pages look identical to before
+- Test the login flow and verify role-based redirects work as expected
