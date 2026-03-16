@@ -7,7 +7,8 @@ import {
   Users,
   Save,
   Loader2,
-  Check
+  Check,
+  Camera
 } from "lucide-react"
 import { FaChevronDown } from "react-icons/fa"
 
@@ -277,7 +278,7 @@ const Profile = () => {
     name: "",
     email: "",
     phone: "",
-    image: "",
+    avatar: "",
   });
 
   useEffect(() => {
@@ -285,6 +286,7 @@ const Profile = () => {
 
     setFormData({
       name: currentProfile.name || "",
+      avatar: currentProfile.avatar || "",
       gender: currentProfile.gender || "Male",
       dateOfBirth: currentProfile.dateOfBirth || "",
       height: currentProfile.height || "",
@@ -339,6 +341,18 @@ const Profile = () => {
     setCompletionPercentage(score)
   }, [formData])
 
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, avatar: reader.result }));
+        setSaved(false);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const tabs = [
     { id: "basic", label: "Basic Details", icon: User },
     { id: "education", label: "Education & Career", icon: Briefcase },
@@ -369,20 +383,22 @@ const Profile = () => {
 
     setIsSaving(true)
 
-    if (formData.dateOfBirth) {
-      const dob = new Date(formData.dateOfBirth)
+    const dataToSave = { ...formData };
+
+    if (dataToSave.dateOfBirth) {
+      const dob = new Date(dataToSave.dateOfBirth)
       const today = new Date()
       let age = today.getFullYear() - dob.getFullYear()
       const monthDiff = today.getMonth() - dob.getMonth()
       if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
         age--
       }
-      formData.age = age
+      dataToSave.age = age
     }
 
     await new Promise((resolve) => setTimeout(resolve, 800))
 
-    await updateProfile(formData)
+    await updateProfile(dataToSave)
 
     setIsSaving(false)
     setSaved(true)
@@ -399,12 +415,22 @@ const Profile = () => {
       {/* Profile Header */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <div className="flex flex-col md:flex-row items-center gap-6">
-          <div className="relative w-24 h-24">
+          <div className="relative w-24 h-24 group">
             <img
-              src={currentProfile?.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"}
-              alt={currentProfile?.name}
-              className="w-24 h-24 rounded-lg object-cover"
+              src={formData.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"}
+              alt={formData.name}
+              className="w-24 h-24 rounded-lg object-cover border-2 border-white shadow-sm"
             />
+            <label htmlFor="profile-upload" className="absolute bottom-0 right-0 p-1.5 bg-white rounded-full shadow-md cursor-pointer border border-gray-100 hover:bg-gray-50 transition-colors">
+              <Camera className="w-4 h-4 text-gray-600" />
+              <input 
+                type="file" 
+                id="profile-upload" 
+                accept="image/*" 
+                onChange={handleImageChange} 
+                className="hidden" 
+              />
+            </label>
           </div>
 
           <div className="text-center md:text-left">
@@ -771,7 +797,7 @@ const Profile = () => {
             <button
               type="submit"
               disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-pink-500 to-rose-500 text-white rounded-xl hover:shadow-lg hover:shadow-pink-500/25 transition-all"
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl hover:shadow-lg hover:shadow-pink-500/25 transition-all"
             >
               {isSaving ? (
                 <>

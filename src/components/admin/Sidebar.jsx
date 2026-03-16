@@ -11,12 +11,18 @@ const Sidebar = () => {
 
   const navLinks = [
     { to: '/admin/dashboard', icon: <FiGrid size={20} />, text: 'Dashboard' },
-    { to: '/admin/manage-packages', icon: <FiPackage size={20} />, text: 'Manage Packages' },
+    {
+      text:'Package',
+      icon: <FiPackage size={20} />,
+      submenu: [
+        { to:'/admin/manage-packages', text: 'Manage Packages'},
+        { to:'/admin/renewlist', text: 'Renew List'}
+      ]
+    },
     {
         text: 'User Attribute',
         icon: <CgDatabase size={20} />,
         submenu: [
-            { to: '/admin/user-attribute/religion', text: 'Religion' },
             { to: '/admin/user-attribute/blood-group', text: 'Blood Group' },
             { to: '/admin/user-attribute/marital-status', text: 'Marital Status' },
         ]

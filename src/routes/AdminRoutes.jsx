@@ -6,7 +6,6 @@ import ProtectedRoute from './ProtectedRoute';
 // Admin Pages
 import Dashboard from '../pages/admin/Dashboard';
 import ManagePackages from '../pages/admin/ManagePackages';
-import Religion from '../pages/admin/Religion';
 import BloodGroup from '../pages/admin/BloodGroup';
 import MaritalStatus from '../pages/admin/MaritalStatus';
 import ActiveUsers from '../pages/admin/ActiveUsers';
@@ -39,6 +38,7 @@ import Server from '../pages/admin/Server';
 import Cache from '../pages/admin/Cache';
 import Update from '../pages/admin/Update';
 import ReportRequest from '../pages/admin/ReportRequest';
+import RenewList from '../pages/admin/RenewList';
 
 /**
  * AdminRoutes - All admin route definitions
@@ -51,9 +51,9 @@ const AdminRoutes = () => (
             <Route index element={<Navigate to="dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="manage-packages" element={<ManagePackages />} />
+            <Route path="renewlist" element={<RenewList/>}/>
 
             {/* User Attributes */}
-            <Route path="user-attribute/religion" element={<Religion />} />
             <Route path="user-attribute/blood-group" element={<BloodGroup />} />
             <Route path="user-attribute/marital-status" element={<MaritalStatus />} />
 

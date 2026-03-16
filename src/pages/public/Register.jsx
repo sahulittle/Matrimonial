@@ -8,8 +8,12 @@ const Register = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
+<<<<<<< HEAD
   const [fieldOfStudy, setFieldOfStudy] = useState("");
   const [degree, setDegree] = useState("");
+=======
+  const [degree, setDegree] = useState(formData.qualification || "");
+>>>>>>> a5e1c15ade5f92967dfe2dc62fad670675bf6e42
 
   // Options for dropdowns
   const complexionOptions = ["Fair", "Light", "Medium", "Dark"];
@@ -327,9 +331,11 @@ const Register = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+<<<<<<< HEAD
   // const handleFieldOfStudyChange = (e) => {
   //   setFieldOfStudy(e.target.value);
   // };
@@ -359,6 +365,87 @@ const Register = () => {
         fatherJob: formData.fatherJob,
         motherName: formData.motherName,
         motherJob: formData.motherJob,
+=======
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleFinalSubmit = (e) => {
+    e.preventDefault();
+
+    const users = getUsers();
+    const normalizedEmail = formData.email ? formData.email.toLowerCase().trim() : '';
+    const existingUser = users.find(u => u.email.toLowerCase() === normalizedEmail);
+
+    if (existingUser) {
+      alert("An account with this email already exists. Please login.");
+      navigate('/login');
+      return;
+    }
+
+    const newUserId = (users.length > 0 ? Math.max(...users.map(u => parseInt(u.id))) : 0) + 1;
+    const fullName = `${formData.firstName} ${formData.lastName}`;
+
+    const newUser = {
+      id: String(newUserId),
+      name: fullName,
+      email: normalizedEmail,
+      password: formData.password,
+      role: 'user',
+      avatar: formData.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    };
+
+    const dob = new Date(formData.dob);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    const newProfile = {
+      id: String(newUserId),
+      name: fullName,
+      email: normalizedEmail,
+      avatar: newUser.avatar,
+      gender: formData.gender,
+      dateOfBirth: formData.dob,
+      age: age,
+      height: formData.height,
+      maritalStatus: "Never Married",
+      birthName: formData.birthName || '',
+      birthTime: formData.birthTime || '',
+      complexion: formData.complexion || '',
+      bloodGroup: formData.bloodGroup || '',
+      caste: "",
+      motherTongue: "",
+      profileCreatedBy: "Self",
+      location: {
+        country: "India",
+        state: "",
+        city: "",
+      },
+      education: {
+        qualification: formData.qualification,
+        occupation: formData.job,
+        annualIncome: formData.annualIncome,
+        workLocation: formData.jobLocation,
+        fieldOfStudy: formData.fieldOfStudy,
+      },
+      family: {
+        familyType: "Nuclear",
+        fatherName: formData.fatherName || '',
+        fatherOccupation: formData.fatherJob,
+        motherName: formData.motherName || '',
+        motherOccupation: formData.motherJob,
+>>>>>>> a5e1c15ade5f92967dfe2dc62fad670675bf6e42
         siblings: formData.siblings,
         paternalUncleName: formData.paternalUncleName,
         paternalUncleJob: formData.paternalUncleJob,
@@ -397,6 +484,17 @@ const Register = () => {
               }}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Profile Image */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Profile Image</label>
+                  <div className="mt-1 flex items-center gap-4">
+                    {formData.image && (
+                      <img src={formData.image} alt="Preview" className="h-16 w-16 rounded-full object-cover border-2 border-pink-100" />
+                    )}
+                    <input type="file" accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" />
+                  </div>
+                </div>
+
                 {/* First Name */}
                 <div>
                   <label
@@ -653,6 +751,8 @@ const Register = () => {
                     </div>
                   </div>
                 </div>
+
+                
                 {/* Education */}
                 <div>
                   <label
@@ -665,13 +765,13 @@ const Register = () => {
                   <div className="mt-1 relative">
                     <select
                       id="education"
-                      name="education"
+                      name="qualification"
                       required
-                      value={formData.education || ""}
+                      value={formData.qualification || ""}
                       onChange={(e) => {
                         handleChange(e);
                         setDegree(e.target.value);
-                        setFieldOfStudy("");
+                        handleChange({ target: { name: 'fieldOfStudy', value: '' } });
                       }}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
@@ -702,6 +802,7 @@ const Register = () => {
                     Field of Study
                   </label>
                   <div className="mt-1 relative">
+<<<<<<< HEAD
                     <select
                       id="fieldOfStudy"
                       name="fieldOfStudy"
@@ -720,6 +821,10 @@ const Register = () => {
                             {branch}{" "}
                           </option>
                         ))}
+=======
+                    <select id="fieldOfStudy" name="fieldOfStudy" required onChange={handleChange} value={formData.fieldOfStudy || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8">
+                      <option value="" disabled selected>Select Field of Study</option> {degree && fieldOfStudyOptions[degree]?.map((branch, index) => (<option key={index} value={branch}> {branch} </option>))}
+>>>>>>> a5e1c15ade5f92967dfe2dc62fad670675bf6e42
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <FaChevronDown className="h-4 w-4" />
