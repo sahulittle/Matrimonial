@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 
 const HeroSection = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -117,9 +118,9 @@ const HeroSection = () => {
               </div>
             </div>
 
-            <button type="submit" className="w-full py-3 mt-4 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg">
+            <Link to="/members" className="block text-center w-full py-3 mt-4 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-lg transition-all shadow-md hover:shadow-lg">
               Search
-            </button>
+            </Link>
           </form>
         </div>
       </div>
