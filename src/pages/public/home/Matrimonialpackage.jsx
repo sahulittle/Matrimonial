@@ -3,25 +3,7 @@ import { FaCheck, FaCheckCircle } from "react-icons/fa";
 
 const Matrimonialpackage = () => {
   const packages = [
-    {
-      name: "Free",
-      price: "0",
-      duration: 30,
-      contactViews: 20,
-      interestExpress: 50,
-      imageUploads: 20,
-      featured: false,
-    },
-    {
-      name: "One Day",
-      price: "10",
-      duration: 1,
-      contactViews: 10,
-      interestExpress: 10,
-      imageUploads: 10,
-      featured: false,
-    },
-    {
+   {
       name: "Gold",
       price: "50",
       duration: 30,
@@ -39,6 +21,15 @@ const Matrimonialpackage = () => {
       imageUploads: "10",
       featured: false,
     },
+    {
+      name: "Premium",
+      price: "849.00",
+      duration: 45,
+      contactViews: 200,
+      interestExpress: 200,
+      imageUploads: 200,
+      featured: false,
+    }
   ];
 
   return (
@@ -54,7 +45,7 @@ const Matrimonialpackage = () => {
           package through online payment system.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
 
           {packages.map((pkg, index) => (
             <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">

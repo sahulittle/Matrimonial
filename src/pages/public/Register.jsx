@@ -13,8 +13,7 @@ const Register = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
-  const [fieldOfStudy, setFieldOfStudy] = useState('');
-  const [degree, setDegree] = useState("");
+  const [degree, setDegree] = useState(formData.qualification || "");
 
   // Options for dropdowns
   const complexionOptions = ['Fair', 'Light', 'Medium', 'Dark'];
@@ -291,11 +290,19 @@ const Register = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFieldOfStudyChange = (e) => {
-    setFieldOfStudy(e.target.value);
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleFinalSubmit = (e) => {
@@ -320,7 +327,7 @@ const Register = () => {
       email: normalizedEmail,
       password: formData.password,
       role: 'user',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      avatar: formData.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
     };
 
     const dob = new Date(formData.dob);
@@ -354,11 +361,11 @@ const Register = () => {
         city: "",
       },
       education: {
-        qualification: formData.education,
+        qualification: formData.qualification,
         occupation: formData.job,
         annualIncome: formData.annualIncome,
         workLocation: formData.jobLocation,
-        fieldOfStudy: fieldOfStudy,
+        fieldOfStudy: formData.fieldOfStudy,
       },
       family: {
         familyType: "Nuclear",
@@ -397,6 +404,17 @@ const Register = () => {
             </div>
             <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Profile Image */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">Profile Image</label>
+                  <div className="mt-1 flex items-center gap-4">
+                    {formData.image && (
+                      <img src={formData.image} alt="Preview" className="h-16 w-16 rounded-full object-cover border-2 border-pink-100" />
+                    )}
+                    <input type="file" accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" />
+                  </div>
+                </div>
+
                 {/* First Name */}
                 <div>
                   <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">First Name</label>
@@ -464,6 +482,8 @@ const Register = () => {
                   <label htmlFor="blood-group" className="block text-sm font-medium text-gray-700">Blood Group</label>
                   <div className="mt-1 relative"><select id="blood-group" name="bloodGroup" required onChange={handleChange} value={formData.bloodGroup || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"><option value="" disabled selected>Select Blood Group</option>{bloodGroupOptions.map(bg => <option key={bg} value={bg}>{bg}</option>)}</select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div></div>
                 </div>
+
+                
                 {/* Education */}
                 <div>
                   <label
@@ -476,13 +496,13 @@ const Register = () => {
                   <div className="mt-1 relative">
                     <select
                       id="education"
-                      name="education"
+                      name="qualification"
                       required
-                      value={formData.education || ""}
+                      value={formData.qualification || ""}
                       onChange={(e) => {
                         handleChange(e);
                         setDegree(e.target.value);
-                        setFieldOfStudy("");
+                        handleChange({ target: { name: 'fieldOfStudy', value: '' } });
                       }}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
@@ -507,7 +527,7 @@ const Register = () => {
                 <div>
                   <label htmlFor="fieldOfStudy" className="block text-sm font-medium text-gray-700">Field of Study</label>
                   <div className="mt-1 relative">
-                    <select id="fieldOfStudy" name="fieldOfStudy" required onChange={handleFieldOfStudyChange} value={fieldOfStudy} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8">
+                    <select id="fieldOfStudy" name="fieldOfStudy" required onChange={handleChange} value={formData.fieldOfStudy || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8">
                       <option value="" disabled selected>Select Field of Study</option> {degree && fieldOfStudyOptions[degree]?.map((branch, index) => (<option key={index} value={branch}> {branch} </option>))}
                     </select>
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div>
