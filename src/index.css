@@ -1,8 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 * {
   margin: 0;
@@ -11,7 +11,7 @@
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   background-color: #f8fafc;
   min-height: 100vh;
 }
@@ -63,7 +63,8 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -87,10 +88,8 @@ body {
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   .bg-gradient-primary {
     background: linear-gradient(135deg, #f27d1e 0%, #e85d0a 100%);
   }
 }
-
-
