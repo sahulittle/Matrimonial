@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "axios": "^1.13.6",
     "lucide": "^0.577.0",
     "lucide-react": "^0.577.0",
     "react": "^19.2.0",
@@ -20,6 +21,7 @@
     "react-slick": "^0.31.0",
     "recharts": "^3.8.0",
     "slick-carousel": "^1.8.1",
+    "socket.io-client": "^4.8.3",
     "swiper": "^12.1.2",
     "swiper-react": "^1.0.0"
   },

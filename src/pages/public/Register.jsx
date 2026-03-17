@@ -1,23 +1,19 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FaChevronDown } from 'react-icons/fa';
-import toast from 'react-hot-toast';
-
-import {
-  getUsers,
-  addUser,
-  saveUserProfile,
-} from '../../utils/storage';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FaChevronDown } from "react-icons/fa";
+import toast from "react-hot-toast";
+import { registerUser } from "../../api/userApi/authApi";
 
 const Register = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
-  const [degree, setDegree] = useState(formData.qualification || "");
+  const [degree, setDegree] = useState("");
+  const [fieldOfStudy, setFieldOfStudy] = useState("");
 
   // Options for dropdowns
-  const complexionOptions = ['Fair', 'Light', 'Medium', 'Dark'];
-  const bloodGroupOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  const complexionOptions = ["Fair", "Light", "Medium", "Dark"];
+  const bloodGroupOptions = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
   // const educationOptions = [
   //   'High School',
   //   'Trade/Technical/Vocational Training',
@@ -28,38 +24,79 @@ const Register = () => {
   //   'Doctorate or higher',
   // ];
   const jobOptions = [
-    'Private Company',
-    'Government/Public Sector',
-    'Defence/Civil Service',
-    'Business/Self Employed',
-    'Not Working',
+    "Private Company",
+    "Government/Public Sector",
+    "Defence/Civil Service",
+    "Business/Self Employed",
+    "Not Working",
   ];
   const incomeOptions = [
-    'Upto 1 Lakh',
-    '1 to 2 Lakhs',
-    '2 to 3 Lakhs',
-    '3 to 4 Lakhs',
-    '4 to 5 Lakhs',
-    '5 to 7.5 Lakhs',
-    '7.5 to 10 Lakhs',
-    '10 to 15 Lakhs',
-    '15 to 20 Lakhs',
-    '20 to 30 Lakhs',
-    '30 to 50 Lakhs',
-    '50 to 75 Lakhs',
-    '75 Lakhs to 1 Crore',
-    '1 Crore & above',
+    "Upto 1 Lakh",
+    "1 to 2 Lakhs",
+    "2 to 3 Lakhs",
+    "3 to 4 Lakhs",
+    "4 to 5 Lakhs",
+    "5 to 7.5 Lakhs",
+    "7.5 to 10 Lakhs",
+    "10 to 15 Lakhs",
+    "15 to 20 Lakhs",
+    "20 to 30 Lakhs",
+    "30 to 50 Lakhs",
+    "50 to 75 Lakhs",
+    "75 Lakhs to 1 Crore",
+    "1 Crore & above",
   ];
-  const siblingOptions = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10+'];
+  const siblingOptions = [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10+",
+  ];
 
   const indianStates = [
-    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-    "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
-    "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
-    "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
-    "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
-    "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
-    "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
+    "Andhra Pradesh",
+    "Arunachal Pradesh",
+    "Assam",
+    "Bihar",
+    "Chhattisgarh",
+    "Goa",
+    "Gujarat",
+    "Haryana",
+    "Himachal Pradesh",
+    "Jharkhand",
+    "Karnataka",
+    "Kerala",
+    "Madhya Pradesh",
+    "Maharashtra",
+    "Manipur",
+    "Meghalaya",
+    "Mizoram",
+    "Nagaland",
+    "Odisha",
+    "Punjab",
+    "Rajasthan",
+    "Sikkim",
+    "Tamil Nadu",
+    "Telangana",
+    "Tripura",
+    "Uttar Pradesh",
+    "Uttarakhand",
+    "West Bengal",
+    "Andaman and Nicobar Islands",
+    "Chandigarh",
+    "Dadra and Nagar Haveli and Daman and Diu",
+    "Delhi",
+    "Jammu and Kashmir",
+    "Ladakh",
+    "Lakshadweep",
+    "Puducherry",
   ];
 
   // Generate height options from 4ft 5in to 7ft
@@ -102,7 +139,7 @@ const Register = () => {
       "Food Technology",
       "Textile Engineering",
       "Robotics Engineering",
-      "Mechatronics Engineering"
+      "Mechatronics Engineering",
     ],
 
     "B.Sc": [
@@ -124,10 +161,10 @@ const Register = () => {
       "Nursing",
       "Psychology",
       "Geology",
-      "Forensic Science"
+      "Forensic Science",
     ],
 
-    "BA": [
+    BA: [
       "English Literature",
       "History",
       "Political Science",
@@ -142,10 +179,10 @@ const Register = () => {
       "Fine Arts",
       "Music",
       "Education",
-      "Anthropology"
+      "Anthropology",
     ],
 
-    "BBA": [
+    BBA: [
       "Marketing",
       "Finance",
       "Human Resource Management",
@@ -155,10 +192,10 @@ const Register = () => {
       "Supply Chain Management",
       "Operations Management",
       "Hospital Management",
-      "Retail Management"
+      "Retail Management",
     ],
 
-    "BCA": [
+    BCA: [
       "Computer Applications",
       "Software Development",
       "Web Development",
@@ -167,7 +204,7 @@ const Register = () => {
       "Data Science",
       "Artificial Intelligence",
       "Cyber Security",
-      "Cloud Computing"
+      "Cloud Computing",
     ],
 
     "B.Com": [
@@ -180,9 +217,9 @@ const Register = () => {
       "Business Administration",
       "Marketing",
       "E-Commerce",
-      "International Business"
+      "International Business",
     ],
-    "LAW": [
+    LAW: [
       "Corporate Law",
       "Criminal Law",
       "Civil Law",
@@ -191,10 +228,10 @@ const Register = () => {
       "Human Rights Law",
       "Intellectual Property Law",
       "Environmental Law",
-      "Taxation Law"
+      "Taxation Law",
     ],
 
-    "MBA": [
+    MBA: [
       "Finance",
       "Marketing",
       "Human Resource Management",
@@ -205,10 +242,10 @@ const Register = () => {
       "Entrepreneurship",
       "Healthcare Management",
       "Hospital Management",
-      "Retail Management"
+      "Retail Management",
     ],
 
-    "MBBS": [
+    MBBS: [
       "General Medicine",
       "General Surgery",
       "Pediatrics",
@@ -218,9 +255,9 @@ const Register = () => {
       "Neurology",
       "Dermatology",
       "Radiology",
-      "Anesthesiology"
+      "Anesthesiology",
     ],
-    "PHD": [
+    PHD: [
       "Computer Science",
       "Engineering",
       "Management",
@@ -232,7 +269,7 @@ const Register = () => {
       "Psychology",
       "Law",
       "Political Science",
-      "Education"
+      "Education",
     ],
     "M.Com": [
       "Accounting",
@@ -242,7 +279,7 @@ const Register = () => {
       "Taxation",
       "International Business",
       "Marketing",
-      "Human Resource Management"
+      "Human Resource Management",
     ],
     "M.Tech": [
       "Computer Science Engineering",
@@ -257,7 +294,7 @@ const Register = () => {
       "Chemical Engineering",
       "Biotechnology Engineering",
       "Robotics",
-      "Mechatronics"
+      "Mechatronics",
     ],
     "M.A": [
       "English",
@@ -270,7 +307,7 @@ const Register = () => {
       "Philosophy",
       "Journalism",
       "Public Administration",
-      "Education"
+      "Education",
     ],
     "M.SC": [
       "Physics",
@@ -285,108 +322,70 @@ const Register = () => {
       "Information Technology",
       "Data Science",
       "Agriculture",
-      "Psychology"
+      "Psychology",
     ],
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, image: reader.result }));
+        setFormData((prev) => ({ ...prev, image: reader.result }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleFinalSubmit = (e) => {
+  // const handleFieldOfStudyChange = (e) => {
+  //   setFieldOfStudy(e.target.value);
+  // };
+
+  const handleFinalSubmit = async (e) => {
     e.preventDefault();
 
-    const users = getUsers();
-    const normalizedEmail = formData.email ? formData.email.toLowerCase().trim() : '';
-    const existingUser = users.find(u => u.email.toLowerCase() === normalizedEmail);
-
-    if (existingUser) {
-      alert("An account with this email already exists. Please login.");
-      navigate('/login');
-      return;
-    }
-
-    const newUserId = (users.length > 0 ? Math.max(...users.map(u => parseInt(u.id))) : 0) + 1;
-    const fullName = `${formData.firstName} ${formData.lastName}`;
-
-    const newUser = {
-      id: String(newUserId),
-      name: fullName,
-      email: normalizedEmail,
-      password: formData.password,
-      role: 'user',
-      avatar: formData.image || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-    };
-
-    const dob = new Date(formData.dob);
-    const today = new Date();
-    let age = today.getFullYear() - dob.getFullYear();
-    const monthDiff = today.getMonth() - dob.getMonth();
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-      age--;
-    }
-
-    const newProfile = {
-      id: String(newUserId),
-      name: fullName,
-      email: normalizedEmail,
-      avatar: newUser.avatar,
-      gender: formData.gender,
-      dateOfBirth: formData.dob,
-      age: age,
-      height: formData.height,
-      maritalStatus: "Never Married",
-      birthName: formData.birthName || '',
-      birthTime: formData.birthTime || '',
-      complexion: formData.complexion || '',
-      bloodGroup: formData.bloodGroup || '',
-      caste: "",
-      motherTongue: "",
-      profileCreatedBy: "Self",
-      location: {
-        country: "India",
-        state: "",
-        city: "",
-      },
-      education: {
-        qualification: formData.qualification,
-        occupation: formData.job,
+    try {
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        gender: formData.gender,
+        dateOfBirth: formData.dob,
+        birthTime: formData.birthTime,
+        birthName: formData.birthName,
+        height: formData.height,
+        complexion: formData.complexion,
+        bloodGroup: formData.bloodGroup,
+        education: formData.qualification,
+        job: formData.job,
+        jobLocation: formData.jobLocation,
         annualIncome: formData.annualIncome,
-        workLocation: formData.jobLocation,
         fieldOfStudy: formData.fieldOfStudy,
-      },
-      family: {
-        familyType: "Nuclear",
-        fatherName: formData.fatherName || '',
-        fatherOccupation: formData.fatherJob,
-        motherName: formData.motherName || '',
-        motherOccupation: formData.motherJob,
+
+        fatherName: formData.fatherName,
+        fatherJob: formData.fatherJob,
+        motherName: formData.motherName,
+        motherJob: formData.motherJob,
         siblings: formData.siblings,
-        paternalUncleName: formData.paternalUncleName || '',
-        paternalUncleJob: formData.paternalUncleJob || '',
-        maternalUncleName: formData.maternalUncleName || '',
-        maternalUncleJob: formData.maternalUncleJob || '',
-      },
-      profileCompleted: 60, // A starting value
-    };
+        paternalUncleName: formData.paternalUncleName,
+        paternalUncleJob: formData.paternalUncleJob,
+        maternalUncleName: formData.maternalUncleName,
+        maternalUncleJob: formData.maternalUncleJob,
+      };
 
-    addUser(newUser);
-    saveUserProfile(newUser.id, newProfile);
+      const res = await registerUser(payload);
 
-    toast.success('Registration successful! Please log in.');
-    navigate('/login');
+      toast.success(res.message || "Registration successful");
+
+      navigate("/login");
+    } catch (error) {
+      toast.error(error.message || "Registration failed");
+    }
   };
 
   return (
@@ -402,88 +401,293 @@ const Register = () => {
                 Fill out the form to get started.
               </p>
             </div>
-            <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
+            <form
+              className="mt-8 space-y-6"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setStep(2);
+              }}
+            >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Profile Image */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Profile Image</label>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Profile Image
+                  </label>
                   <div className="mt-1 flex items-center gap-4">
                     {formData.image && (
-                      <img src={formData.image} alt="Preview" className="h-16 w-16 rounded-full object-cover border-2 border-pink-100" />
+                      <img
+                        src={formData.image}
+                        alt="Preview"
+                        className="h-16 w-16 rounded-full object-cover border-2 border-pink-100"
+                      />
                     )}
-                    <input type="file" accept="image/*" onChange={handleImageChange} className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
+                    />
                   </div>
                 </div>
 
                 {/* First Name */}
                 <div>
-                  <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">First Name</label>
-                  <input id="first-name" name="firstName" type="text" required onChange={handleChange} value={formData.firstName || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="First Name" />
+                  <label
+                    htmlFor="first-name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    First Name
+                  </label>
+                  <input
+                    id="first-name"
+                    name="firstName"
+                    type="text"
+                    required
+                    onChange={handleChange}
+                    value={formData.firstName || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="First Name"
+                  />
                 </div>
                 {/* Last Name */}
                 <div>
-                  <label htmlFor="last-name" className="block text-sm font-medium text-gray-700">Last Name</label>
-                  <input id="last-name" name="lastName" type="text" required onChange={handleChange} value={formData.lastName || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Last Name" />
+                  <label
+                    htmlFor="last-name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Last Name
+                  </label>
+                  <input
+                    id="last-name"
+                    name="lastName"
+                    type="text"
+                    required
+                    onChange={handleChange}
+                    value={formData.lastName || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Last Name"
+                  />
                 </div>
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email Address</label>
-                  <input id="email" name="email" type="email" required onChange={handleChange} value={formData.email || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Email Address" />
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Email Address
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    onChange={handleChange}
+                    value={formData.email || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Email Address"
+                  />
                 </div>
                 {/* Password */}
                 <div>
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                  <input id="password" name="password" type="password" required onChange={handleChange} value={formData.password || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Password" />
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Password
+                  </label>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    onChange={handleChange}
+                    value={formData.password || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Password"
+                  />
                 </div>
 
                 {/* Gender */}
                 <div className="relative">
-                  <label htmlFor="gender" className="block text-sm font-medium text-gray-700">Gender</label>
+                  <label
+                    htmlFor="gender"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Gender
+                  </label>
                   <div className="mt-1 relative">
-                    <select id="gender" name="gender" required onChange={handleChange} value={formData.gender || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8">
-                      <option value="" disabled selected>Select Gender</option>
+                    <select
+                      id="gender"
+                      name="gender"
+                      required
+                      onChange={handleChange}
+                      value={formData.gender || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled selected>
+                        Select Gender
+                      </option>
                       <option value="male">Male</option>
                       <option value="female">Female</option>
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
                   </div>
                 </div>
                 {/* DOB */}
                 <div>
-                  <label htmlFor="dob" className="block text-sm font-medium text-gray-700">Date of Birth</label>
-                  <input id="dob" name="dob" type="date" required onChange={handleChange} value={formData.dob || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" />
+                  <label
+                    htmlFor="dob"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Date of Birth
+                  </label>
+                  <input
+                    id="dob"
+                    name="dob"
+                    type="date"
+                    required
+                    onChange={handleChange}
+                    value={formData.dob || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  />
                 </div>
 
                 {/* Birth Name */}
                 <div>
-                  <label htmlFor="birth-name" className="block text-sm font-medium text-gray-700">Birth Name</label>
-                  <input id="birth-name" name="birthName" type="text" onChange={handleChange} value={formData.birthName || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Birth Name" />
+                  <label
+                    htmlFor="birth-name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Birth Name
+                  </label>
+                  <input
+                    id="birth-name"
+                    name="birthName"
+                    type="text"
+                    onChange={handleChange}
+                    value={formData.birthName || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Birth Name"
+                  />
                 </div>
                 {/* Birth Time */}
                 <div>
-                  <label htmlFor="birth-time" className="block text-sm font-medium text-gray-700">Birth Time</label>
-                  <input id="birth-time" name="birthTime" type="time" required onChange={handleChange} value={formData.birthTime || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" />
+                  <label
+                    htmlFor="birth-time"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Birth Time
+                  </label>
+                  <input
+                    id="birth-time"
+                    name="birthTime"
+                    type="time"
+                    required
+                    onChange={handleChange}
+                    value={formData.birthTime || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                  />
                 </div>
 
                 {/* Height */}
                 <div>
-                  <label htmlFor="height" className="block text-sm font-medium text-gray-700">Height</label>
-                  <div className="mt-1 relative"><select id="height" name="height" required onChange={handleChange} value={formData.height || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"><option value="" disabled selected>Select Height</option>{heightOptions.map(h => <option key={h} value={h}>{h}</option>)}</select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div></div>
+                  <label
+                    htmlFor="height"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Height
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="height"
+                      name="height"
+                      required
+                      onChange={handleChange}
+                      value={formData.height || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled selected>
+                        Select Height
+                      </option>
+                      {heightOptions.map((h) => (
+                        <option key={h} value={h}>
+                          {h}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
                 </div>
                 {/* Complexion */}
                 <div>
-                  <label htmlFor="complexion" className="block text-sm font-medium text-gray-700">Complexion</label>
-                  <div className="mt-1 relative"><select id="complexion" name="complexion" required onChange={handleChange} value={formData.complexion || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"><option value="" disabled selected>Select Complexion</option>{complexionOptions.map(c => <option key={c} value={c.toLowerCase()}>{c}</option>)}</select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div></div>
+                  <label
+                    htmlFor="complexion"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Complexion
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="complexion"
+                      name="complexion"
+                      required
+                      onChange={handleChange}
+                      value={formData.complexion || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled selected>
+                        Select Complexion
+                      </option>
+                      {complexionOptions.map((c) => (
+                        <option key={c} value={c.toLowerCase()}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Blood Group */}
                 <div>
-                  <label htmlFor="blood-group" className="block text-sm font-medium text-gray-700">Blood Group</label>
-                  <div className="mt-1 relative"><select id="blood-group" name="bloodGroup" required onChange={handleChange} value={formData.bloodGroup || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"><option value="" disabled selected>Select Blood Group</option>{bloodGroupOptions.map(bg => <option key={bg} value={bg}>{bg}</option>)}</select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div></div>
+                  <label
+                    htmlFor="blood-group"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Blood Group
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="blood-group"
+                      name="bloodGroup"
+                      required
+                      onChange={handleChange}
+                      value={formData.bloodGroup || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled selected>
+                        Select Blood Group
+                      </option>
+                      {bloodGroupOptions.map((bg) => (
+                        <option key={bg} value={bg}>
+                          {bg}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
                 </div>
 
-                
                 {/* Education */}
                 <div>
                   <label
@@ -502,7 +706,9 @@ const Register = () => {
                       onChange={(e) => {
                         handleChange(e);
                         setDegree(e.target.value);
-                        handleChange({ target: { name: 'fieldOfStudy', value: '' } });
+                        handleChange({
+                          target: { name: "fieldOfStudy", value: "" },
+                        });
                       }}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
@@ -522,38 +728,136 @@ const Register = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Field of Study */}
-                <div>
-                  <label htmlFor="fieldOfStudy" className="block text-sm font-medium text-gray-700">Field of Study</label>
+
+                {/* <div>
+                  <label
+                    htmlFor="fieldOfStudy"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Field of Study
+                  </label>
                   <div className="mt-1 relative">
+                    <select
+                      id="fieldOfStudy"
+                      name="fieldOfStudy"
+                      required
+                      onChange={handleFieldOfStudyChange}
+                      value={fieldOfStudy}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled selected>
+                        Select Field of Study
+                      </option>{" "}
+                      {degree &&
+                        fieldOfStudyOptions[degree]?.map((branch, index) => (
+                          <option key={index} value={branch}>
+                            {" "}
+                            {branch}{" "}
+                          </option>
+                        ))}
                     <select id="fieldOfStudy" name="fieldOfStudy" required onChange={handleChange} value={formData.fieldOfStudy || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8">
                       <option value="" disabled selected>Select Field of Study</option> {degree && fieldOfStudyOptions[degree]?.map((branch, index) => (<option key={index} value={branch}> {branch} </option>))}
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
                   </div>
-                </div>
+                </div> */}
 
                 {/* Job */}
                 <div className="md:col-span-2">
-                  <label htmlFor="job" className="block text-sm font-medium text-gray-700">Job</label>
-                  <div className="mt-1 relative"><select id="job" name="job" required onChange={handleChange} value={formData.job || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"><option value="" disabled selected>Select Job</option>{jobOptions.map(job => <option key={job} value={job}>{job}</option>)}</select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div></div>
+                  <label
+                    htmlFor="job"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Job
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="job"
+                      name="job"
+                      required
+                      onChange={handleChange}
+                      value={formData.job || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled selected>
+                        Select Job
+                      </option>
+                      {jobOptions.map((job) => (
+                        <option key={job} value={job}>
+                          {job}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
                 </div>
                 {/* Job Location */}
                 <div className="md:col-span-2">
-                  <label htmlFor="jobLocation" className="block text-sm font-medium text-gray-700">Job Location</label>
+                  <label
+                    htmlFor="jobLocation"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Job Location
+                  </label>
                   <div className="mt-1 relative">
-                    <select id="jobLocation" name="jobLocation" required onChange={handleChange} value={formData.jobLocation || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8">
-                      <option value="" disabled selected>Select State</option>
-                      {indianStates.map(state => <option key={state} value={state}>{state}</option>)}
+                    <select
+                      id="jobLocation"
+                      name="jobLocation"
+                      required
+                      onChange={handleChange}
+                      value={formData.jobLocation || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled selected>
+                        Select State
+                      </option>
+                      {indianStates.map((state) => (
+                        <option key={state} value={state}>
+                          {state}
+                        </option>
+                      ))}
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
                   </div>
                 </div>
                 {/* Annual Income */}
                 <div className="md:col-span-2">
-                  <label htmlFor="annual-income" className="block text-sm font-medium text-gray-700">Annual Income</label>
-                  <div className="mt-1 relative"><select id="annual-income" name="annualIncome" required onChange={handleChange} value={formData.annualIncome || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"><option value="" disabled selected>Select Annual Income</option>{incomeOptions.map(income => <option key={income} value={income}>{income}</option>)}</select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div></div>
+                  <label
+                    htmlFor="annual-income"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Annual Income
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="annual-income"
+                      name="annualIncome"
+                      required
+                      onChange={handleChange}
+                      value={formData.annualIncome || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled selected>
+                        Select Annual Income
+                      </option>
+                      {incomeOptions.map((income) => (
+                        <option key={income} value={income}>
+                          {income}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -565,7 +869,15 @@ const Register = () => {
                   Save & Continue
                 </button>
               </div>
-              <p className="mt-2 text-center text-sm text-gray-600">Already have an account? <Link to="/login" className="font-medium text-pink-600 hover:text-pink-500">Login to your Account</Link></p>
+              <p className="mt-2 text-center text-sm text-gray-600">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="font-medium text-pink-600 hover:text-pink-500"
+                >
+                  Login to your Account
+                </Link>
+              </p>
             </form>
           </>
         ) : (
@@ -582,50 +894,184 @@ const Register = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Father's Name */}
                 <div>
-                  <label htmlFor="father-name" className="block text-sm font-medium text-gray-700">Father's Name</label>
-                  <input id="father-name" name="fatherName" type="text" required onChange={handleChange} value={formData.fatherName || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Father's Name" />
+                  <label
+                    htmlFor="father-name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Father's Name
+                  </label>
+                  <input
+                    id="father-name"
+                    name="fatherName"
+                    type="text"
+                    required
+                    onChange={handleChange}
+                    value={formData.fatherName || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Father's Name"
+                  />
                 </div>
                 {/* Father's Job */}
                 <div>
-                  <label htmlFor="father-job" className="block text-sm font-medium text-gray-700">Father's Job</label>
-                  <input id="father-job" name="fatherJob" type="text" required onChange={handleChange} value={formData.fatherJob || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Father's Job" />
+                  <label
+                    htmlFor="father-job"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Father's Job
+                  </label>
+                  <input
+                    id="father-job"
+                    name="fatherJob"
+                    type="text"
+                    required
+                    onChange={handleChange}
+                    value={formData.fatherJob || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Father's Job"
+                  />
                 </div>
 
                 {/* Mother's Name */}
                 <div>
-                  <label htmlFor="mother-name" className="block text-sm font-medium text-gray-700">Mother's Name</label>
-                  <input id="mother-name" name="motherName" type="text" required onChange={handleChange} value={formData.motherName || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Mother's Name" />
+                  <label
+                    htmlFor="mother-name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Mother's Name
+                  </label>
+                  <input
+                    id="mother-name"
+                    name="motherName"
+                    type="text"
+                    required
+                    onChange={handleChange}
+                    value={formData.motherName || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Mother's Name"
+                  />
                 </div>
                 {/* Mother's Job */}
                 <div>
-                  <label htmlFor="mother-job" className="block text-sm font-medium text-gray-700">Mother's Job</label>
-                  <input id="mother-job" name="motherJob" type="text" required onChange={handleChange} value={formData.motherJob || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Mother's Job" />
+                  <label
+                    htmlFor="mother-job"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Mother's Job
+                  </label>
+                  <input
+                    id="mother-job"
+                    name="motherJob"
+                    type="text"
+                    required
+                    onChange={handleChange}
+                    value={formData.motherJob || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Mother's Job"
+                  />
                 </div>
 
                 {/* Siblings */}
                 <div className="md:col-span-2">
-                  <label htmlFor="siblings" className="block text-sm font-medium text-gray-700">Siblings</label>
-                  <div className="mt-1 relative"><select id="siblings" name="siblings" required onChange={handleChange} value={formData.siblings || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"><option value="" disabled selected>Select Number of Siblings</option>{siblingOptions.map(s => <option key={s} value={s}>{s}</option>)}</select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div></div>
+                  <label
+                    htmlFor="siblings"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Siblings
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="siblings"
+                      name="siblings"
+                      required
+                      onChange={handleChange}
+                      value={formData.siblings || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled selected>
+                        Select Number of Siblings
+                      </option>
+                      {siblingOptions.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
                 </div>
 
                 {/* Paternal Uncle */}
                 <div>
-                  <label htmlFor="paternal-uncle-name" className="block text-sm font-medium text-gray-700">Paternal Uncle's Name</label>
-                  <input id="paternal-uncle-name" name="paternalUncleName" type="text" onChange={handleChange} value={formData.paternalUncleName || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Paternal Uncle's Name" />
+                  <label
+                    htmlFor="paternal-uncle-name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Paternal Uncle's Name
+                  </label>
+                  <input
+                    id="paternal-uncle-name"
+                    name="paternalUncleName"
+                    type="text"
+                    onChange={handleChange}
+                    value={formData.paternalUncleName || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Paternal Uncle's Name"
+                  />
                 </div>
                 <div>
-                  <label htmlFor="paternal-uncle-job" className="block text-sm font-medium text-gray-700">Paternal Uncle's Job</label>
-                  <input id="paternal-uncle-job" name="paternalUncleJob" type="text" onChange={handleChange} value={formData.paternalUncleJob || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Paternal Uncle's Job" />
+                  <label
+                    htmlFor="paternal-uncle-job"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Paternal Uncle's Job
+                  </label>
+                  <input
+                    id="paternal-uncle-job"
+                    name="paternalUncleJob"
+                    type="text"
+                    onChange={handleChange}
+                    value={formData.paternalUncleJob || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Paternal Uncle's Job"
+                  />
                 </div>
 
                 {/* Maternal Uncle */}
                 <div>
-                  <label htmlFor="maternal-uncle-name" className="block text-sm font-medium text-gray-700">Maternal Uncle's Name</label>
-                  <input id="maternal-uncle-name" name="maternalUncleName" type="text" onChange={handleChange} value={formData.maternalUncleName || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Maternal Uncle's Name" />
+                  <label
+                    htmlFor="maternal-uncle-name"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Maternal Uncle's Name
+                  </label>
+                  <input
+                    id="maternal-uncle-name"
+                    name="maternalUncleName"
+                    type="text"
+                    onChange={handleChange}
+                    value={formData.maternalUncleName || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Maternal Uncle's Name"
+                  />
                 </div>
                 <div>
-                  <label htmlFor="maternal-uncle-job" className="block text-sm font-medium text-gray-700">Maternal Uncle's Job</label>
-                  <input id="maternal-uncle-job" name="maternalUncleJob" type="text" onChange={handleChange} value={formData.maternalUncleJob || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Maternal Uncle's Job" />
+                  <label
+                    htmlFor="maternal-uncle-job"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Maternal Uncle's Job
+                  </label>
+                  <input
+                    id="maternal-uncle-job"
+                    name="maternalUncleJob"
+                    type="text"
+                    onChange={handleChange}
+                    value={formData.maternalUncleJob || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Maternal Uncle's Job"
+                  />
                 </div>
               </div>
 
@@ -652,4 +1098,4 @@ const Register = () => {
   );
 };
 
-export default Register
+export default Register;

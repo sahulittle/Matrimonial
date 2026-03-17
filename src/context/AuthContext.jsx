@@ -1,16 +1,20 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {
-  getCurrentUser,
-  getUserProfile,
-  saveUserProfile,
-  clearCurrentUser,
-  getShortlistForUser,
-  getConversationsForUser,
-  getInterestsForUser,
-  getUserNotifications,
-  getProfiles,
-} from '../utils/storage';
-import { useLocation } from 'react-router-dom';
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import { useLocation } from "react-router-dom";
+import {
+  userAuthApi,
+  userProfileApi,
+  notificationApi,
+  messageApi,
+  interestApi,
+} from "../services/api";
+import { initSocket, disconnectSocket } from "../services/socketService";
+import toast from "react-hot-toast";
 
 const AuthContext = createContext(null);
 
@@ -18,85 +22,212 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authToken, setAuthToken] = useState(null);
   const [appData, setAppData] = useState({
     shortlistCount: 0,
     unreadMessagesCount: 0,
     pendingInterestsCount: 0,
     unreadNotificationsCount: 0,
-    recommendationsCount: 0,
   });
 
   const location = useLocation();
 
-  const loadData = useCallback(() => {
-    setLoading(true);
-    const currentUser = getCurrentUser();
-    if (currentUser) {
-      // Ensure role is set (default to 'user' if not specified)
-      const userWithRole = {
-        ...currentUser,
-        role: currentUser.role || 'user',
-      };
-      setUser(userWithRole);
-      const userProfile = getUserProfile(currentUser.id);
-      setProfile(userProfile);
+  // Initialize auth from stored token
+  useEffect(() => {
+    const storedToken = localStorage.getItem("authToken");
+    const storedUser = localStorage.getItem("user");
 
-      // Load app-wide data for badges
-      const shortlist = getShortlistForUser(currentUser.id);
-      const conversations = getConversationsForUser(currentUser.id);
-      const { received } = getInterestsForUser(currentUser.id);
-      const notifications = getUserNotifications(currentUser.id);
-      const allProfiles = Object.values(getProfiles());
-
-      setAppData({
-        shortlistCount: shortlist.length,
-        unreadMessagesCount: conversations.reduce((total, conv) => total + (conv.unreadCount || 0), 0),
-        pendingInterestsCount: received.filter(i => i.status === 'pending').length,
-        unreadNotificationsCount: notifications.filter(n => !n.read).length,
-        recommendationsCount: allProfiles.filter(p => String(p.id) !== String(currentUser.id)).length,
-      });
+    if (storedToken && storedUser) {
+      setAuthToken(storedToken);
+      setUser(JSON.parse(storedUser));
+      // Initialize socket for real-time features
+      const userData = JSON.parse(storedUser);
+      initSocket(userData._id, userData.role === "admin");
+      loadAppData();
     } else {
-      setUser(null);
-      setProfile(null);
+      setLoading(false);
+    }
+  }, []);
+
+  const loadAppData = async () => {
+    try {
+      const [notificationsRes, interestsRes] = await Promise.all([
+        notificationApi.getUnreadCount().catch(() => ({ unreadCount: 0 })),
+        interestApi
+          .getReceivedInterests("pending", 1, 1)
+          .catch(() => ({ interests: [], pagination: { total: 0 } })),
+      ]);
+
+      setAppData((prev) => ({
+        ...prev,
+        unreadNotificationsCount: notificationsRes.unreadCount || 0,
+        pendingInterestsCount: notificationsRes.pagination?.total || 0,
+      }));
+    } catch (error) {
+      console.error("Error loading app data:", error);
     }
     setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    loadData();
-  }, [location.pathname, loadData]);
+  };
 
   /**
-   * Login a user - sets user data with role
-   * @param {Object} userData - User data including id, name, email, role
+   * Register user
    */
-  const login = useCallback((userData) => {
-    const userWithRole = {
-      ...userData,
-      role: userData.role || 'user',
-    };
-    setUser(userWithRole);
-    const userProfile = getUserProfile(userWithRole.id);
-    setProfile(userProfile);
+  const register = useCallback(async (userData) => {
+    try {
+      setLoading(true);
+      const response = await userAuthApi.register(userData);
+      toast.success("Registration successful! Please login.");
+      return response;
+    } catch (error) {
+      toast.error(error.message || "Registration failed");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  const updateProfile = useCallback(async (newProfileData) => {
-    if (user) {
-      const updatedProfile = { ...profile, ...newProfileData };
-      saveUserProfile(user.id, updatedProfile);
-      setProfile(updatedProfile); // Update context state
-      return updatedProfile;
-    }
-  }, [user, profile]);
+  /**
+   * Login user
+   */
+  const login = useCallback(async (email, password, captcha) => {
+    try {
+      setLoading(true);
+      const response = await userAuthApi.login(email, password, captcha);
 
+      // Store auth data
+      const token = response.token;
+      const userData = response.user;
+
+      localStorage.setItem("authToken", token);
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      setAuthToken(token);
+      setUser(userData);
+
+      // Initialize socket for real-time features
+      initSocket(userData._id, userData.role === "admin");
+
+      // Load initial app data
+      await loadAppData();
+
+      toast.success("Login successful!");
+      return response;
+    } catch (error) {
+      toast.error(error.message || "Login failed");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Get user profile from API
+   */
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      const response = await userProfileApi.getProfile();
+      setProfile(response.user);
+      setUser((prev) => ({ ...prev, ...response.user }));
+      return response.user;
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      throw error;
+    }
+  }, []);
+
+  /**
+   * Update user profile
+   */
+  const updateProfile = useCallback(async (newProfileData) => {
+    try {
+      setLoading(true);
+      const response = await userProfileApi.updateProfile(newProfileData);
+      setProfile(response.user);
+      setUser(response.user);
+      toast.success("Profile updated successfully");
+      return response.user;
+    } catch (error) {
+      toast.error(error.message || "Failed to update profile");
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Update family information
+   */
+  const updateFamilyInfo = useCallback(async (familyData) => {
+    try {
+      const response = await userProfileApi.updateFamilyInfo(familyData);
+      setProfile(response.user);
+      setUser(response.user);
+      toast.success("Family info updated successfully");
+      return response.user;
+    } catch (error) {
+      toast.error(error.message || "Failed to update family info");
+      throw error;
+    }
+  }, []);
+
+  /**
+   * Update preferences
+   */
+  const updatePreferences = useCallback(async (preferences) => {
+    try {
+      const response = await userProfileApi.updatePreferences(preferences);
+      setProfile(response.user);
+      setUser(response.user);
+      toast.success("Preferences updated successfully");
+      return response.user;
+    } catch (error) {
+      toast.error(error.message || "Failed to update preferences");
+      throw error;
+    }
+  }, []);
+
+  /**
+   * Logout user
+   */
   const logout = useCallback(() => {
-    clearCurrentUser();
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    setAuthToken(null);
     setUser(null);
     setProfile(null);
+    disconnectSocket();
     window.location.replace("/login");
   }, []);
 
-  const value = { user, profile, loading, appData, login, updateProfile, logout, refreshData: loadData };
+  /**
+   * Change password
+   */
+  const changePassword = useCallback(async (currentPassword, newPassword) => {
+    try {
+      await userProfileApi.changePassword(currentPassword, newPassword);
+      toast.success("Password changed successfully");
+    } catch (error) {
+      toast.error(error.message || "Failed to change password");
+      throw error;
+    }
+  }, []);
+
+  const value = {
+    user,
+    profile,
+    loading,
+    authToken,
+    appData,
+    register,
+    login,
+    logout,
+    fetchUserProfile,
+    updateProfile,
+    updateFamilyInfo,
+    updatePreferences,
+    changePassword,
+    setAppData,
+  };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
@@ -104,7 +235,7 @@ export const AuthProvider = ({ children }) => {
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 };
