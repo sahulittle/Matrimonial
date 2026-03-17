@@ -9,7 +9,6 @@ const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
   const [degree, setDegree] = useState("");
-  const [fieldOfStudy, setFieldOfStudy] = useState("");
 
   // Options for dropdowns
   const complexionOptions = ["Fair", "Light", "Medium", "Dark"];
@@ -366,7 +365,7 @@ const Register = () => {
         jobLocation: formData.jobLocation,
         annualIncome: formData.annualIncome,
         fieldOfStudy: formData.fieldOfStudy,
-
+        image: formData.image, // ✅ ADD THIS
         fatherName: formData.fatherName,
         fatherJob: formData.fatherJob,
         motherName: formData.motherName,
