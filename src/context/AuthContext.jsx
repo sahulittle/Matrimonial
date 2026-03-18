@@ -15,7 +15,7 @@ import {
 } from "../services/api";
 import { initSocket, disconnectSocket } from "../services/socketService";
 import toast from "react-hot-toast";
-
+import { getUserProfile } from "../api/userApi/userDashboard";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -38,12 +38,17 @@ export const AuthProvider = ({ children }) => {
     const storedUser = localStorage.getItem("user");
 
     if (storedToken && storedUser) {
-      setAuthToken(storedToken);
-      setUser(JSON.parse(storedUser));
-      // Initialize socket for real-time features
       const userData = JSON.parse(storedUser);
+
+      setAuthToken(storedToken);
+      setUser(userData);
+
       initSocket(userData._id, userData.role === "admin");
+
       loadAppData();
+
+      // ✅ ADD THIS LINE
+      fetchUserProfile();
     } else {
       setLoading(false);
     }
@@ -125,10 +130,23 @@ export const AuthProvider = ({ children }) => {
    */
   const fetchUserProfile = useCallback(async () => {
     try {
-      const response = await userProfileApi.getProfile();
-      setProfile(response.user);
-      setUser((prev) => ({ ...prev, ...response.user }));
-      return response.user;
+      // ✅ call NEW API
+      const response = await getUserProfile();
+
+      console.log("NEW PROFILE:", response);
+
+      // ✅ map correctly for Navbar
+      const formattedProfile = {
+        _id: response._id,
+        name: response.name,
+        email: response.email,
+        avatar: response.avatar, // ✅ IMPORTANT
+      };
+
+      setProfile(formattedProfile);
+      setUser((prev) => ({ ...prev, ...formattedProfile }));
+
+      return formattedProfile;
     } catch (error) {
       console.error("Error fetching profile:", error);
       throw error;

@@ -11,7 +11,7 @@ import SignUp from "../pages/public/SignUp";
 import Packages from "../pages/public/packages/Packages";
 import Stories from "../pages/public/stories/Stories";
 import Contact from "../pages/public/contact/Contact";
-import Members from "../pages/public/members/Members";
+import Members from "../pages/public/home/Members";
 import Unauthorized from "../pages/public/Unauthorized";
 
 /**

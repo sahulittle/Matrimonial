@@ -97,7 +97,17 @@ const Register = () => {
     "Lakshadweep",
     "Puducherry",
   ];
+  const religionOptions = [
+    "Hindu",
+    "Muslim",
+    "Christian",
+    "Sikh",
+    "Jain",
+    "Buddhist",
+    "Other",
+  ];
 
+  const casteOptions = ["General", "OBC", "SC", "ST", "Other"];
   // Generate height options from 4ft 5in to 7ft
   const heightOptions = [];
   for (let feet = 4; feet <= 7; feet++) {
@@ -331,56 +341,43 @@ const Register = () => {
   };
   const handleImageChange = (e) => {
     const file = e.target.files[0];
+
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, image: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      if (!file.type.startsWith("image/")) {
+        toast.error("Only image files allowed");
+        return;
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        toast.error("Image must be less than 2MB");
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+        imagePreview: URL.createObjectURL(file),
+      }));
     }
   };
-
-  // const handleFieldOfStudyChange = (e) => {
-  //   setFieldOfStudy(e.target.value);
-  // };
 
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const payload = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        password: formData.password,
-        gender: formData.gender,
-        dateOfBirth: formData.dob,
-        birthTime: formData.birthTime,
-        birthName: formData.birthName,
-        height: formData.height,
-        complexion: formData.complexion,
-        bloodGroup: formData.bloodGroup,
-        education: formData.qualification,
-        job: formData.job,
-        jobLocation: formData.jobLocation,
-        annualIncome: formData.annualIncome,
-        fieldOfStudy: formData.fieldOfStudy,
-        image: formData.image, // ✅ ADD THIS
-        fatherName: formData.fatherName,
-        fatherJob: formData.fatherJob,
-        motherName: formData.motherName,
-        motherJob: formData.motherJob,
-        siblings: formData.siblings,
-        paternalUncleName: formData.paternalUncleName,
-        paternalUncleJob: formData.paternalUncleJob,
-        maternalUncleName: formData.maternalUncleName,
-        maternalUncleJob: formData.maternalUncleJob,
-      };
+      const formDataToSend = new FormData();
 
-      const res = await registerUser(payload);
+      Object.keys(formData).forEach((key) => {
+        if (key === "image") {
+          formDataToSend.append("image", formData.image);
+        } else if (key !== "imagePreview") {
+          formDataToSend.append(key, formData[key]);
+        }
+      });
+
+      const res = await registerUser(formDataToSend);
 
       toast.success(res.message || "Registration successful");
-
       navigate("/login");
     } catch (error) {
       toast.error(error.message || "Registration failed");
@@ -414,9 +411,9 @@ const Register = () => {
                     Profile Image
                   </label>
                   <div className="mt-1 flex items-center gap-4">
-                    {formData.image && (
+                    {formData.imagePreview && (
                       <img
-                        src={formData.image}
+                        src={formData.imagePreview}
                         alt="Preview"
                         className="h-16 w-16 rounded-full object-cover border-2 border-pink-100"
                       />
@@ -525,7 +522,7 @@ const Register = () => {
                       value={formData.gender || ""}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select Gender
                       </option>
                       <option value="male">Male</option>
@@ -534,6 +531,54 @@ const Register = () => {
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <FaChevronDown className="h-4 w-4" />
                     </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Religion
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      name="religion"
+                      required
+                      onChange={handleChange}
+                      value={formData.religion || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    >
+                      <option value="" disabled>
+                        Select Religion
+                      </option>
+                      {religionOptions.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Caste
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      name="caste"
+                      required
+                      onChange={handleChange}
+                      value={formData.caste || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    >
+                      <option value="" disabled>
+                        Select Caste
+                      </option>
+                      {casteOptions.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
                 {/* DOB */}
@@ -546,11 +591,11 @@ const Register = () => {
                   </label>
                   <input
                     id="dob"
-                    name="dob"
+                    name="dateOfBirth"
                     type="date"
                     required
                     onChange={handleChange}
-                    value={formData.dob || ""}
+                    value={formData.dateOfBirth || ""}
                     className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                   />
                 </div>
@@ -609,7 +654,7 @@ const Register = () => {
                       value={formData.height || ""}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select Height
                       </option>
                       {heightOptions.map((h) => (
@@ -640,7 +685,7 @@ const Register = () => {
                       value={formData.complexion || ""}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select Complexion
                       </option>
                       {complexionOptions.map((c) => (
@@ -672,7 +717,7 @@ const Register = () => {
                       value={formData.bloodGroup || ""}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select Blood Group
                       </option>
                       {bloodGroupOptions.map((bg) => (
@@ -699,9 +744,9 @@ const Register = () => {
                   <div className="mt-1 relative">
                     <select
                       id="education"
-                      name="qualification"
+                      name="education"
                       required
-                      value={formData.qualification || ""}
+                      value={formData.education || ""}
                       onChange={(e) => {
                         handleChange(e);
                         setDegree(e.target.value);
@@ -728,43 +773,6 @@ const Register = () => {
                   </div>
                 </div>
 
-                {/* Field of Study */}
-
-                {/* <div>
-                  <label
-                    htmlFor="fieldOfStudy"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Field of Study
-                  </label>
-                  <div className="mt-1 relative">
-                    <select
-                      id="fieldOfStudy"
-                      name="fieldOfStudy"
-                      required
-                      onChange={handleFieldOfStudyChange}
-                      value={fieldOfStudy}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
-                    >
-                      <option value="" disabled selected>
-                        Select Field of Study
-                      </option>{" "}
-                      {degree &&
-                        fieldOfStudyOptions[degree]?.map((branch, index) => (
-                          <option key={index} value={branch}>
-                            {" "}
-                            {branch}{" "}
-                          </option>
-                        ))}
-                    <select id="fieldOfStudy" name="fieldOfStudy" required onChange={handleChange} value={formData.fieldOfStudy || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8">
-                      <option value="" disabled selected>Select Field of Study</option> {degree && fieldOfStudyOptions[degree]?.map((branch, index) => (<option key={index} value={branch}> {branch} </option>))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <FaChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div> */}
-
                 {/* Job */}
                 <div className="md:col-span-2">
                   <label
@@ -782,7 +790,7 @@ const Register = () => {
                       value={formData.job || ""}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select Job
                       </option>
                       {jobOptions.map((job) => (
@@ -813,7 +821,7 @@ const Register = () => {
                       value={formData.jobLocation || ""}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select State
                       </option>
                       {indianStates.map((state) => (
@@ -844,7 +852,7 @@ const Register = () => {
                       value={formData.annualIncome || ""}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select Annual Income
                       </option>
                       {incomeOptions.map((income) => (
@@ -986,7 +994,7 @@ const Register = () => {
                       value={formData.siblings || ""}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select Number of Siblings
                       </option>
                       {siblingOptions.map((s) => (

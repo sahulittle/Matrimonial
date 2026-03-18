@@ -1,45 +1,63 @@
 import axios from "axios";
 
-const API = "http://localhost:5003/api/users";
+const API = "http://localhost:5003/api/users/dashboard";
 
-// get matches
-export const getMatches = async () => {
-  const res = await axios.get(`${API}/search`, { withCredentials: true });
-  return res.data;
+// ✅ helper to get token
+const getAuthHeader = () => {
+  const token = localStorage.getItem("authToken");
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
 };
 
-// sent interests
-export const getSentInterests = async () => {
-  const res = await axios.get(`${API}/interests/sent`, {
-    withCredentials: true,
-  });
-  return res.data;
+// ✅ Dashboard stats
+export const getDashboardStats = async () => {
+  const res = await axios.get(`${API}/stats`, getAuthHeader());
+  return res?.data || {};
 };
 
-// received interests
-export const getReceivedInterests = async () => {
-  const res = await axios.get(`${API}/interests/received`, {
-    withCredentials: true,
-  });
-  return res.data;
+// ✅ Recommended profiles
+export const getRecommendedProfiles = async () => {
+  const res = await axios.get(`${API}/recommended`, getAuthHeader());
+  return Array.isArray(res?.data) ? res.data : [];
 };
 
-// send interest
-export const sendInterest = async (receiverId) => {
+// ✅ New matches today
+export const getNewMatches = async () => {
+  const res = await axios.get(`${API}/new-matches`, getAuthHeader());
+  return Array.isArray(res?.data) ? res.data : [];
+};
+
+export const getNearMatches = async () => {
+  const res = await axios.get(`${API}/near-matches`, getAuthHeader());
+  return Array.isArray(res?.data) ? res.data : [];
+};
+
+export const getActiveUsers = async () => {
+  const res = await axios.get(`${API}/active-users`, getAuthHeader());
+  return Array.isArray(res?.data) ? res.data : [];
+};
+
+// ✅ New interests
+export const getNewInterests = async () => {
+  const res = await axios.get(`${API}/interests`, getAuthHeader());
+  return Array.isArray(res?.data) ? res.data : [];
+};
+
+// ✅ Visitors
+export const getVisitors = async () => {
+  const res = await axios.get(`${API}/visitors`, getAuthHeader());
+  return Array.isArray(res?.data) ? res.data : [];
+};
+
+// ✅ Track profile visit
+export const trackVisit = async (profileId) => {
   const res = await axios.post(
-    `${API}/interests/send`,
-    { receiverId },
-    { withCredentials: true },
-  );
-  return res.data;
-};
-
-// toggle shortlist
-export const toggleShortlist = async (profileId) => {
-  const res = await axios.post(
-    `${API}/interests/toggle/${profileId}`,
+    `${API}/visit/${profileId}`,
     {},
-    { withCredentials: true },
+    getAuthHeader(),
   );
-  return res.data;
+  return res?.data || {};
 };

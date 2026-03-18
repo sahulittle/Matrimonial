@@ -10,6 +10,8 @@ import {
   getNewMatches,
   getNewInterests,
   getVisitors,
+  getNearMatches, // ✅ NEW
+  getActiveUsers, // ✅ NEW
 } from "../../api/userApi/userDashboard";
 
 const Dashboard = () => {
@@ -25,22 +27,36 @@ const Dashboard = () => {
     messages: 0,
     shortlisted: 0,
   });
-
+  const [newMatches, setNewMatches] = useState([]);
+  const [recommended, setRecommended] = useState([]);
+  const [nearMatches, setNearMatches] = useState([]);
+  const [activeUsers, setActiveUsers] = useState([]);
   useEffect(() => {
     const loadDashboard = async () => {
       try {
         const stats = await getDashboardStats();
-        const recommended = await getRecommendedProfiles();
-        const matches = await getNewMatches();
+        const recommendedRes = await getRecommendedProfiles();
+        const newMatchesRes = await getNewMatches();
+        const nearRes = await getNearMatches();
+        const activeRes = await getActiveUsers();
         const interests = await getNewInterests();
         const visitorData = await getVisitors();
 
-        setRecommendations(matches);
+        setStatsData(stats);
+
+        setRecommended(recommendedRes);
+        setNewMatches(newMatchesRes);
+        setNearMatches(nearRes);
+        setActiveUsers(activeRes);
+
         setReceived(interests);
         setVisitors(visitorData);
-
-        // stats
-        setStatsData(stats);
+        console.log(stats);
+        console.log(recommendedRes);
+        console.log(newMatchesRes);
+        console.log(nearRes);
+        console.log(activeRes);
+        console.log(interests);
       } catch (error) {
         console.error("Dashboard load error:", error);
       }
@@ -161,6 +177,7 @@ const Dashboard = () => {
         {/* LEFT SIDE */}
 
         <div className="lg:col-span-2 space-y-6">
+          {/* ================= NEW MATCHES ================= */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold text-gray-800">
@@ -176,14 +193,40 @@ const Dashboard = () => {
             </div>
 
             <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6">
-              {recommendations.slice(0, 6).map((profile) => (
-                <div key={profile.id} className="shrink-0 w-52">
-                  <MatchCard profile={profile} layout="vertical" />
-                </div>
-              ))}
+              {Array.isArray(newMatches) && newMatches.length > 0 ? (
+                newMatches.slice(0, 6).map((profile) => {
+                  const age = profile.dateOfBirth
+                    ? new Date().getFullYear() -
+                      new Date(profile.dateOfBirth).getFullYear()
+                    : "";
+
+                  return (
+                    <div key={profile._id} className="shrink-0 w-52">
+                      <MatchCard
+                        profile={{
+                          ...profile,
+                          name: `${profile.firstName || ""} ${
+                            profile.lastName || ""
+                          }`,
+                          image:
+                            profile.profilePhoto ||
+                            profile.photos?.[0] ||
+                            "/default-avatar.png",
+                          location: profile.jobLocation,
+                          age,
+                        }}
+                        layout="vertical"
+                      />
+                    </div>
+                  );
+                })
+              ) : (
+                <p className="text-gray-500 text-sm">No matches found</p>
+              )}
             </div>
           </div>
 
+          {/* ================= RECOMMENDED ================= */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold text-gray-800">
@@ -199,13 +242,35 @@ const Dashboard = () => {
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
-              {recommendations.slice(0, 4).map((profile) => (
-                <MatchCard
-                  key={profile.id}
-                  profile={profile}
-                  layout="vertical"
-                />
-              ))}
+              {Array.isArray(recommended) && recommended.length > 0 ? (
+                recommended.slice(0, 4).map((profile) => {
+                  const age = profile.dateOfBirth
+                    ? new Date().getFullYear() -
+                      new Date(profile.dateOfBirth).getFullYear()
+                    : "";
+
+                  return (
+                    <MatchCard
+                      key={profile._id}
+                      profile={{
+                        ...profile,
+                        name: `${profile.firstName || ""} ${
+                          profile.lastName || ""
+                        }`,
+                        image:
+                          profile.profilePhoto ||
+                          profile.photos?.[0] ||
+                          "/default-avatar.png",
+                        location: profile.jobLocation,
+                        age,
+                      }}
+                      layout="vertical"
+                    />
+                  );
+                })
+              ) : (
+                <p className="text-gray-500 text-sm">No recommendations</p>
+              )}
             </div>
           </div>
         </div>
@@ -225,42 +290,40 @@ const Dashboard = () => {
               </Link>
             </div>
 
-            {pendingInterests.length > 0 ? (
-              <div className="space-y-2 -mx-2">
-                {pendingInterests.slice(0, 3).map((interest) => (
-                  <Link
-                    key={interest.id}
-                    to="/user/interests"
-                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-pink-50 transition-colors"
-                  >
-                    <img
-                      src={interest.profile?.avatar || "/default-avatar.png"}
-                      alt={interest.profile?.name || "User"}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
+            {pendingInterests.slice(0, 3).map((interest) => {
+              const user = interest.senderId;
 
-                    <div className="flex-1 min-w-0">
-                      <p className="font-semibold text-gray-800 truncate">
-                        {interest.profile?.name || "Unknown User"}
-                      </p>
+              const age = user?.dateOfBirth
+                ? new Date().getFullYear() -
+                  new Date(user.dateOfBirth).getFullYear()
+                : "";
 
-                      <p className="text-sm text-gray-500">
-                        {interest.profile?.age
-                          ? `${interest.profile.age} yrs`
-                          : ""}
-                      </p>
-                    </div>
+              return (
+                <Link
+                  key={interest._id}
+                  to="/user/interests"
+                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-pink-50 transition-colors"
+                >
+                  <img
+                    src={user?.profilePhoto || "/default-avatar.png"}
+                    alt={user?.firstName}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
 
-                    <Heart className="w-4 h-4 text-pink-500" />
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <Heart className="w-10 h-10 mx-auto text-gray-300 mb-2" />
-                <p className="text-gray-500 text-sm">No new interests</p>
-              </div>
-            )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-800 truncate">
+                      {user?.firstName} {user?.lastName}
+                    </p>
+
+                    <p className="text-sm text-gray-500">
+                      {age ? `${age} yrs` : ""}
+                    </p>
+                  </div>
+
+                  <Heart className="w-4 h-4 text-pink-500" />
+                </Link>
+              );
+            })}
           </div>
 
           {/* Visitors */}

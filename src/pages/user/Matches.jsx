@@ -2,18 +2,19 @@ import React, { useState, useEffect } from "react";
 import { Users, Sparkles, Clock, Heart } from "lucide-react";
 import MatchCard from "../../components/ui/MatchCard";
 import {
-  getMatches,
-  getSentInterests,
-  getReceivedInterests,
-  sendInterest,
-  toggleShortlist,
+  getRecommendedProfiles,
+  getNewMatches,
+  getNearMatches,
 } from "../../api/userApi/userMatchesApi";
+
 import { useAuth } from "../../context/AuthContext";
 
 const Matches = () => {
-  const { user, profile: currentProfile } = useAuth();
+  const { profile: currentProfile } = useAuth();
 
   const [recommendations, setRecommendations] = useState([]);
+  const [todayMatches, setTodayMatches] = useState([]);
+  const [nearMatches, setNearMatches] = useState([]);
   const [received, setReceived] = useState([]);
   const [sent, setSent] = useState([]);
   const [activeTab, setActiveTab] = useState("new");
@@ -22,13 +23,21 @@ const Matches = () => {
   useEffect(() => {
     const loadMatches = async () => {
       try {
-        const profiles = await getMatches();
+        const recommended = await getRecommendedProfiles();
+        const today = await getNewMatches();
+        const near = await getNearMatches();
+
+        setRecommendations(Array.isArray(recommended) ? recommended : []);
+        setTodayMatches(Array.isArray(today) ? today : []);
+        setNearMatches(Array.isArray(near) ? near : []);
+
         const sentRes = await getSentInterests();
         const receivedRes = await getReceivedInterests();
 
-        setRecommendations(profiles || []);
-        setSent(sentRes.interests || []);
-        setReceived(receivedRes.interests || []);
+        setSent(Array.isArray(sentRes?.interests) ? sentRes.interests : []);
+        setReceived(
+          Array.isArray(receivedRes?.interests) ? receivedRes.interests : [],
+        );
       } catch (error) {
         console.error("Match load error:", error);
       } finally {
@@ -69,16 +78,10 @@ const Matches = () => {
     );
   };
 
-  // near me matches
-  const nearMatches = recommendations.filter((p) => {
-    if (!currentProfile?.jobLocation || !p.jobLocation) return false;
-
-    return p.jobLocation === currentProfile.jobLocation;
-  });
-
+  // tabs
   const tabs = [
     { id: "new", label: "New Matches", count: recommendations.length },
-    { id: "today", label: "Today's Matches", count: recommendations.length },
+    { id: "today", label: "Today's Matches", count: todayMatches.length },
     { id: "recommended", label: "Recommended", count: recommendations.length },
     { id: "nearme", label: "Near Me", count: nearMatches.length },
   ];
@@ -92,7 +95,7 @@ const Matches = () => {
     },
     {
       label: "Today's",
-      value: recommendations.length,
+      value: todayMatches.length,
       color: "bg-blue-100 text-blue-600",
       icon: Clock,
     },
@@ -110,8 +113,13 @@ const Matches = () => {
     },
   ];
 
-  // displayed matches
-  const displayed = activeTab === "nearme" ? nearMatches : recommendations;
+  // ✅ FIXED DISPLAY LOGIC
+  let displayed = [];
+
+  if (activeTab === "new") displayed = recommendations;
+  if (activeTab === "today") displayed = todayMatches;
+  if (activeTab === "recommended") displayed = recommendations;
+  if (activeTab === "nearme") displayed = nearMatches;
 
   if (loading) {
     return <div className="p-10 text-center">Loading matches...</div>;
@@ -120,7 +128,6 @@ const Matches = () => {
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       {/* Header */}
-
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Your Matches</h1>
         <p className="text-gray-500 mt-1">
@@ -129,7 +136,6 @@ const Matches = () => {
       </div>
 
       {/* Stats */}
-
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {stats.map((stat) => {
           const Icon = stat.icon;
@@ -153,7 +159,6 @@ const Matches = () => {
       </div>
 
       {/* Tabs */}
-
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-1.5">
         <div className="flex gap-2 overflow-x-auto">
           {tabs.map((tab) => (
@@ -167,7 +172,6 @@ const Matches = () => {
               }`}
             >
               {tab.label}
-
               <span
                 className={`ml-2 px-2 py-0.5 rounded-md text-xs ${
                   activeTab === tab.id ? "bg-white/20" : "bg-gray-200"
@@ -181,7 +185,6 @@ const Matches = () => {
       </div>
 
       {/* Matches Grid */}
-
       {displayed.length > 0 ? (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
           {displayed.map((profile) => (

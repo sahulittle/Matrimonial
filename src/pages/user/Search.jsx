@@ -181,6 +181,7 @@ const SearchPage = () => {
 
       setSearchResults(res.profiles || []);
       setSearched(true);
+      console.log(res);
     } catch (error) {
       console.error("Search error:", error);
     } finally {
@@ -329,9 +330,61 @@ const SearchPage = () => {
                 </p>
 
                 <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {searchResults.map((profile) => (
-                    <ProfileCard key={profile._id} profile={profile} />
-                  ))}
+                  {searchResults.map((profile) => {
+                    const age = profile.dateOfBirth
+                      ? new Date().getFullYear() -
+                        new Date(profile.dateOfBirth).getFullYear()
+                      : "N/A";
+
+                    return (
+                      <div
+                        key={profile._id}
+                        className="bg-white rounded-2xl shadow-sm border p-4 hover:shadow-lg transition-all"
+                      >
+                        {/* Image */}
+                        <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden mb-3">
+                          <img
+                            src={profile.profilePhoto || "/default-avatar.png"}
+                            alt="profile"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+
+                        {/* Name */}
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {profile.firstName} {profile.lastName}
+                        </h3>
+
+                        {/* Details */}
+                        <p className="text-sm text-gray-500">
+                          {age} yrs {profile.height || ""}
+                        </p>
+
+                        <p className="text-sm text-gray-500">
+                          {profile.religion || "N/A"}
+                        </p>
+
+                        <p className="text-sm text-gray-500">
+                          {profile.jobLocation || "N/A"}
+                        </p>
+
+                        {/* Extra info (like template) */}
+                        <p className="text-xs text-gray-400 mt-1">
+                          {profile.maritalStatus || "Single"} •{" "}
+                          {profile.caste || "N/A"}
+                        </p>
+
+                        {/* Actions */}
+                        <div className="mt-3 flex gap-2">
+                          <button className="flex-1 bg-pink-500 text-white py-2 rounded-lg text-sm">
+                            Interest
+                          </button>
+
+                          <button className="px-3 border rounded-lg">⭐</button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ) : (

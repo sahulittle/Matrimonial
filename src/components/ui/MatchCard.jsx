@@ -1,7 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Heart, Star, MapPin, Briefcase, GraduationCap, Check } from "lucide-react";
-import { useAuth } from '../../context/AuthContext';
+import {
+  Heart,
+  Star,
+  MapPin,
+  Briefcase,
+  GraduationCap,
+  Check,
+} from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 import {
   getShortlistForUser,
   addToShortlist,
@@ -11,17 +18,21 @@ import {
 } from "../../utils/storage";
 
 const MatchCard = ({ profile, layout = "horizontal" }) => {
-  const { user: currentUser, refreshData } = useAuth()
+  const { user: currentUser, refreshData } = useAuth();
   const [isShortlisted, setIsShortlisted] = useState(false);
   const [isInterestSent, setIsInterestSent] = useState(false);
 
   useEffect(() => {
     if (currentUser) {
       const shortlistItems = getShortlistForUser(currentUser.id);
-      setIsShortlisted(shortlistItems.some((item) => String(item.id) === String(profile.id)));
+      setIsShortlisted(
+        shortlistItems.some((item) => String(item.id) === String(profile.id)),
+      );
 
       const { sent } = getInterestsForUser(currentUser.id);
-      setIsInterestSent(sent.some(i => String(i.receiverId) === String(profile.id)));
+      setIsInterestSent(
+        sent.some((i) => String(i.receiverId) === String(profile.id)),
+      );
     }
   }, [profile.id, currentUser]);
 
@@ -66,7 +77,13 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
 
         <div className="w-28 h-full shrink-0 overflow-hidden relative">
           <img
-            src={profile.avatar}
+            src={
+              profile.avatar ||
+              profile.image ||
+              profile.profilePhoto ||
+              profile.photos?.[0] ||
+              "/default-avatar.png"
+            }
             alt={profile.name}
             className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
           />
@@ -96,14 +113,17 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
               <span className="truncate">
-                {profile.education?.occupation || profile.profession || 'Not specified'}
+                {profile.education?.occupation ||
+                  profile.profession ||
+                  "Not specified"}
               </span>
             </div>
 
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
               <span className="truncate">
-                {profile.location?.city || 'Not specified'}, {profile.location?.state || ''}
+                {profile.location?.city || "Not specified"},{" "}
+                {profile.location?.state || ""}
               </span>
             </div>
 
@@ -118,7 +138,7 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
           </div>
         </div>
       </Link>
-    )
+    );
   }
 
   /* ---------------- Vertical Layout ---------------- */
@@ -132,7 +152,13 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
 
       <div className="relative h-48 overflow-hidden">
         <img
-          src={profile.avatar}
+          src={
+            profile.avatar ||
+            profile.image ||
+            profile.profilePhoto ||
+            profile.photos?.[0] ||
+            "/default-avatar.png"
+          }
           alt={profile.name}
           className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
         />
@@ -156,9 +182,7 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
         {/* Gradient Overlay */}
 
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-          <h3 className="font-bold text-white text-base">
-            {profile.name}
-          </h3>
+          <h3 className="font-bold text-white text-base">{profile.name}</h3>
           <p className="text-white/90 text-sm">{profile.age} yrs</p>
         </div>
       </div>
@@ -170,14 +194,17 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
             <span className="truncate">
-              {profile.education?.occupation || profile.profession || 'Not specified'}
+              {profile.education?.occupation ||
+                profile.profession ||
+                "Not specified"}
             </span>
           </div>
 
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
             <span className="truncate">
-              {profile.location?.city || 'Not specified'}, {profile.location?.state || ''}
+              {profile.location?.city || "Not specified"},{" "}
+              {profile.location?.state || ""}
             </span>
           </div>
         </div>
@@ -190,14 +217,18 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
             disabled={isInterestSent}
             className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
               isInterestSent
-                ? 'bg-green-100 text-green-700 cursor-not-allowed'
-                : 'bg-pink-500 text-white hover:bg-pink-600 shadow-sm hover:shadow-md'
+                ? "bg-green-100 text-green-700 cursor-not-allowed"
+                : "bg-pink-500 text-white hover:bg-pink-600 shadow-sm hover:shadow-md"
             }`}
           >
             {isInterestSent ? (
-              <><Check className="w-4 h-4" /> Sent</>
+              <>
+                <Check className="w-4 h-4" /> Sent
+              </>
             ) : (
-              <><Heart className="w-4 h-4" /> Interest</>
+              <>
+                <Heart className="w-4 h-4" /> Interest
+              </>
             )}
           </button>
 
@@ -210,15 +241,13 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
             }`}
           >
             <Star
-              className={`w-4 h-4 ${
-                isShortlisted ? "fill-current" : ""
-              }`}
+              className={`w-4 h-4 ${isShortlisted ? "fill-current" : ""}`}
             />
           </button>
         </div>
       </div>
     </Link>
-  )
-}
+  );
+};
 
-export default MatchCard
+export default MatchCard;
