@@ -4,6 +4,7 @@ import {
   updateSettings,
   changePassword,
 } from "../../api/userApi/userSettingsApi";
+import toast from "react-hot-toast";
 import {
   User,
   Bell,
@@ -20,8 +21,6 @@ import {
 } from "lucide-react";
 
 const Settings = () => {
-  const [user, setUser] = useState(null);
-  const [profile, setProfile] = useState(null);
   const [activeTab, setActiveTab] = useState("account");
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -95,7 +94,8 @@ const Settings = () => {
       newPassword: passwords.newPassword,
     });
 
-    alert("Password updated");
+    toast.success("Password updated");
+    toast.error("Error updating password");
   };
   const handleSave = async () => {
     try {
@@ -201,7 +201,13 @@ const Settings = () => {
                       <input
                         type="password"
                         placeholder="Enter current password"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                        value={passwords.currentPassword}
+                        onChange={(e) =>
+                          setPasswords({
+                            ...passwords,
+                            currentPassword: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div>
@@ -211,7 +217,13 @@ const Settings = () => {
                       <input
                         type="password"
                         placeholder="Enter new password"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                        value={passwords.newPassword}
+                        onChange={(e) =>
+                          setPasswords({
+                            ...passwords,
+                            newPassword: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div>
@@ -221,7 +233,13 @@ const Settings = () => {
                       <input
                         type="password"
                         placeholder="Confirm new password"
-                        className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
+                        value={passwords.confirmPassword}
+                        onChange={(e) =>
+                          setPasswords({
+                            ...passwords,
+                            confirmPassword: e.target.value,
+                          })
+                        }
                       />
                     </div>
                   </div>
