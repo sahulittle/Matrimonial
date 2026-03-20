@@ -99,22 +99,23 @@ const Login = () => {
             </div>
 
             {/* CAPTCHA */}
-            <div className="flex items-center gap-3">
-              {/* Captcha Image */}
-              <div
-                dangerouslySetInnerHTML={{ __html: captchaSvg }}
-                className="bg-gray-200 p-2 rounded"
-              />
+            <div className="flex md:flex-row flex-col items-center gap-3">
+              <div className="flex gap-2 ">
+                {/* Captcha Image */}
+                <div
+                  dangerouslySetInnerHTML={{ __html: captchaSvg }}
+                  className="bg-gray-200 p-2 rounded"
+                />
 
-              {/* Refresh Button */}
-              <button
-                type="button"
-                onClick={fetchCaptcha}
-                className="p-2 bg-gray-200 hover:bg-gray-300 rounded"
-              >
-                <FaSyncAlt />
-              </button>
-
+                {/* Refresh Button */}
+                <button
+                  type="button"
+                  onClick={fetchCaptcha}
+                  className="p-2 bg-gray-200 hover:bg-gray-300 rounded"
+                >
+                  <FaSyncAlt />
+                </button>
+              </div>
               {/* Captcha Input */}
               <input
                 type="text"
