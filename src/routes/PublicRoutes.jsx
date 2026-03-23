@@ -13,6 +13,7 @@ import Stories from "../pages/public/stories/Stories";
 import Contact from "../pages/public/contact/Contact";
 import Members from "../pages/public/home/Members";
 import Unauthorized from "../pages/public/Unauthorized";
+import Privacy from "../pages/public/privacy/Privacy";
 
 /**
  * PublicRoutes - All public route definitions
@@ -30,6 +31,7 @@ const PublicRoutes = () => (
       <Route path="members" element={<Members />} />
       <Route path="stories" element={<Stories />} />
       <Route path="contact" element={<Contact />} />
+      <Route path="privacy-policy" element={<Privacy />} />
     </Route>
 
     {/* Admin Login (without layout wrapper) */}

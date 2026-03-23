@@ -3,7 +3,7 @@ import {
   getSettings,
   updateSettings,
   changePassword,
-} from "../../api/userApi/userSettingsApi";
+} from "../../api/userApi/userApi";
 import toast from "react-hot-toast";
 import {
   User,

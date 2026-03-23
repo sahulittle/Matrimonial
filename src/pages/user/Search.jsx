@@ -1,67 +1,156 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import ProfileCard from "../../components/ui/ProfileCard";
-import { searchProfiles } from "../../api/userApi/searchApi";
-
-const religions = [
-  "Hindu",
-  "Muslim",
-  "Christian",
-  "Sikh",
-  "Buddhist",
-  "Jain",
-  "Parsi",
-  "Jewish",
-  "Other",
-];
+// import { searchProfiles } from "../../api/userApi/userApi";
+import {
+  searchProfiles,
+  sendInterest,
+  getSentInterests,
+  addToShortlist,
+  removeFromShortlist,
+  getShortlist,
+} from "../../api/userApi/userApi";
+const religions = ["Hindu"];
 
 const castes = [
-  "Brahmin",
-  "Deshastha Brahmin",
-  "Chitpavan Brahmin",
-  "Karhade Brahmin",
-  "Saraswat Brahmin",
-  "Daivadnya Brahmin",
-
-  "Maratha",
-  "Kunbi",
   "96 Kuli Maratha",
-
-  "Kshatriya",
-  "Rajput",
-  "Koli",
   "Agri",
-  "Bhandari",
-
-  "Vaishya",
-  "Komti",
-  "Lingayat",
-  "Jain",
-  "Gujarati Vaishya",
-  "Marwari",
-
-  "Mali",
-  "Dhangar",
-  "Teli",
-  "Lohar",
-  "Sutar",
-  "Sonar",
-  "Nhavi",
-  "Kumbhar",
-  "Shimpi",
-  "Gurav",
-
-  "Matang",
-  "Mahar",
-  "Mang",
-  "Chambhar",
-  "Bhoi",
-
+  "Ahir Shimpi",
+  "Ahirwal",
+  "Anjana (Chaudhari Patel)",
+  "Aramari (Gabit)",
+  "Arya Vysya",
+  "Bairwa",
+  "Balai",
   "Banjara",
-  "Gavli",
-  "Gosavi",
-  "Pardhi",
-
+  "Barai",
+  "Bari",
+  "Bhavsar (Khatriya)",
+  "Bhandari",
+  "Bhoi",
+  "Bhill",
+  "Brahman (Anavil Desai)",
+  "Brahman (Audichya Vaidiki)",
+  "Brahman Bardai",
+  "Brahman Daivadnya",
+  "Brahman Deshastha",
+  "Brahman Karhade",
+  "Brahman Khadayata",
+  "Brahman Khedaval",
+  "Brahman Kokanastha",
+  "Brahman Mevada",
+  "Brahman Rajgor",
+  "Brahman Rarhi",
+  "Brahman Rigvedi",
+  "Brahman Saraswat",
+  "Brahman Sarua",
+  "Brahman Shri Gaud",
+  "Brahman Smartha",
+  "Brahman Tapodhan",
+  "Brahman Valam",
+  "Brahman Zalora",
+  "CKP",
+  "Cash Che Bar",
+  "Chambhar",
+  "Charan",
+  "Deshmukh",
+  "Devang Koshthi",
+  "Dhanak",
+  "Dhangar",
+  "Dhor (Kakkayya)",
+  "Gabit",
+  "Gavandi",
+  "Gawali",
+  "Ghisadi",
+  "Gomantak",
+  "Gond",
+  "Gondhali",
+  "Gurav",
+  "Halba Koshti",
+  "Holar",
+  "Intercaste",
+  "Jangam",
+  "Jadhav",
+  "Jog (Nath)",
+  "Julaha",
+  "Kalar",
+  "Kanakkan Padanna",
+  "Kundara",
+  "Kasar",
+  "Kayastha",
+  "Khatik",
+  "Kokanastha Maratha",
+  "Koli",
+  "Koli Mahadev",
+  "Konkani",
+  "Koshti",
+  "Kshatriya",
+  "Kshatriya Raju",
+  "Kumaoni Rajput",
+  "Kumbhar",
+  "Kunbi",
+  "Kunbi Lonari",
+  "Kumbi Maratha",
+  "Kurbi Tirali",
+  "Leva Patil",
+  "Lingayat",
+  "Lohar",
+  "Madivala (Dhobi)",
+  "Mahar",
+  "Mair Rajput Swarnakar",
+  "Mali",
+  "Malvani",
+  "Mannan (Velan/Vannan)",
+  "Maratha",
+  "Maratha Kshatriya",
+  "Matang",
+  "Meghwal",
+  "Nabit",
+  "Nhavi",
+  "Atari",
+  "Other Brahman",
+  "Pallan (Devendra Kula Vellunan)",
+  "Panan",
+  "Paravan (Bharatar)",
+  "Parit",
+  "Paswan (Dusadh)",
+  "Patel",
+  "Pathare Prabhu",
+  "Patil",
+  "Poundra",
+  "Pulaya (Cheruman)",
+  "Rajput",
+  "Ramoshi",
+  "Rohit (Chamar)",
+  "SC",
+  "SKP",
+  "ST",
+  "Samagar",
+  "Sambava",
+  "Satnami",
+  "Savji",
+  "Shipkar",
+  "Shimpi (Namdev)",
+  "Sonar",
+  "Sonkar",
+  "Suthar",
+  "Swakula Sali",
+  "Teli",
+  "Thandan",
+  "Vadar",
+  "Vaishnav",
+  "Vaishav Kapol",
+  "Vaishnav Khadayata",
+  "Vaishva Ladd",
+  "Vashnav Modh",
+  "Vaishnav Porvad",
+  "Vaishnav Vania",
+  "Vaishnav Vaniya",
+  "Vani",
+  "Vaniya",
+  "Vanjari",
+  "Vyasa",
+  "Yadav",
   "Other",
 ];
 
@@ -156,7 +245,6 @@ const initialFilters = {
   religion: "",
   caste: "",
   education: "",
-  location: "",
 };
 
 const SearchPage = () => {
@@ -165,6 +253,8 @@ const SearchPage = () => {
   const [showFilters, setShowFilters] = useState(true);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sentInterests, setSentInterests] = useState([]);
+  const [shortlist, setShortlist] = useState([]);
 
   const handleFilterChange = (key, value) => {
     setFilters((prev) => ({
@@ -172,7 +262,21 @@ const SearchPage = () => {
       [key]: value,
     }));
   };
+  useEffect(() => {
+    const loadExtra = async () => {
+      try {
+        const sent = await getSentInterests();
+        const sl = await getShortlist();
 
+        setSentInterests(sent);
+        setShortlist(sl);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadExtra();
+  }, []);
   const handleSearch = async () => {
     try {
       setLoading(true);
@@ -194,7 +298,34 @@ const SearchPage = () => {
     setSearchResults([]);
     setSearched(false);
   };
+  const handleInterest = async (profileId) => {
+    try {
+      await sendInterest({
+        receiverId: profileId,
+        message: "Hi, I'm interested in your profile",
+      });
 
+      const updated = await getSentInterests();
+      setSentInterests(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleShortlist = async (profileId, isShortlisted) => {
+    try {
+      if (isShortlisted) {
+        await removeFromShortlist(profileId);
+      } else {
+        await addToShortlist(profileId);
+      }
+
+      const updated = await getShortlist();
+      setShortlist(updated);
+    } catch (err) {
+      console.error(err);
+    }
+  };
   const filterOptions = [
     { key: "religion", label: "Religion", options: religions },
     { key: "caste", label: "Caste", options: castes },
@@ -296,7 +427,7 @@ const SearchPage = () => {
 
             {/* Location */}
 
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <label className="text-sm font-medium">Location</label>
 
               <input
@@ -306,7 +437,7 @@ const SearchPage = () => {
                 placeholder="Enter city"
                 className="w-full border rounded-lg px-3 py-2 mt-1"
               />
-            </div>
+            </div> */}
 
             <button
               onClick={handleSearch}
@@ -376,11 +507,52 @@ const SearchPage = () => {
 
                         {/* Actions */}
                         <div className="mt-3 flex gap-2">
-                          <button className="flex-1 bg-pink-500 text-white py-2 rounded-lg text-sm">
-                            Interest
-                          </button>
+                          {(() => {
+                            const interest = sentInterests.find(
+                              (i) => i.receiverId?._id === profile._id,
+                            );
 
-                          <button className="px-3 border rounded-lg">⭐</button>
+                            const isShortlisted = shortlist.some(
+                              (s) => s.userId?._id === profile._id,
+                            );
+
+                            return (
+                              <>
+                                {/* INTEREST BUTTON */}
+                                <button
+                                  onClick={() => handleInterest(profile._id)}
+                                  disabled={interest?.status === "pending"}
+                                  className={`flex-1 py-2 rounded-lg text-sm flex items-center justify-center gap-1 ${
+                                    interest?.status === "accepted"
+                                      ? "bg-blue-500 text-white"
+                                      : interest?.status === "pending"
+                                        ? "bg-green-100 text-green-700"
+                                        : "bg-pink-500 text-white"
+                                  }`}
+                                >
+                                  {interest?.status === "accepted"
+                                    ? "Chat"
+                                    : interest?.status === "pending"
+                                      ? "Sent"
+                                      : "Interest"}
+                                </button>
+
+                                {/* SHORTLIST */}
+                                <button
+                                  onClick={() =>
+                                    handleShortlist(profile._id, isShortlisted)
+                                  }
+                                  className={`px-3 rounded-lg border ${
+                                    isShortlisted
+                                      ? "bg-yellow-100 text-yellow-500"
+                                      : ""
+                                  }`}
+                                >
+                                  ⭐
+                                </button>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     );

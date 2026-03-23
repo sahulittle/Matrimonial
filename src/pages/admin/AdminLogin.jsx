@@ -34,8 +34,10 @@ const AdminLogin = () => {
 
       toast.success("Admin login successful!");
 
-      // Redirect to admin dashboard
+      // Redirect to admin dashboard and reload app so AuthProvider picks up admin
       navigate("/admin/dashboard");
+      // Force reload to ensure AuthContext initializes with stored admin data
+      window.location.reload();
     } catch (error) {
       const errorMsg = error.message || "Login failed";
       setError(errorMsg);

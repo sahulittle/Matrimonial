@@ -15,7 +15,7 @@ import {
 } from "../services/api";
 import { initSocket, disconnectSocket } from "../services/socketService";
 import toast from "react-hot-toast";
-import { getUserProfile } from "../api/userApi/userDashboard";
+import { getUserProfile } from "../api/userApi/userApi"; // ✅ NEW API
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {

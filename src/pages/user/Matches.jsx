@@ -5,7 +5,7 @@ import {
   getRecommendedProfiles,
   getNewMatches,
   getNearMatches,
-} from "../../api/userApi/userMatchesApi";
+} from "../../api/userApi/userApi";
 
 import { useAuth } from "../../context/AuthContext";
 

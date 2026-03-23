@@ -12,7 +12,10 @@ import {
   getVisitors,
   getNearMatches, // ✅ NEW
   getActiveUsers, // ✅ NEW
-} from "../../api/userApi/userDashboard";
+  getShortlist,
+  removeFromShortlist,
+  addToShortlist, // ✅ ADD THIS
+} from "../../api/userApi/userApi";
 
 const Dashboard = () => {
   const { user, profile, loading } = useAuth();
@@ -31,6 +34,9 @@ const Dashboard = () => {
   const [recommended, setRecommended] = useState([]);
   const [nearMatches, setNearMatches] = useState([]);
   const [activeUsers, setActiveUsers] = useState([]);
+  const [sentInterests, setSentInterests] = useState([]);
+  const [shortlist, setShortlist] = useState([]);
+  
   useEffect(() => {
     const loadDashboard = async () => {
       try {
@@ -41,6 +47,8 @@ const Dashboard = () => {
         const activeRes = await getActiveUsers();
         const interests = await getNewInterests();
         const visitorData = await getVisitors();
+        const shortlistRes = await getShortlist();
+        setShortlist(shortlistRes);
 
         setStatsData(stats);
 
@@ -64,7 +72,20 @@ const Dashboard = () => {
 
     loadDashboard();
   }, []);
+  const handleShortlist = async (profileId, isShortlisted) => {
+    try {
+      if (isShortlisted) {
+        await removeFromShortlist(profileId);
+      } else {
+        await addToShortlist(profileId);
+      }
 
+      const updated = await getShortlist();
+      setShortlist(updated);
+    } catch (err) {
+      console.error("Shortlist error:", err);
+    }
+  };
   const pendingInterests = received.filter((i) => i.status === "pending");
 
   const stats = [
@@ -249,6 +270,10 @@ const Dashboard = () => {
                       new Date(profile.dateOfBirth).getFullYear()
                     : "";
 
+                  const isShortlisted = shortlist.some(
+                    (s) => s.userId?._id === profile._id,
+                  );
+
                   return (
                     <MatchCard
                       key={profile._id}
@@ -265,6 +290,10 @@ const Dashboard = () => {
                         age,
                       }}
                       layout="vertical"
+                      isShortlisted={isShortlisted}
+                      onShortlist={() =>
+                        handleShortlist(profile._id, isShortlisted)
+                      }
                     />
                   );
                 })

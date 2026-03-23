@@ -7,62 +7,89 @@ import {
   Briefcase,
   GraduationCap,
   Check,
+  MessageCircle,
+  Phone,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import {
-  getShortlistForUser,
   addToShortlist,
   removeFromShortlist,
+  getShortlist,
   sendInterest,
-  getInterestsForUser,
-} from "../../utils/storage";
+  getSentInterests,
+} from "../../api/userApi/userApi";
 
 const MatchCard = ({ profile, layout = "horizontal" }) => {
   const { user: currentUser, refreshData } = useAuth();
+
   const [isShortlisted, setIsShortlisted] = useState(false);
-  const [isInterestSent, setIsInterestSent] = useState(false);
+  const [interestStatus, setInterestStatus] = useState(null);
+  // null | "pending" | "accepted"
 
   useEffect(() => {
-    if (currentUser) {
-      const shortlistItems = getShortlistForUser(currentUser.id);
-      setIsShortlisted(
-        shortlistItems.some((item) => String(item.id) === String(profile.id)),
-      );
+    const loadData = async () => {
+      if (!currentUser) return;
 
-      const { sent } = getInterestsForUser(currentUser.id);
-      setIsInterestSent(
-        sent.some((i) => String(i.receiverId) === String(profile.id)),
-      );
-    }
-  }, [profile.id, currentUser]);
+      try {
+        // shortlist
+        const shortlist = await getShortlist();
+        setIsShortlisted(
+          shortlist.some((item) => item.userId?._id === profile._id),
+        );
 
-  const handleShortlist = (e) => {
+        // interests
+        const sent = await getSentInterests();
+        const found = sent.find((i) => i.receiverId?._id === profile._id);
+
+        if (found) {
+          setInterestStatus(found.status);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    loadData();
+  }, [profile._id, currentUser]);
+
+  const handleShortlist = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (!currentUser) return;
 
-    if (isShortlisted) {
-      removeFromShortlist(currentUser.id, profile.id);
-      setIsShortlisted(false);
-    } else {
-      addToShortlist(currentUser.id, profile);
-      setIsShortlisted(true);
+    try {
+      if (isShortlisted) {
+        await removeFromShortlist(profile._id);
+        setIsShortlisted(false);
+      } else {
+        await addToShortlist(profile._id);
+        setIsShortlisted(true);
+      }
+
+      refreshData();
+    } catch (err) {
+      console.error("Shortlist error:", err);
     }
-    refreshData(); // Refresh app data to update shortlist count in navbar
   };
 
-  const handleSendInterest = (e) => {
+  const handleSendInterest = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!currentUser || isInterestSent) return;
 
-    sendInterest({
-      senderId: currentUser.id,
-      receiverId: profile.id,
-      profile,
-    });
-    setIsInterestSent(true);
-    refreshData(); // Refresh app data to update interest count in navbar
+    if (!currentUser || interestStatus) return;
+
+    try {
+      await sendInterest({
+        receiverId: profile._id,
+        message: "Hi, I'm interested in your profile",
+      });
+
+      setInterestStatus("pending");
+      refreshData();
+    } catch (err) {
+      console.error("Interest error:", err);
+    }
   };
 
   /* ---------------- Horizontal Layout ---------------- */
@@ -70,12 +97,10 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
   if (layout === "horizontal") {
     return (
       <Link
-        to={`/user/profile/${profile.id}`}
-        className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex overflow-hidden group cursor-pointer"
+        to={`/user/profile/${profile._id}`}
+        className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex overflow-hidden group"
       >
-        {/* Image */}
-
-        <div className="w-28 h-full shrink-0 overflow-hidden relative">
+        <div className="w-28 h-full overflow-hidden">
           <img
             src={
               profile.avatar ||
@@ -85,57 +110,13 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
               "/default-avatar.png"
             }
             alt={profile.name}
-            className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-full object-cover"
           />
         </div>
 
-        {/* Details */}
-
-        <div className="flex-1 p-4 flex flex-col justify-center min-w-0">
-          <div className="flex items-start justify-between">
-            <div className="min-w-0">
-              <h3 className="font-semibold text-gray-800 text-base truncate">
-                {profile.name}
-              </h3>
-              <p className="text-gray-500 text-sm">
-                {profile.age} yrs, {profile.height || "5'6\""}
-              </p>
-            </div>
-
-            {profile.compatibility && (
-              <span className="bg-pink-100 text-pink-600 text-xs font-bold px-2 py-0.5 rounded-full ml-2 shrink-0">
-                {profile.compatibility}% Match
-              </span>
-            )}
-          </div>
-
-          <div className="space-y-1.5 mt-2">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
-              <span className="truncate">
-                {profile.education?.occupation ||
-                  profile.profession ||
-                  "Not specified"}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
-              <span className="truncate">
-                {profile.location?.city || "Not specified"},{" "}
-                {profile.location?.state || ""}
-              </span>
-            </div>
-
-            {profile.education?.qualification && (
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <GraduationCap className="w-4 h-4 text-gray-400 shrink-0" />
-                <span className="truncate">
-                  {profile.education.qualification}
-                </span>
-              </div>
-            )}
-          </div>
+        <div className="flex-1 p-4">
+          <h3 className="font-semibold">{profile.name}</h3>
+          <p className="text-sm text-gray-500">{profile.age} yrs</p>
         </div>
       </Link>
     );
@@ -145,12 +126,11 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
 
   return (
     <Link
-      to={`/user/profile/${profile.id}`}
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 group overflow-hidden cursor-pointer flex flex-col"
+      to={`/user/profile/${profile._id}`}
+      className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all flex flex-col overflow-hidden"
     >
-      {/* Image Section */}
-
-      <div className="relative h-48 overflow-hidden">
+      {/* IMAGE */}
+      <div className="relative h-48">
         <img
           src={
             profile.avatar ||
@@ -160,68 +140,48 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
             "/default-avatar.png"
           }
           alt={profile.name}
-          className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+          className="w-full h-full object-cover"
         />
 
-        {/* Match Badge */}
-
-        {profile.compatibility && (
-          <div className="absolute top-2.5 right-2.5 bg-pink-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
-            {profile.compatibility}% Match
+        {/* MATCHED BADGE */}
+        {interestStatus === "accepted" && (
+          <div className="absolute bottom-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+            Matched
           </div>
         )}
 
-        {/* Shortlist Badge */}
-
+        {/* SHORTLIST BADGE */}
         {isShortlisted && (
-          <div className="absolute top-2.5 left-2.5 bg-yellow-400 p-1.5 rounded-full shadow">
+          <div className="absolute top-2 left-2 bg-yellow-400 p-1 rounded-full">
             <Star className="w-3 h-3 text-white fill-current" />
           </div>
         )}
-
-        {/* Gradient Overlay */}
-
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-          <h3 className="font-bold text-white text-base">{profile.name}</h3>
-          <p className="text-white/90 text-sm">{profile.age} yrs</p>
-        </div>
       </div>
 
-      {/* Details */}
+      {/* DETAILS */}
+      <div className="p-3 flex flex-col gap-3">
+        <h3 className="font-semibold">{profile.name}</h3>
+        <p className="text-sm text-gray-500">{profile.age} yrs</p>
 
-      <div className="p-3 flex-grow flex flex-col">
-        <div className="space-y-1.5 mb-3 flex-grow">
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
-            <span className="truncate">
-              {profile.education?.occupation ||
-                profile.profession ||
-                "Not specified"}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
-            <span className="truncate">
-              {profile.location?.city || "Not specified"},{" "}
-              {profile.location?.state || ""}
-            </span>
-          </div>
-        </div>
-
-        {/* Buttons */}
-
-        <div className="flex gap-2 mt-auto">
+        {/* BUTTONS */}
+        <div className="flex flex-col gap-2">
+          {/* MAIN BUTTON */}
           <button
             onClick={handleSendInterest}
-            disabled={isInterestSent}
-            className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-1.5 ${
-              isInterestSent
-                ? "bg-green-100 text-green-700 cursor-not-allowed"
-                : "bg-pink-500 text-white hover:bg-pink-600 shadow-sm hover:shadow-md"
+            disabled={interestStatus === "pending"}
+            className={`w-full py-2 rounded-lg flex items-center justify-center gap-2 ${
+              interestStatus === "accepted"
+                ? "bg-blue-500 text-white"
+                : interestStatus === "pending"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-pink-500 text-white"
             }`}
           >
-            {isInterestSent ? (
+            {interestStatus === "accepted" ? (
+              <>
+                <MessageCircle className="w-4 h-4" /> Chat
+              </>
+            ) : interestStatus === "pending" ? (
               <>
                 <Check className="w-4 h-4" /> Sent
               </>
@@ -232,18 +192,46 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
             )}
           </button>
 
-          <button
-            onClick={handleShortlist}
-            className={`p-2.5 rounded-lg border transition-all ${
-              isShortlisted
-                ? "border-yellow-400 bg-yellow-50 text-yellow-500"
-                : "border-gray-200 text-gray-500 hover:border-yellow-400 hover:text-yellow-500"
-            }`}
-          >
-            <Star
-              className={`w-4 h-4 ${isShortlisted ? "fill-current" : ""}`}
-            />
-          </button>
+          {/* AFTER MATCH */}
+          {interestStatus === "accepted" && (
+            <div className="flex gap-2">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  alert("Call feature coming soon 📞");
+                }}
+                className="flex-1 py-2 bg-gray-100 rounded-lg flex items-center justify-center gap-2"
+              >
+                <Phone className="w-4 h-4" /> Call
+              </button>
+
+              <button
+                onClick={handleShortlist}
+                className={`p-2 rounded-lg ${
+                  isShortlisted ? "bg-yellow-100 text-yellow-500" : ""
+                }`}
+              >
+                <Star
+                  className={`w-4 h-4 ${isShortlisted ? "fill-current" : ""}`}
+                />
+              </button>
+            </div>
+          )}
+
+          {/* BEFORE MATCH */}
+          {interestStatus !== "accepted" && (
+            <button
+              onClick={handleShortlist}
+              className={`p-2 rounded-lg border ${
+                isShortlisted ? "bg-yellow-100 text-yellow-500" : ""
+              }`}
+            >
+              <Star
+                className={`w-4 h-4 ${isShortlisted ? "fill-current" : ""}`}
+              />
+            </button>
+          )}
         </div>
       </div>
     </Link>
