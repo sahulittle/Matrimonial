@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 import { ArrowRight, Heart, MessageCircle, Eye, Star } from "lucide-react";
 import MatchCard from "../../components/ui/MatchCard";
 import { useAuth } from "../../context/AuthContext";
+import { Link } from "react-router-dom";
 import {
   getDashboardStats,
   getRecommendedProfiles,
@@ -36,7 +36,7 @@ const Dashboard = () => {
   const [activeUsers, setActiveUsers] = useState([]);
   const [sentInterests, setSentInterests] = useState([]);
   const [shortlist, setShortlist] = useState([]);
-  
+
   useEffect(() => {
     const loadDashboard = async () => {
       try {
@@ -212,7 +212,6 @@ const Dashboard = () => {
                 View All
               </Link>
             </div>
-
             <div className="flex gap-4 overflow-x-auto pb-4 -mx-6 px-6">
               {Array.isArray(newMatches) && newMatches.length > 0 ? (
                 newMatches.slice(0, 6).map((profile) => {
@@ -223,21 +222,21 @@ const Dashboard = () => {
 
                   return (
                     <div key={profile._id} className="shrink-0 w-52">
-                      <MatchCard
-                        profile={{
-                          ...profile,
-                          name: `${profile.firstName || ""} ${
-                            profile.lastName || ""
-                          }`,
-                          image:
-                            profile.profilePhoto ||
-                            profile.photos?.[0] ||
-                            "/default-avatar.png",
-                          location: profile.jobLocation,
-                          age,
-                        }}
-                        layout="vertical"
-                      />
+                      <Link to={`/user/profile/${profile._id}`}>
+                        <MatchCard
+                          profile={{
+                            ...profile,
+                            name: `${profile.firstName || ""} ${profile.lastName || ""}`,
+                            image:
+                              profile.profilePhoto ||
+                              profile.photos?.[0] ||
+                              "/default-avatar.png",
+                            location: profile.jobLocation,
+                            age,
+                          }}
+                          layout="vertical"
+                        />
+                      </Link>
                     </div>
                   );
                 })

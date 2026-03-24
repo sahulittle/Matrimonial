@@ -39,7 +39,7 @@ const UserRoutes = () => (
       <Route path="notifications" element={<Notifications />} />
       <Route path="settings" element={<Settings />} />
       <Route path="signup" element={<Signup />} />
-      <Route path="user-details" element={<UserDetailsPage />} />
+      <Route path="user-details/:id" element={<UserDetailsPage />} />
 
       {/* Catch-all to redirect to dashboard */}
       <Route path="*" element={<Navigate to="dashboard" replace />} />

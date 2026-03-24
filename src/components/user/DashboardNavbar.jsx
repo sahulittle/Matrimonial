@@ -18,7 +18,6 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
-const BASE_URL = "http://localhost:5003";
 const NavbarIconButton = ({ icon: Icon, onClick, badge, className = "" }) => {
   return (
     <button
@@ -121,12 +120,13 @@ const Navbar = ({ toggleSidebar }) => {
             </button>
 
             <Link to="/user/dashboard" className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center shadow">
-                <Heart className="w-6 h-6 text-pink-600" />
+              <div className="w-36 h-10 bg-white rounded-lg flex items-center justify-center shadow">
+                <img
+                  src="/discount-logo.png"
+                  alt="MatriLab Logo"
+                  className=" h-28 object-cover scale-125"
+                />
               </div>
-              <span className="text-xl font-bold text-white hidden sm:inline">
-                MatriLab
-              </span>
             </Link>
           </div>
 

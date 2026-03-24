@@ -15,16 +15,11 @@ export const registerUser = async (data) => {
 
 // ================= LOGIN USER =================
 export const loginUser = async (data) => {
-  try {
-    const res = await axios.post(`${API}/login`, data);
+  const res = await axios.post(`${API}/login`, data, {
+    withCredentials: true, // ✅ ADD THIS
+  });
 
-    // ✅ OPTIONAL: store token here (or keep in AuthContext)
-    // localStorage.setItem("authToken", res.data.token);
-
-    return res.data;
-  } catch (error) {
-    throw error.response?.data || { message: "Server error" };
-  }
+  return res.data;
 };
 
 // ================= CAPTCHA =================

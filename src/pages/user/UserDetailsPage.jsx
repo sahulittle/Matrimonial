@@ -1,7 +1,10 @@
 import React from "react";
 import { useState } from "react";
+import { useParams } from "react-router-dom";
 const UserDetailsPage = () => {
   const [activeTab, setActiveTab] = useState("details");
+  const { id } = useParams();
+  const [user, setUser] = useState(null);
   const data = [
     { label: "Age", value: "26 to 30" },
     { label: "Height", value: "5'2'' to 6'1''" },
@@ -11,6 +14,18 @@ const UserDetailsPage = () => {
     { label: "Country", value: "India" },
     { label: "Income", value: "4–10 LPA" },
   ];
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await getUserById(id); // create this API
+        setUser(res);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchUser();
+  }, [id]);
   return (
     <div className="bg-gradient-to-br from-[#fdfbfb] to-[#ebedee] min-h-screen p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
@@ -61,7 +76,9 @@ const UserDetailsPage = () => {
           {/* TOP CARD */}
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-lg border border-white/40 p-5 flex justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-800">Chnmayee R 🔒</h2>
+              <h2 className="text-xl font-bold text-gray-800">
+                {user?.firstName} {user?.lastName}
+              </h2>
 
               <div className="flex gap-4 text-xs text-gray-500 mt-1">
                 <span className="text-emerald-500 font-medium">
