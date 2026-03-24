@@ -25,13 +25,20 @@ const AboutUs = () => {
             <h4 className="text-4xl font-semibold text-pink-600 uppercase tracking-wider">
               About Us
             </h4>
-            <p className="text-gray-600 leading-relaxed text-lg">
-              Matrilab is a trusted marriage platform dedicated to helping
-              individuals find their perfect life partners. We offer tailored
-              matrimonial packages, a growing community of verified members, and
-              inspiring success stories. We aim to connect hearts and build
-              lifelong relationships with a seamless and secure matchmaking
-              experience.
+            <p className="text-gray-600 leading-relaxed text-lg text-justify">
+              Welcome to Marathi Shubha Vivah, a trusted and dedicated matrimony
+              platform created to help individuals find their perfect life
+              partner within the Marathi community. Marriage is one of the most
+              important decisions in life. It is not just about two people
+              coming together, but about uniting families, traditions, values,
+              and dreams. At Marathi Shubha Vivah, we deeply understand the
+              emotional, cultural, and personal significance of this journey.
+              That is why we are committed to making the process of finding a
+              life partner simple, secure, and meaningful. In today’s fast-paced
+              digital world, searching for a suitable partner can often feel
+              overwhelming. With countless options, lack of authenticity, and
+              complicated platforms, users may struggle to find genuine
+              connections.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 pt-4">
@@ -39,25 +46,33 @@ const AboutUs = () => {
                 <div className="bg-pink-100 text-pink-600 p-3 rounded-full flex-shrink-0">
                   <FaUserCheck size={22} />
                 </div>
-                <h5 className="font-semibold text-gray-700">Contact genuine profiles</h5>
+                <h5 className="font-semibold text-gray-700">
+                  Contact genuine profiles
+                </h5>
               </div>
               <div className="flex items-center gap-4">
                 <div className="bg-pink-100 text-pink-600 p-3 rounded-full flex-shrink-0">
                   <FaShieldAlt size={22} />
                 </div>
-                <h5 className="font-semibold text-gray-700">100% security for data and Profile</h5>
+                <h5 className="font-semibold text-gray-700">
+                  100% security for data and Profile
+                </h5>
               </div>
               <div className="flex items-center gap-4">
                 <div className="bg-pink-100 text-pink-600 p-3 rounded-full flex-shrink-0">
                   <FaHeart size={22} />
                 </div>
-                <h5 className="font-semibold text-gray-700">Find perfect match quite easily</h5>
+                <h5 className="font-semibold text-gray-700">
+                  Find perfect match quite easily
+                </h5>
               </div>
               <div className="flex items-center gap-4">
                 <div className="bg-pink-100 text-pink-600 p-3 rounded-full flex-shrink-0">
                   <FaGlobeAmericas size={22} />
                 </div>
-                <h5 className="font-semibold text-gray-700">Trusted Matrimonial agency in the world</h5>
+                <h5 className="font-semibold text-gray-700">
+                  Trusted Matrimonial agency in the world
+                </h5>
               </div>
             </div>
           </div>

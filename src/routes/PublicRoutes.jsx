@@ -14,6 +14,8 @@ import Contact from "../pages/public/contact/Contact";
 import Members from "../pages/public/home/Members";
 import Unauthorized from "../pages/public/Unauthorized";
 import Privacy from "../pages/public/privacy/Privacy";
+import TermAndService from "../pages/public/privacy/TermAndService";
+import PurchasePolicy from "../pages/public/privacy/PurchasePolicy";
 
 /**
  * PublicRoutes - All public route definitions
@@ -32,6 +34,8 @@ const PublicRoutes = () => (
       <Route path="stories" element={<Stories />} />
       <Route path="contact" element={<Contact />} />
       <Route path="privacy-policy" element={<Privacy />} />
+      <Route path="terms-of-service" element={<TermAndService />} />
+      <Route path="purchase-policy" element={<PurchasePolicy />} />
     </Route>
 
     {/* Admin Login (without layout wrapper) */}

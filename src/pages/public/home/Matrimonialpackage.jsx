@@ -3,9 +3,9 @@ import { FaCheck, FaCheckCircle } from "react-icons/fa";
 
 const Matrimonialpackage = () => {
   const packages = [
-   {
+    {
       name: "Gold",
-      price: "50",
+      price: "600",
       duration: 30,
       contactViews: "100",
       interestExpress: "100",
@@ -14,28 +14,18 @@ const Matrimonialpackage = () => {
     },
     {
       name: "Diamond",
-      price: "100",
+      price: "1000",
       duration: 30,
       contactViews: "150",
       interestExpress: "150",
       imageUploads: "10",
       featured: false,
     },
-    {
-      name: "Premium",
-      price: "849.00",
-      duration: 45,
-      contactViews: 200,
-      interestExpress: 200,
-      imageUploads: 200,
-      featured: false,
-    }
   ];
 
   return (
     <div className="py-16 bg-gray-100">
       <div className="container mx-auto px-6 text-center">
-
         <h3 className="text-4xl font-bold text-gray-800 mb-4">
           Matrimonial Package
         </h3>
@@ -45,11 +35,12 @@ const Matrimonialpackage = () => {
           package through online payment system.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8">
-
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 ">
           {packages.map((pkg, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
-
+            <div
+              key={index}
+              className="bg-white rounded-lg shadow-lg overflow-hidden"
+            >
               {/* Header */}
               <div className="bg-gradient-to-r from-pink-500 to-pink-700 text-white py-4 text-xl font-bold relative package-header">
                 {pkg.name}
@@ -60,14 +51,11 @@ const Matrimonialpackage = () => {
 
               {/* Price */}
               <div className="py-8">
-                <p className="text-4xl font-bold text-pink-500">
-                  ₹{pkg.price}
-                </p>
+                <p className="text-4xl font-bold text-pink-500">₹{pkg.price}</p>
               </div>
 
               {/* Features */}
               <div className="px-8 pb-8 text-left space-y-4 text-gray-600">
-
                 <div className="flex items-center gap-3 border-b pb-3">
                   <FaCheck className="text-pink-500 text-sm" />
                   Duration ({pkg.duration})
@@ -94,14 +82,10 @@ const Matrimonialpackage = () => {
                     Buy Now
                   </button>
                 </div>
-
               </div>
-
             </div>
           ))}
-
         </div>
-
       </div>
     </div>
   );

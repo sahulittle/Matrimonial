@@ -63,20 +63,21 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/terms-of-service"
                   className="hover:text-white transition-colors duration-300"
                 >
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#"
+                <Link
+                  to="/purchase-policy"
                   className="hover:text-white transition-colors duration-300"
                 >
                   Purchase Policy
-                </a>
+                </Link>
+                
               </li>
             </ul>
           </div>

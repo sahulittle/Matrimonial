@@ -18,6 +18,7 @@ import Signup from "../pages/user/Signup";
 import ProfileView from "../pages/user/ProfileView";
 import UserDetailsPage from "../pages/user/UserDetailsPage";
 
+
 /**
  * UserRoutes - All authenticated user route definitions
  * Protected: requires user.role === "user"
