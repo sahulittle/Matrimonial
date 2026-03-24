@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // ================= BASE URL =================
-const BASE_URL = "http://localhost:5003/api/users";
+const BASE_URL = `${import.meta.env.VITE_API_URL}/users`;
 
 // ================= TOKEN HELPER =================
 const getToken = () => localStorage.getItem("authToken");

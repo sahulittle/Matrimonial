@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const ADMIN_API = "http://localhost:5003/api/admin";
+const ADMIN_API = `${import.meta.env.VITE_API_URL}/admin`;
 
 // ================= ADMIN LOGIN =================
 export const adminLogin = async (data) => {
