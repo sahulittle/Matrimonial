@@ -79,15 +79,12 @@ const Navbar = () => {
       </nav>
       <nav className="flex items-center justify-between px-4 md:px-10 py-3 bg-white relative">
         {/* Left Side: Logo and Brand Name */}
-        <div className="flex items-center gap-4">
+        <div className="flex ml-8 lg:ml-10">
           <img
-            src="/discount-logo.png"
+            src="/logo-rmbg.png"
             alt="MatriLab Logo"
-            className="w-20 h-auto object-contain"
+            className="h-12 object-contain scale-150"
           />
-          <span className="text-3xl font-bold text-gray-800 leading-none">
-            MatriLab
-          </span>
         </div>
 
         {/* Center: Navigation Links */}

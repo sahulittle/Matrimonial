@@ -120,11 +120,11 @@ const Navbar = ({ toggleSidebar }) => {
             </button>
 
             <Link to="/user/dashboard" className="flex items-center gap-2">
-              <div className="w-36 h-10 bg-white rounded-lg flex items-center justify-center shadow">
+              <div className="w-52 h-12 bg-white rounded-lg flex items-center justify-center shadow">
                 <img
-                  src="/discount-logo.png"
+                  src="/logo-rmbg.png"
                   alt="MatriLab Logo"
-                  className=" h-28 object-cover scale-125"
+                  className=" h-auto object-cover scale-125"
                 />
               </div>
             </Link>
