@@ -6,8 +6,6 @@ import ProtectedRoute from "./ProtectedRoute";
 // Admin Pages
 import Dashboard from "../pages/admin/Dashboard";
 import ManagePackages from "../pages/admin/ManagePackages";
-import BloodGroup from "../pages/admin/BloodGroup";
-import MaritalStatus from "../pages/admin/MaritalStatus";
 import ActiveUsers from "../pages/admin/ActiveUsers";
 import UserDetail from "../pages/admin/UserDetail";
 import BannedUsers from "../pages/admin/BannedUsers";
@@ -52,10 +50,6 @@ const AdminRoutes = () => (
       <Route path="dashboard" element={<Dashboard />} />
       <Route path="manage-packages" element={<ManagePackages />} />
       <Route path="renewlist" element={<RenewList />} />
-
-      {/* User Attributes */}
-      <Route path="user-attribute/blood-group" element={<BloodGroup />} />
-      <Route path="user-attribute/marital-status" element={<MaritalStatus />} />
 
       {/* Users */}
       <Route path="users/active" element={<ActiveUsers />} />

@@ -41,6 +41,7 @@ const UserRoutes = () => (
       <Route path="settings" element={<Settings />} />
       <Route path="signup" element={<Signup />} />
       <Route path="user-details/:id" element={<UserDetailsPage />} />
+      <Route path="user-details" element={<UserDetailsPage />} />
 
       {/* Catch-all to redirect to dashboard */}
       <Route path="*" element={<Navigate to="dashboard" replace />} />

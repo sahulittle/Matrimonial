@@ -42,7 +42,7 @@ const HeroSection = () => {
       <div className="relative z-10 container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12">
         {/* Left Side */}
         <div className="text-white text-center lg:text-left lg:w-1/2 space-y-6 animate-fade-in-up lg:ml-10">
-          <h3 className="text-2xl md:text-3xl font-semibold text-pink-400 tracking-wide">Welcome to <span className='text-white'>MatriLab</span>
+          <h3 className="text-2xl md:text-3xl font-semibold text-pink-400 tracking-wide">Welcome to <span className='text-white'>Marathi Shubha Vivah</span>
           </h3>
           <h2 className="text-4xl md:text-6xl font-bold leading-tight text-pink-400">
             Find Your Perfect <br />Life Partner With Us

@@ -97,7 +97,7 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
   if (layout === "horizontal") {
     return (
       <Link
-        to={`/user/profile/${profile._id}`}
+        to={`/user/user-details/${profile._id}`}
         className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex overflow-hidden group"
       >
         <div className="w-28 h-full overflow-hidden">
@@ -126,7 +126,7 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
 
   return (
     <Link
-      to={`/user/profile/${profile._id}`}
+      to={`/user/user-details/${profile._id}`}
       className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-lg transition-all flex flex-col overflow-hidden"
     >
       {/* IMAGE */}

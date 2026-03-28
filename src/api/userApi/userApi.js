@@ -271,10 +271,10 @@ export const getReceivedInterests = async () => {
 };
 
 // ACCEPT
-export const acceptInterest = async (id) => {
+export const acceptInterest = async (interestId) => {
   try {
     const res = await axios.put(
-      `${BASE_URL}/interests/${id}/accept`,
+      `${BASE_URL}/interests/${interestId}/accept`,
       {},
       authHeader()
     );
@@ -285,10 +285,10 @@ export const acceptInterest = async (id) => {
 };
 
 // REJECT
-export const rejectInterest = async (id) => {
+export const rejectInterest = async (interestId) => {
   try {
     const res = await axios.put(
-      `${BASE_URL}/interests/${id}/reject`,
+      `${BASE_URL}/interests/${interestId}/reject`,
       {},
       authHeader()
     );
@@ -299,10 +299,10 @@ export const rejectInterest = async (id) => {
 };
 
 // CANCEL
-export const cancelInterest = async (id) => {
+export const cancelInterest = async (interestId) => {
   try {
     const res = await axios.delete(
-      `${BASE_URL}/interests/${id}`,
+      `${BASE_URL}/interests/${interestId}`,
       authHeader()
     );
     return res.data;
@@ -351,4 +351,26 @@ export const getShortlist = async () => {
   } catch (error) {
     throw error.response?.data || { message: "Failed to fetch shortlist" };
   }
+};
+
+// ================= PAYMENT =================
+
+export const getPackages = async () => {
+  return axios.get(`${BASE_URL}/payments/packages`);
+};
+
+export const createPaymentIntent = async (data) => {
+  return axios.post(
+    `${BASE_URL}/payments/create-intent`,
+    data,
+    authHeader()
+  );
+};
+
+export const confirmPayment = async (data) => {
+  return axios.post(
+    `${BASE_URL}/payments/confirm`,
+    data,
+    authHeader()
+  );
 };

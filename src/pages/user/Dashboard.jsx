@@ -222,7 +222,7 @@ const Dashboard = () => {
 
                   return (
                     <div key={profile._id} className="shrink-0 w-52">
-                      <Link to={`/user/profile/${profile._id}`}>
+                      <Link to={`/user-details/${profile._id}`}>
                         <MatchCard
                           profile={{
                             ...profile,
@@ -274,26 +274,31 @@ const Dashboard = () => {
                   );
 
                   return (
-                    <MatchCard
+                    <Link
                       key={profile._id}
-                      profile={{
-                        ...profile,
-                        name: `${profile.firstName || ""} ${
-                          profile.lastName || ""
-                        }`,
-                        image:
-                          profile.profilePhoto ||
-                          profile.photos?.[0] ||
-                          "/default-avatar.png",
-                        location: profile.jobLocation,
-                        age,
-                      }}
-                      layout="vertical"
-                      isShortlisted={isShortlisted}
-                      onShortlist={() =>
-                        handleShortlist(profile._id, isShortlisted)
-                      }
-                    />
+                      to={`user-details/${profile._id}`}
+                      className="block"
+                    >
+                      <MatchCard
+                        profile={{
+                          ...profile,
+                          name: `${profile.firstName || ""} ${
+                            profile.lastName || ""
+                          }`,
+                          image:
+                            profile.profilePhoto ||
+                            profile.photos?.[0] ||
+                            "/default-avatar.png",
+                          location: profile.jobLocation,
+                          age,
+                        }}
+                        layout="vertical"
+                        isShortlisted={isShortlisted}
+                        onShortlist={() =>
+                          handleShortlist(profile._id, isShortlisted)
+                        }
+                      />
+                    </Link>
                   );
                 })
               ) : (
@@ -373,7 +378,7 @@ const Dashboard = () => {
                 {visitors.slice(0, 5).map((visitor) => (
                   <Link
                     key={visitor._id}
-                    to={`/user/profile/${visitor._id}`}
+                    to={`/user-details/${visitor._id}`}
                     className="shrink-0 text-center group"
                   >
                     <img

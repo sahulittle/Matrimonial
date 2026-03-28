@@ -115,7 +115,10 @@ const Shortlist = () => {
 
                 {/* Content */}
                 <div className="p-4">
-                  <Link to={`/user/profile/${profile?._id}`} className="block">
+                  <Link
+                    to={`/user/user-details/${profile?._id}`}
+                    className="block"
+                  >
                     <h3 className="font-semibold text-gray-900 text-lg mb-1">
                       {profile?.firstName} {profile?.lastName}
                     </h3>
@@ -145,7 +148,7 @@ const Shortlist = () => {
                   </div>
 
                   <Link
-                    to={`/user/profile/${profile?._id}`}
+                    to={`/user/user-details/${profile?._id}`}
                     className="block w-full py-2.5 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium text-center hover:shadow-lg hover:shadow-primary-500/25 transition-all"
                   >
                     View Profile

@@ -29,10 +29,11 @@ export const initSocket = (userId, isAdmin = false) => {
   socket.on("connect", () => {
     console.log("✅ Socket connected");
 
+    // Join user's personal room on server (backend expects user:join/admin:join)
     if (isAdmin) {
-      socket.emit("admin:login", userId);
+      socket.emit("admin:join", { userId });
     } else {
-      socket.emit("user:login", userId);
+      socket.emit("user:join", { userId });
     }
   });
 

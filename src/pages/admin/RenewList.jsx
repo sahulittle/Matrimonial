@@ -1,30 +1,54 @@
-import React, { useState } from 'react';
-import { FiMail, FiMessageSquare, FiSearch } from 'react-icons/fi';
+import React, { useState, useEffect } from "react";
+import { FiMail, FiMessageSquare, FiSearch } from "react-icons/fi";
 // Helper to format date and calculate relative time
+import { getRenewals } from "../../api/adminApi/adminApi"; // ✅ ADD THIS
 const RenewList = () => {
-  const [renewals, setRenewals] = useState([
-    { id: 1, userName: 'John Doe', packageName: 'Premium', startDate: '2024-01-15', endDate: '2024-02-15', mobile: '123-456-7890' },
-    { id: 2, userName: 'Jane Smith', packageName: 'Basic', startDate: '2024-01-20', endDate: '2024-02-20', mobile: '987-654-3210' },
-  ]);
+  // ✅ ADD empty state
+  const [renewals, setRenewals] = useState([]);
 
   const [searchName, setSearchName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const filteredRenewals = renewals.filter(renewal => {
-    const userMatch = renewal.userName.toLowerCase().includes(searchName.toLowerCase());
+  const filteredRenewals = renewals.filter((renewal) => {
+    const userMatch = renewal.userName
+      .toLowerCase()
+      .includes(searchName.toLowerCase());
     const startDateMatch = startDate ? renewal.startDate >= startDate : true;
     const endDateMatch = endDate ? renewal.endDate <= endDate : true;
 
     return userMatch && startDateMatch && endDateMatch;
   });
 
+  // ✅ ADD API CALL
+  const fetchRenewals = async () => {
+    try {
+      const res = await getRenewals({
+        search: searchName,
+        startDate,
+        endDate,
+      });
+
+      setRenewals(res.renewals || []);
+    } catch (error) {
+      console.error("Error fetching renewals:", error);
+    }
+  };
+
+  // ✅ Load on mount
+  useEffect(() => {
+    fetchRenewals();
+  }, []);
+
+  // ✅ OPTIONAL: re-fetch when filters change
+  useEffect(() => {
+    fetchRenewals();
+  }, [searchName, startDate, endDate]);
   return (
     <div className="container mx-auto p-4 ">
-      <div className=''>
+      <div className="">
         <h1 className="text-2xl font-semibold mb-4">Package Renewal List</h1>
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-
           <div className="relative w-full md:w-1/3">
             <input
               type="text"
@@ -41,8 +65,14 @@ const RenewList = () => {
               className="w-full px-3 py-2 border rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-            /> <span>-</span>
-            <input type="date" className="w-full px-3 py-2 border rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+            />{" "}
+            <span>-</span>
+            <input
+              type="date"
+              className="w-full px-3 py-2 border rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+            />
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -79,7 +109,9 @@ const RenewList = () => {
                       <button
                         className="bg-green-500 hover:bg-green-700 text-white py-1 px-3 rounded focus:outline-none focus:shadow-outline"
                         onClick={() => {
-                          alert(`Send SMS to ${renewal.userName} at ${renewal.mobile}`);
+                          alert(
+                            `Send SMS to ${renewal.userName} at ${renewal.mobile}`,
+                          );
                         }}
                       >
                         <FiMessageSquare className="inline-block mr-1" />

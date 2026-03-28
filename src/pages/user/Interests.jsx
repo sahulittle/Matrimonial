@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { onMatchCreated, off } from "../../services/socketService";
 import { Heart, Send } from "lucide-react";
 import InterestCard from "../../components/ui/InterestCard";
 import {
@@ -17,56 +18,74 @@ const Interests = () => {
   const [sent, setSent] = useState([]);
 
   useEffect(() => {
-    const loadInterests = async () => {
-      try {
-        const receivedRes = await getReceivedInterests();
-        const sentRes = await getSentInterests();
-        const formattedReceived = (receivedRes || []).map((i) => ({
-          ...i,
-          profile: {
-            id: i.senderId?._id,
-            name: `${i.senderId?.firstName || ""} ${i.senderId?.lastName || ""}`,
-            image:
-              i.senderId?.profilePhoto ||
-              i.senderId?.photos?.[0] ||
-              "/default-avatar.png",
-            age: i.senderId?.dateOfBirth
-              ? new Date().getFullYear() -
-                new Date(i.senderId.dateOfBirth).getFullYear()
-              : "",
-            location: i.senderId?.jobLocation,
-          },
-        }));
+    // moved to loadInterests below
+  }, [user, refreshData]);
 
-        const formattedSent = (sentRes || []).map((i) => ({
-          ...i,
-          profile: {
-            id: i.receiverId?._id,
-            name: `${i.receiverId?.firstName || ""} ${i.receiverId?.lastName || ""}`,
-            image:
-              i.receiverId?.profilePhoto ||
-              i.receiverId?.photos?.[0] ||
-              "/default-avatar.png",
-            age: i.receiverId?.dateOfBirth
-              ? new Date().getFullYear() -
-                new Date(i.receiverId.dateOfBirth).getFullYear()
-              : "",
-            location: i.receiverId?.jobLocation,
-          },
-        }));
+  // fetch interests (used on mount and after socket events)
+  const loadInterests = async () => {
+    try {
+      const receivedRes = await getReceivedInterests();
+      const sentRes = await getSentInterests();
+      const formattedReceived = (receivedRes || []).map((i) => ({
+        ...i,
+        profile: {
+          id: i.senderId?._id,
+          name: `${i.senderId?.firstName || ""} ${i.senderId?.lastName || ""}`,
+          image:
+            i.senderId?.profilePhoto ||
+            i.senderId?.photos?.[0] ||
+            "/default-avatar.png",
+          age: i.senderId?.dateOfBirth
+            ? new Date().getFullYear() -
+              new Date(i.senderId.dateOfBirth).getFullYear()
+            : "",
+          location: i.senderId?.jobLocation,
+        },
+      }));
 
-        setReceived(formattedReceived);
-        setSent(formattedSent);
-        console.log("Received interests:", receivedRes);
-        console.log("Sent interests:", sentRes);
-      } catch (err) {
-        console.error(err);
-      }
+      const formattedSent = (sentRes || []).map((i) => ({
+        ...i,
+        profile: {
+          id: i.receiverId?._id,
+          name: `${i.receiverId?.firstName || ""} ${i.receiverId?.lastName || ""}`,
+          image:
+            i.receiverId?.profilePhoto ||
+            i.receiverId?.photos?.[0] ||
+            "/default-avatar.png",
+          age: i.receiverId?.dateOfBirth
+            ? new Date().getFullYear() -
+              new Date(i.receiverId.dateOfBirth).getFullYear()
+            : "",
+          location: i.receiverId?.jobLocation,
+        },
+      }));
+
+      setReceived(formattedReceived);
+      setSent(formattedSent);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (user) loadInterests();
+  }, [user, refreshData]);
+
+  // listen for real-time matches
+  useEffect(() => {
+    if (!user) return;
+
+    const handleMatch = (data) => {
+      // refresh interests list to reflect match
+      loadInterests();
     };
 
-    if (user) {
-      loadInterests();
-    }
+    onMatchCreated(handleMatch);
+
+    return () => {
+      // remove listener to avoid memory leaks
+      off("match:created", handleMatch);
+    };
   }, [user, refreshData]);
 
   const pendingReceived = received.filter((i) => i.status === "pending");

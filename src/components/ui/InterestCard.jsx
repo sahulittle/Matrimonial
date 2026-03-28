@@ -1,14 +1,19 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Heart, Check, X, Clock, MapPin, Briefcase } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
-const InterestCard = ({ interest, type = "received", onUpdate }) => {
+const InterestCard = ({
+  interest,
+  type = "received",
+  onUpdate,
+  onAccept,
+  onReject,
+}) => {
   const { user } = useAuth();
 
   // ✅ FIXED: get profile directly from API data
-  const profile =
-    type === "received" ? interest.senderId : interest.receiverId;
+  const profile = type === "received" ? interest.senderId : interest.receiverId;
 
   const message = interest?.message;
   const status = interest?.status;
@@ -19,7 +24,8 @@ const InterestCard = ({ interest, type = "received", onUpdate }) => {
     e.stopPropagation();
     if (!user) return;
 
-    if (onUpdate) onUpdate(interest._id, "accepted");
+    if (onAccept) return onAccept(interest._id);
+    if (onUpdate) return onUpdate(interest._id, "accepted");
   };
 
   const handleDecline = (e) => {
@@ -27,7 +33,8 @@ const InterestCard = ({ interest, type = "received", onUpdate }) => {
     e.stopPropagation();
     if (!user) return;
 
-    if (onUpdate) onUpdate(interest._id, "rejected");
+    if (onReject) return onReject(interest._id);
+    if (onUpdate) return onUpdate(interest._id, "rejected");
   };
 
   const getStatusBadge = () => {
@@ -71,15 +78,20 @@ const InterestCard = ({ interest, type = "received", onUpdate }) => {
   };
 
   const age = profile?.dateOfBirth
-    ? new Date().getFullYear() -
-      new Date(profile.dateOfBirth).getFullYear()
+    ? new Date().getFullYear() - new Date(profile.dateOfBirth).getFullYear()
     : "";
 
+  const navigate = useNavigate();
+
+  const handleOpenChat = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!profile?._id) return;
+    navigate("/user/messages", { state: { newConversationWith: profile._id } });
+  };
+
   return (
-    <Link
-      to={`/user/profile/${profile?._id || ""}`}
-      className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all"
-    >
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all">
       <div className="flex gap-4 p-4">
         {/* Avatar */}
         <div className="relative shrink-0">
@@ -105,7 +117,12 @@ const InterestCard = ({ interest, type = "received", onUpdate }) => {
           <div className="flex items-start justify-between gap-2 mb-2">
             <div>
               <h3 className="font-semibold text-gray-900">
-                {profile?.firstName} {profile?.lastName}
+                <Link
+                  to={`/user/user-details/${profile?._id || ""}`}
+                  className="hover:underline"
+                >
+                  {profile?.firstName} {profile?.lastName}
+                </Link>
               </h3>
 
               <p className="text-gray-500 text-sm">
@@ -135,8 +152,7 @@ const InterestCard = ({ interest, type = "received", onUpdate }) => {
           )}
 
           <p className="text-xs text-gray-400">
-            {type === "received" ? "Received" : "Sent"}{" "}
-            {formatDate(receivedAt)}
+            {type === "received" ? "Received" : "Sent"} {formatDate(receivedAt)}
           </p>
         </div>
       </div>
@@ -161,7 +177,24 @@ const InterestCard = ({ interest, type = "received", onUpdate }) => {
           </button>
         </div>
       )}
-    </Link>
+
+      {status === "accepted" && (
+        <div className="border-t border-gray-100 px-4 py-3 flex gap-3">
+          <button
+            onClick={handleOpenChat}
+            className="flex-1 py-2.5 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:shadow-md transition-colors flex items-center justify-center gap-2"
+          >
+            Chat
+          </button>
+
+          <div className="flex-1 flex items-center justify-center">
+            <span className="text-sm text-green-600 font-semibold">
+              Matched
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
