@@ -1,35 +1,128 @@
+/* Fullscreen preloader with a large heart design and centered logo */
 .preloader {
   position: fixed;
-  top: 0;
-  left: 30%;
-  width: 40%;
-  height: 100%;
-  background-color: #f0c1de; /* A light background color */
+  inset: 0; /* top:0; right:0; bottom:0; left:0 */
   display: flex;
   justify-content: center;
   align-items: center;
+  background:
+    radial-gradient(circle at 20% 20%, #ffe6f2 0%, transparent 25%),
+    radial-gradient(circle at 80% 80%, #fff0f6 0%, transparent 25%),
+    linear-gradient(180deg, #fff1f7 0%, #ffe6f2 100%);
   z-index: 9999;
 }
 
+.heart-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
 
+/* Heart shape made from a rotated square plus two circles */
+.heart {
+  /* smaller heart */
+  width: 200px;
+  height: 200px;
+  position: relative;
+  transform: rotate(-45deg);
+  /* Softer, light-pink gradient */
+  background: linear-gradient(135deg, #ffe6f2 0%, #ffd6e8 50%, #ffc1de 100%);
+  box-shadow:
+    0 12px 30px rgba(255, 182, 212, 0.14),
+    inset 0 -6px 12px rgba(0, 0, 0, 0.03);
+  border-radius: 6px 6px 0 0;
+  animation: heartBeat 1.6s ease-in-out infinite;
+  z-index: 0;
+}
 
 .heart::before,
 .heart::after {
-  content: '';
-  width: 100px;
-  height: 100px;
-  background-color: #ec4899; /* Tailwind's pink-500 */
-  border-radius: 50%;
+  content: "";
   position: absolute;
+  width: 200px;
+  height: 200px;
+  background: inherit;
+  border-radius: 50%;
+  z-index: -1; /* keep circles behind the main heart so logo remains visible */
 }
 
 .heart::before {
-  top: -50px;
+  top: -100px;
   left: 0;
 }
-
 .heart::after {
   top: 0;
-  left: 50px;
+  left: 100px;
 }
 
+/* Logo sits centered inside the heart; rotate back to stay upright */
+.heart .logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) rotate(45deg); /* counter the -45deg on heart */
+  /* make logo larger than the heart */
+  width: 560px;
+  height: 560px;
+  object-fit: contain;
+  padding: 12px;
+  z-index: 3;
+}
+
+@keyframes heartBeat {
+  0%,
+  100% {
+    transform: rotate(-45deg) scale(1);
+  }
+  50% {
+    transform: rotate(-45deg) scale(1.04);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .heart {
+    width: 240px;
+    height: 240px;
+  }
+  .heart::before,
+  .heart::after {
+    width: 240px;
+    height: 240px;
+  }
+  .heart::before {
+    top: -120px;
+  }
+  .heart::after {
+    left: 120px;
+  }
+  .heart .logo {
+    width: 360px;
+    height: 360px;
+  }
+}
+
+/* Small decorative floating hearts using CSS gradients on the preloader background */
+.preloader::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(
+      circle at 10% 10%,
+      rgba(255, 77, 137, 0.06) 0 8px,
+      transparent 9px
+    ),
+    radial-gradient(
+      circle at 30% 80%,
+      rgba(255, 45, 111, 0.05) 0 6px,
+      transparent 7px
+    ),
+    radial-gradient(
+      circle at 80% 30%,
+      rgba(255, 122, 182, 0.04) 0 10px,
+      transparent 11px
+    );
+  pointer-events: none;
+}

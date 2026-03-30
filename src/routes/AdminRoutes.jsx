@@ -37,7 +37,7 @@ import Cache from "../pages/admin/Cache";
 import Update from "../pages/admin/Update";
 import ReportRequest from "../pages/admin/ReportRequest";
 import RenewList from "../pages/admin/RenewList";
-import Package from "../pages/admin/Package";
+import SuccessStories from "../pages/admin/SuccessStory";
 
 /**
  * AdminRoutes - All admin route definitions
@@ -98,7 +98,8 @@ const AdminRoutes = () => (
       <Route path="extra/cache" element={<Cache />} />
       <Route path="extra/update" element={<Update />} />
       <Route path="extra/report-request" element={<ReportRequest />} />
-      <Route path="package" element={<Package />} />
+      <Route path="success-story" element={<SuccessStories />} />
+
 
       {/* Catch-all to redirect to dashboard */}
       <Route path="*" element={<Navigate to="dashboard" replace />} />

@@ -16,6 +16,7 @@ const ManagePackages = () => {
     profileLimit: "",
     imageLimit: "",
     validity: "",
+    benefits: [""], // ✅ ADD THIS
   });
   const [packages, setPackages] = useState([
     {
@@ -84,13 +85,14 @@ const ManagePackages = () => {
       profileLimit: "",
       imageLimit: "",
       validity: "",
+      benefits: [""],
     });
     setIsModalOpen(true);
   };
 
   const openEditModal = (pkg) => {
     setEditingPackage(pkg);
-    setFormData({ ...pkg });
+    setFormData({ ...pkg, benefits: pkg.benefits || [""] });
     setIsModalOpen(true);
   };
 
@@ -103,7 +105,34 @@ const ManagePackages = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  // ✅ Add Feature
+  const addFeature = () => {
+    setFormData((prev) => ({
+      ...prev,
+      benefits: [...prev.benefits, ""],
+    }));
+  };
 
+  // ✅ Update Feature
+  const handleFeatureChange = (index, value) => {
+    const updated = [...formData.benefits];
+    updated[index] = value;
+
+    setFormData((prev) => ({
+      ...prev,
+      benefits: updated,
+    }));
+  };
+
+  // ✅ Remove Feature
+  const removeFeature = (index) => {
+    const updated = formData.benefits.filter((_, i) => i !== index);
+
+    setFormData((prev) => ({
+      ...prev,
+      benefits: updated,
+    }));
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -331,6 +360,42 @@ const ManagePackages = () => {
                     placeholder="Enter -1 for unlimited"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                   />
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Package benefits
+                  </label>
+
+                  {formData.benefits.map((feature, index) => (
+                    <div key={index} className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        value={feature}
+                        onChange={(e) =>
+                          handleFeatureChange(index, e.target.value)
+                        }
+                        placeholder="Enter feature (e.g. Unlimited Chat)"
+                        className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-pink-500"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() => removeFeature(index)}
+                        className="px-3 bg-red-500 text-white rounded-lg"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={addFeature}
+                    className="mt-2 px-4 py-2 bg-pink-500 text-white rounded-lg"
+                  >
+                    + Add Feature
+                  </button>
                 </div>
               </div>
               <div className="mt-8 flex justify-end">

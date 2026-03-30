@@ -41,7 +41,7 @@ const Sidebar = () => {
         { to: "/admin/users/send-notification", text: "Send Notification" },
       ],
     },
-    { to: "/admin/package", icon: <FiPackage size={20} />, text: "Package" },
+    { to: "/admin/success-story", icon: <FiPackage size={20} />, text: "Success Story" },
     {
       text: "User Interactions",
       icon: <RiTeamLine size={20} />,

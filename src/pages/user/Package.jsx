@@ -137,11 +137,20 @@ const Packages = () => {
                     Interest Express ({pkg.interestLimit})
                   </div>
 
-                  <div className="flex items-center gap-3 pb-3">
+                  <div className="flex items-center gap-3 pb-3 border-b">
                     <FaCheck className="text-pink-500 text-sm" />
                     Image Upload ({pkg.imageLimit})
                   </div>
-
+                  {/* 🔥 NEW DYNAMIC BENEFITS */}
+                  {(pkg.benefits || []).map((benefit, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 border-b pb-3"
+                    >
+                      <FaCheck className="text-pink-500 text-sm" />
+                      {benefit}
+                    </div>
+                  ))}
                   {/* Button */}
                   <div className="text-center mt-6">
                     <button
