@@ -1,8 +1,8 @@
 .preloader {
   position: fixed;
   top: 0;
-  left: 0;
-  width: 100%;
+  left: 30%;
+  width: 40%;
   height: 100%;
   background-color: #f0c1de; /* A light background color */
   display: flex;
@@ -11,14 +11,7 @@
   z-index: 9999;
 }
 
-.heart {
-  width: 100px;
-  height: 100px;
-  background-color: #ec4899; /* Tailwind's pink-500 */
-  position: relative;
-  transform: rotate(-45deg);
-  animation: heartbeat 1.1s ease-in-out infinite;
-}
+
 
 .heart::before,
 .heart::after {
@@ -40,14 +33,3 @@
   left: 50px;
 }
 
-@keyframes heartbeat {
-  0%, 100% {
-    transform: rotate(-45deg) scale(1);
-  }
-  25%, 75% {
-    transform: rotate(-45deg) scale(1.2);
-  }
-  50% {
-    transform: rotate(-45deg) scale(1.1);
-  }
-}

@@ -1,20 +1,54 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Eye, Clock, Heart, MessageCircle } from "lucide-react";
-import { getVisitorsForUser } from "../../utils/storage";
+import { getVisitors, toggleLike } from "../../api/userApi/userApi";
 import { useAuth } from "../../context/AuthContext";
 
 const Visitors = () => {
   const { user } = useAuth();
   const [visitors, setVisitors] = useState([]);
+  const [likedUsers, setLikedUsers] = useState([]);
 
   useEffect(() => {
-    if (user) {
-      const visitorData = getVisitorsForUser(user.id);
-      setVisitors(visitorData);
-    }
-  }, [user]);
+    const fetchVisitors = async () => {
+      try {
+        const data = await getVisitors();
 
+        // 🔥 map backend → existing UI format (NO UI CHANGE)
+        const formatted = data.map((v) => ({
+          id: v._id || v.userId || v.id,
+          name: `${v.firstName || ""} ${v.lastName || ""}`,
+          avatar: v.profilePhoto,
+          profession: v.job || "Not specified",
+          viewedAt: v.viewedAt,
+          isLiked: v.isLiked || false, // ✅ add this
+        }));
+
+        setVisitors(formatted);
+      } catch (error) {
+        console.error("Error fetching visitors:", error);
+      }
+    };
+
+    fetchVisitors();
+  }, []);
+  const handleLike = async (id) => {
+    try {
+      const res = await toggleLike(id);
+
+      // 🔥 update UI instantly
+      setVisitors((prev) =>
+        prev.map((v) => (v.id === id ? { ...v, isLiked: !v.isLiked } : v)),
+      );
+
+      // 🔥 update likedUsers list
+      setLikedUsers((prev) =>
+        prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+      );
+    } catch (error) {
+      console.error("Like error:", error);
+    }
+  };
   // Convert timestamp to readable time
   const formatTime = (time) => {
     if (!time) return "Recently";
@@ -67,7 +101,9 @@ const Visitors = () => {
             </div>
 
             <div>
-              <p className="text-2xl font-bold text-gray-900">2</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {visitors.filter((v) => v.isLiked).length}
+              </p>
               <p className="text-sm text-gray-500">Liked You</p>
             </div>
           </div>
@@ -140,8 +176,14 @@ const Visitors = () => {
                 >
                   View Profile
                 </Link>
-
-                <button className="px-4 py-2.5 border-2 border-gray-200 rounded-xl text-gray-400 hover:border-primary-500 hover:text-primary-600 transition-colors">
+                <button
+                  onClick={() => handleLike(visitor.id)}
+                  className={`px-4 py-2.5 border-2 rounded-xl transition-colors ${
+                    visitor.isLiked
+                      ? "bg-pink-500 text-white border-pink-500"
+                      : "border-gray-200 text-gray-400 hover:border-pink-500 hover:text-pink-600"
+                  }`}
+                >
                   <Heart className="w-5 h-5" />
                 </button>
               </div>

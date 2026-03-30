@@ -17,6 +17,7 @@ import Settings from "../pages/user/Settings";
 import Signup from "../pages/user/Signup";
 import ProfileView from "../pages/user/ProfileView";
 import UserDetailsPage from "../pages/user/UserDetailsPage";
+import Packages from "../pages/user/Package";
 
 
 /**
@@ -42,6 +43,7 @@ const UserRoutes = () => (
       <Route path="signup" element={<Signup />} />
       <Route path="user-details/:id" element={<UserDetailsPage />} />
       <Route path="user-details" element={<UserDetailsPage />} />
+      <Route path="packages" element={<Packages />} />
 
       {/* Catch-all to redirect to dashboard */}
       <Route path="*" element={<Navigate to="dashboard" replace />} />

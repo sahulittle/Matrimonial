@@ -8,7 +8,7 @@ import Login from "../pages/public/Login";
 import AdminLogin from "../pages/admin/AdminLogin";
 import Register from "../pages/public/Register";
 import SignUp from "../pages/public/SignUp";
-import Packages from "../pages/public/packages/Packages";
+// import Packages from "../pages/public/packages/Packages";
 import Stories from "../pages/public/stories/Stories";
 import Contact from "../pages/public/contact/Contact";
 import Members from "../pages/public/home/Members";
@@ -29,7 +29,7 @@ const PublicRoutes = () => (
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
       <Route path="signup" element={<SignUp />} />
-      <Route path="packages" element={<Packages />} />
+      {/* <Route path="packages" element={<Packages />} /> */}
       <Route path="members" element={<Members />} />
       <Route path="stories" element={<Stories />} />
       <Route path="contact" element={<Contact />} />

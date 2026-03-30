@@ -183,7 +183,13 @@ export const getActiveUsers = async () => {
   const res = await axios.get(`${DASHBOARD}/active-users`, authHeader());
   return Array.isArray(res?.data) ? res.data : [];
 };
-
+export const getUserById = async (id) => {
+  const res = await axios.get(
+    `${BASE_URL}/profile/${id}`,
+    authHeader()
+  );
+  return res.data; // contains { success, user }
+};
 // INTERESTS
 export const getNewInterests = async () => {
   const res = await axios.get(`${DASHBOARD}/interests`, authHeader());
@@ -198,14 +204,24 @@ export const getVisitors = async () => {
 
 // TRACK VISIT
 export const trackVisit = async (profileId) => {
-  const res = await axios.post(
-    `${DASHBOARD}/visit/${profileId}`,
+  try {
+    const res = await axios.post(
+      `${BASE_URL}/dashboard/visit/${profileId}`,
+      {},
+      authHeader()
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Track visit error:", error);
+  }
+};
+export const toggleLike = async (profileId) => {
+  return axios.post(
+    `${BASE_URL}/dashboard/like/${profileId}`,
     {},
     authHeader()
   );
-  return res?.data || {};
 };
-
 // ================= SETTINGS =================
 
 const SETTINGS = `${BASE_URL}/settings`;

@@ -1,41 +1,36 @@
 import React from "react";
 import { FaCheck } from "react-icons/fa";
-import Footer from "../home/Footer";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 
 import {
   createPaymentIntent,
   confirmPayment,
-} from "../../../api/userApi/userApi";
+  getPackages,
+} from "../../api/userApi/userApi";
 
 const Packages = () => {
   const stripe = useStripe();
   const elements = useElements();
-  const navigate = useNavigate();
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [packages, setPackages] = useState([]);
 
-  const packages = [
-    {
-      name: "Gold",
-      price: 600,
-      duration: 30,
-      contactViews: 100,
-      interestExpress: 100,
-      imageUploads: 50,
-      featured: true,
-    },
-    {
-      name: "Diamond",
-      price: 1000,
-      duration: 30,
-      contactViews: 150,
-      interestExpress: 150,
-      imageUploads: 10,
-      featured: false,
-    },
-  ];
+  useEffect(() => {
+    fetchPackages();
+  }, []);
 
+  const fetchPackages = async () => {
+    try {
+      const res = await getPackages();
+      setPackages(res.data.packages); // 🔥 important
+      console.log("Packages fetched:", res.data.packages);
+    } catch (error) {
+      console.error("Error fetching packages:", error);
+    }
+  };
   // ✅ PAYMENT FUNCTION
   const handlePayment = async (pkg) => {
     try {
@@ -44,46 +39,52 @@ const Packages = () => {
         return;
       }
 
-      // 1. Create Payment Intent
+      const cardElement = elements.getElement(CardElement);
+
+      if (!cardElement) {
+        alert("Card element not found");
+        return;
+      }
+
+      // 🔄 Loading (optional UX)
+      console.log("Creating payment intent...");
+
+      // 1️⃣ Create Payment Intent
       const res = await createPaymentIntent({
-        packageId: pkg.name,
+        packageId: pkg._id,
       });
 
       const { clientSecret, paymentId } = res.data;
 
-      // 2. Confirm Payment
+      // 2️⃣ Confirm Payment
       const result = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
-          card: elements.getElement(CardElement),
+          card: cardElement,
         },
       });
 
+      // ❌ Error handling
       if (result.error) {
         alert(result.error.message);
         return;
       }
 
-      // 3. Success
+      // ✅ Success
       if (result.paymentIntent.status === "succeeded") {
         await confirmPayment({
           paymentId,
           transactionId: result.paymentIntent.id,
         });
 
-        alert("✅ Payment Successful");
+        alert("✅ Payment Successful 🎉");
+
+        setShowModal(false);
+        setSelectedPackage(null);
       }
     } catch (err) {
-      console.log(err);
+      console.error(err);
       alert("Payment failed");
     }
-  };
-
-  // Debug / navigation wrapper for Buy button
-  const handleBuy = (pkg) => {
-    // quick debug to confirm click handler runs in browser console
-    // remove or replace with auth check + payment flow as needed
-    console.log("Buy clicked:", pkg.name);
-    navigate("/login");
   };
 
   return (
@@ -98,11 +99,6 @@ const Packages = () => {
             Every user have their own package. Anyone can upgrade package or buy
             package through online payment system.
           </p>
-
-          {/* ✅ STRIPE CARD POPUP INPUT (invisible until used) */}
-          <div className="hidden">
-            <CardElement />
-          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {packages.map((pkg, index) => (
@@ -128,29 +124,31 @@ const Packages = () => {
                 <div className="px-8 pb-8 text-left space-y-4 text-gray-600">
                   <div className="flex items-center gap-3 border-b pb-3">
                     <FaCheck className="text-pink-500 text-sm" />
-                    Duration ({pkg.duration})
+                    Duration ({pkg.validity} Days)
                   </div>
 
                   <div className="flex items-center gap-3 border-b pb-3">
                     <FaCheck className="text-pink-500 text-sm" />
-                    Contact View ({pkg.contactViews})
+                    Profile View ({pkg.profileLimit})
                   </div>
 
                   <div className="flex items-center gap-3 border-b pb-3">
                     <FaCheck className="text-pink-500 text-sm" />
-                    Interest Express ({pkg.interestExpress})
+                    Interest Express ({pkg.interestLimit})
                   </div>
 
                   <div className="flex items-center gap-3 pb-3">
                     <FaCheck className="text-pink-500 text-sm" />
-                    Image Upload ({pkg.imageUploads})
+                    Image Upload ({pkg.imageLimit})
                   </div>
 
                   {/* Button */}
                   <div className="text-center mt-6">
                     <button
-                      onClick={() => handleBuy(pkg)}
-                      // onClick={() => handlePayment(pkg)}
+                      onClick={() => {
+                        setSelectedPackage(pkg);
+                        setShowModal(true);
+                      }}
                       className="px-6 py-2 bg-gradient-to-r from-pink-500 to-pink-700 text-white rounded-md hover:opacity-90"
                     >
                       Buy Now
@@ -162,7 +160,46 @@ const Packages = () => {
           </div>
         </div>
       </div>
-      <Footer />
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg p-6 w-[90%] max-w-md shadow-lg relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setShowModal(false)}
+              className="absolute top-2 right-3 text-gray-500 text-xl"
+            >
+              ✕
+            </button>
+
+            <h2 className="text-xl font-bold text-center mb-4">
+              Pay for {selectedPackage?.name}
+            </h2>
+
+            <p className="text-center text-pink-500 text-2xl font-bold mb-4">
+              ₹{selectedPackage?.price}
+            </p>
+
+            {/* Card Input */}
+            <div className="border p-4 rounded mb-4">
+              <CardElement />
+            </div>
+
+            {/* Pay Button */}
+            {/* Pay Button with Loading */}
+            <button
+              onClick={async () => {
+                setLoading(true);
+                await handlePayment(selectedPackage);
+                setLoading(false);
+              }}
+              disabled={loading}
+              className="w-full py-2 bg-gradient-to-r from-pink-500 to-pink-700 text-white rounded-md"
+            >
+              {loading ? "Processing..." : "Pay Now"}
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };

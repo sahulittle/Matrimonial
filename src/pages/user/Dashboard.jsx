@@ -276,7 +276,8 @@ const Dashboard = () => {
                   return (
                     <Link
                       key={profile._id}
-                      to={`user-details/${profile._id}`}
+                      to={`/user-details/${profile._id}`}
+                      state={{ profile }}
                       className="block"
                     >
                       <MatchCard

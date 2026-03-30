@@ -160,7 +160,7 @@ const Sidebar = ({ isOpen, onClose }) => {
             <div className="bg-gradient-to-tr from-pink-50 to-rose-50 border border-pink-100 rounded-xl p-4 text-center">
               <h4 className="font-semibold text-gray-800">Go Premium</h4>
               <p className="text-xs text-gray-500 mt-1 mb-4">Unlock more features and get more matches!</p>
-              <Link to="/packages" onClick={onClose} className="block w-full py-2 bg-pink-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-pink-500/20 hover:bg-pink-600 transition-all">
+              <Link to="/user/packages" onClick={onClose} className="block w-full py-2 bg-pink-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-pink-500/20 hover:bg-pink-600 transition-all">
                 Upgrade
               </Link>
             </div>

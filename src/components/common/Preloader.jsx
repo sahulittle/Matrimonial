@@ -1,10 +1,12 @@
-import React from 'react';
-import '../../assets/styles/Preloader.css';
+import React from "react";
+import "../../assets/styles/Preloader.css";
 
 const Preloader = () => {
   return (
     <div className="preloader">
-      <div className="heart"></div>
+      <div className="loader-wrapper">
+        <img src="/logo-rmbg.png" alt="Loading..." className="logo" />
+      </div>
     </div>
   );
 };

@@ -98,7 +98,19 @@ export const getActivePackages = async () => {
     throw error;
   }
 };
-
+export const updatePackage = async (id, data) => {
+  try {
+    const res = await axios.put(
+      `${import.meta.env.VITE_API_URL}/admin/payments/packages/${id}`,
+      data,
+      authHeader(),
+    );
+    return res.data;
+  } catch (error) {
+    console.error("Error updating package:", error);
+    throw error;
+  }
+};
 // ================= USERS APIs =================
 
 // Get all users
