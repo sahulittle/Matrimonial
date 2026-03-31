@@ -374,7 +374,7 @@ const SearchPage = () => {
             <div className="mb-6">
               <label className="text-sm font-medium">Age Range</label>
 
-              <div className="flex gap-3 mt-2">
+              <div className="flex flex-col sm:flex-row gap-3 mt-2">
                 <input
                   type="number"
                   value={filters.ageRange[0]}

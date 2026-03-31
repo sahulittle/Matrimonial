@@ -69,7 +69,7 @@ const SignUp = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 sm:py-24 px-4 sm:px-6 lg:px-8 mt-10">
-      <div className="max-w-4xl w-full space-y-8 bg-white p-10 rounded-2xl shadow-lg">
+      <div className="max-w-4xl w-full space-y-8 bg-white p-5 sm:p-8 lg:p-10 rounded-2xl shadow-lg">
         {step === 1 ? (
           <>
             <div>
@@ -81,7 +81,7 @@ const SignUp = () => {
               </p>
             </div>
             <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 {/* First Name */}
                 <div>
                   <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">First Name</label>
@@ -164,7 +164,7 @@ const SignUp = () => {
               </p>
             </div>
             <form className="mt-8 space-y-6" onSubmit={handleFinalSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 {/* Father's Name */}
                 <div>
                   <label htmlFor="father-name" className="block text-sm font-medium text-gray-700">Father's Name</label>
@@ -214,7 +214,7 @@ const SignUp = () => {
                 </div>
               </div>
 
-              <div className="pt-6 flex gap-4">
+              <div className="pt-6 flex flex-col sm:flex-row gap-4">
                 <button
                   type="button"
                   onClick={() => setStep(1)}

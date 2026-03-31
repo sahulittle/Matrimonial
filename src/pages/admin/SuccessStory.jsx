@@ -213,7 +213,7 @@ const SuccessStories = () => {
       {/* Add/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 p-4">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-xl animate-fade-in">
+          <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-2xl shadow-2xl w-full max-w-xl max-h-[90vh] overflow-y-auto animate-fade-in">
             <div className="flex justify-between items-center mb-8 border-b pb-4">
               <h4 className="text-2xl font-bold text-gray-800">
                 {editingStory ? "Edit" : "Create New"} Success Story
@@ -287,7 +287,7 @@ const SuccessStories = () => {
                   placeholder="Tell their beautiful story in a few sentences..."
                 />
               </div>
-              <div className="pt-4 flex justify-end gap-4">
+              <div className="pt-4 flex flex-col-reverse sm:flex-row sm:justify-end gap-3 sm:gap-4">
                 <button
                   type="button"
                   onClick={closeModal}

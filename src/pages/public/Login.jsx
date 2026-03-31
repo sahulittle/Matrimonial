@@ -62,7 +62,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 sm:py-24 px-4 sm:px-6 lg:px-8 mt-10">
-      <div className="max-w-2xl w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
+      <div className="max-w-lg w-full space-y-8 bg-white p-6 sm:p-8 lg:p-10 rounded-xl shadow-lg">
         <h3 className="text-center text-4xl font-bold text-pink-500">
           Welcome Back! Please Login
         </h3>
@@ -99,8 +99,8 @@ const Login = () => {
             </div>
 
             {/* CAPTCHA */}
-            <div className="flex md:flex-row flex-col items-center gap-3">
-              <div className="flex gap-2 ">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="flex gap-2 items-center justify-between sm:justify-start">
                 {/* Captcha Image */}
                 <div
                   dangerouslySetInnerHTML={{ __html: captchaSvg }}
@@ -111,7 +111,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={fetchCaptcha}
-                  className="p-2 bg-gray-200 hover:bg-gray-300 rounded"
+                  className="p-2 bg-gray-200 hover:bg-gray-300 rounded shrink-0"
                 >
                   <FaSyncAlt />
                 </button>

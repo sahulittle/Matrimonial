@@ -37,7 +37,7 @@ const SendNotification = () => {
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-md">
+    <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-md">
       <h4 className="text-2xl font-bold text-gray-800 mb-6">
         Notification to Users
       </h4>
@@ -83,7 +83,7 @@ const SendNotification = () => {
           </div>
 
           {/* Batching */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 pt-8 sm:pt-12">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Start From
@@ -126,7 +126,7 @@ const SendNotification = () => {
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center bg-pink-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-pink-700 transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center bg-pink-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-pink-700 transition-colors"
             >
               <FiSend className="mr-2" />
               {loading ? "Sending..." : "Send Notification"}

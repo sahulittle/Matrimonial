@@ -443,7 +443,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 sm:py-24 px-4 sm:px-6 lg:px-8 mt-10">
-      <div className="max-w-4xl w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
+      <div className="max-w-4xl w-full space-y-8 bg-white p-5 sm:p-8 lg:p-10 rounded-xl shadow-lg">
         {/* Stepper UI */}
         <div className="mb-10">
           <div className="flex items-center justify-between relative max-w-2xl mx-auto">
@@ -512,7 +512,7 @@ const Register = () => {
                 setStep(2);
               }}
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 {/* First Name */}
                 <div>
                   <label
@@ -807,7 +807,7 @@ const Register = () => {
                 setStep(3);
               }}
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 {/* Education */}
                 <div>
                   <label
@@ -969,7 +969,7 @@ const Register = () => {
                   </div>
                 </div>
               </div>
-              <div className="pt-6 flex gap-4">
+              <div className="pt-6 flex flex-col sm:flex-row gap-4">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
@@ -999,7 +999,7 @@ const Register = () => {
               </p>
             </div>
             <form className="mt-8 space-y-6" onSubmit={handleFinalSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 {/* Father's Name */}
                 <div>
                   <label
@@ -1183,7 +1183,7 @@ const Register = () => {
                 </div>
               </div>
 
-              <div className="pt-6 flex gap-4">
+              <div className="pt-6 flex flex-col sm:flex-row gap-4">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
