@@ -2,14 +2,15 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaChevronDown } from "react-icons/fa";
 import toast from "react-hot-toast";
-import { registerUser } from "../../api/userApi/userApi";
+
+import { getUsers, addUser, saveUserProfile } from "../../utils/storage";
 
 const Register = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({});
+  const [fieldOfStudy, setFieldOfStudy] = useState("");
   const [degree, setDegree] = useState("");
-
   // Options for dropdowns
   const complexionOptions = ["Fair", "Light", "Medium", "Dark"];
   const bloodGroupOptions = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -97,149 +98,7 @@ const Register = () => {
     "Lakshadweep",
     "Puducherry",
   ];
-  const religionOptions = ["Hindu"];
 
-  const casteOptions = [
-    "96 Kuli Maratha",
-    "Agri",
-    "Ahir Shimpi",
-    "Ahirwal",
-    "Anjana (Chaudhari Patel)",
-    "Aramari (Gabit)",
-    "Arya Vysya",
-    "Bairwa",
-    "Balai",
-    "Banjara",
-    "Barai",
-    "Bari",
-    "Bhavsar (Khatriya)",
-    "Bhandari",
-    "Bhoi",
-    "Bhill",
-    "Brahman (Anavil Desai)",
-    "Brahman (Audichya Vaidiki)",
-    "Brahman Bardai",
-    "Brahman Daivadnya",
-    "Brahman Deshastha",
-    "Brahman Karhade",
-    "Brahman Khadayata",
-    "Brahman Khedaval",
-    "Brahman Kokanastha",
-    "Brahman Mevada",
-    "Brahman Rajgor",
-    "Brahman Rarhi",
-    "Brahman Rigvedi",
-    "Brahman Saraswat",
-    "Brahman Sarua",
-    "Brahman Shri Gaud",
-    "Brahman Smartha",
-    "Brahman Tapodhan",
-    "Brahman Valam",
-    "Brahman Zalora",
-    "CKP",
-    "Cash Che Bar",
-    "Chambhar",
-    "Charan",
-    "Deshmukh",
-    "Devang Koshthi",
-    "Dhanak",
-    "Dhangar",
-    "Dhor (Kakkayya)",
-    "Gabit",
-    "Gavandi",
-    "Gawali",
-    "Ghisadi",
-    "Gomantak",
-    "Gond",
-    "Gondhali",
-    "Gurav",
-    "Halba Koshti",
-    "Holar",
-    "Intercaste",
-    "Jangam",
-    "Jadhav",
-    "Jog (Nath)",
-    "Julaha",
-    "Kalar",
-    "Kanakkan Padanna",
-    "Kundara",
-    "Kasar",
-    "Kayastha",
-    "Khatik",
-    "Kokanastha Maratha",
-    "Koli",
-    "Koli Mahadev",
-    "Konkani",
-    "Koshti",
-    "Kshatriya",
-    "Kshatriya Raju",
-    "Kumaoni Rajput",
-    "Kumbhar",
-    "Kunbi",
-    "Kunbi Lonari",
-    "Kumbi Maratha",
-    "Kurbi Tirali",
-    "Leva Patil",
-    "Lingayat",
-    "Lohar",
-    "Madivala (Dhobi)",
-    "Mahar",
-    "Mair Rajput Swarnakar",
-    "Mali",
-    "Malvani",
-    "Mannan (Velan/Vannan)",
-    "Maratha",
-    "Maratha Kshatriya",
-    "Matang",
-    "Meghwal",
-    "Nabit",
-    "Nhavi",
-    "Atari",
-    "Other Brahman",
-    "Pallan (Devendra Kula Vellunan)",
-    "Panan",
-    "Paravan (Bharatar)",
-    "Parit",
-    "Paswan (Dusadh)",
-    "Patel",
-    "Pathare Prabhu",
-    "Patil",
-    "Poundra",
-    "Pulaya (Cheruman)",
-    "Rajput",
-    "Ramoshi",
-    "Rohit (Chamar)",
-    "SC",
-    "SKP",
-    "ST",
-    "Samagar",
-    "Sambava",
-    "Satnami",
-    "Savji",
-    "Shipkar",
-    "Shimpi (Namdev)",
-    "Sonar",
-    "Sonkar",
-    "Suthar",
-    "Swakula Sali",
-    "Teli",
-    "Thandan",
-    "Vadar",
-    "Vaishnav",
-    "Vaishav Kapol",
-    "Vaishnav Khadayata",
-    "Vaishva Ladd",
-    "Vashnav Modh",
-    "Vaishnav Porvad",
-    "Vaishnav Vania",
-    "Vaishnav Vaniya",
-    "Vani",
-    "Vaniya",
-    "Vanjari",
-    "Vyasa",
-    "Yadav",
-    "Other",
-  ];
   // Generate height options from 4ft 5in to 7ft
   const heightOptions = [];
   for (let feet = 4; feet <= 7; feet++) {
@@ -360,6 +219,18 @@ const Register = () => {
       "E-Commerce",
       "International Business",
     ],
+    BBA: [
+      "Marketing",
+      "Finance",
+      "Human Resource Management",
+      "International Business",
+      "Entrepreneurship",
+      "Business Analytics",
+      "Supply Chain Management",
+      "Operations Management",
+      "Hospital Management",
+      "Retail Management",
+    ],
     LAW: [
       "Corporate Law",
       "Criminal Law",
@@ -468,65 +339,170 @@ const Register = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        toast.error("Only image files allowed");
-        return;
-      }
-
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("Image must be less than 2MB");
-        return;
-      }
-
-      setFormData((prev) => ({
-        ...prev,
-        image: file,
-        imagePreview: URL.createObjectURL(file),
-      }));
-    }
+  const handleFieldOfStudyChange = (e) => {
+    setFieldOfStudy(e.target.value);
   };
 
-  const handleFinalSubmit = async (e) => {
+  const handleFinalSubmit = (e) => {
     e.preventDefault();
 
-    try {
-      const formDataToSend = new FormData();
+    const users = getUsers();
+    const normalizedEmail = formData.email
+      ? formData.email.toLowerCase().trim()
+      : "";
+    const existingUser = users.find(
+      (u) => u.email.toLowerCase() === normalizedEmail,
+    );
 
-      Object.keys(formData).forEach((key) => {
-        if (key === "image") {
-          formDataToSend.append("image", formData.image);
-        } else if (key !== "imagePreview") {
-          formDataToSend.append(key, formData[key]);
-        }
-      });
-
-      const res = await registerUser(formDataToSend);
-
-      toast.success(res.message || "Registration successful");
+    if (existingUser) {
+      alert("An account with this email already exists. Please login.");
       navigate("/login");
-    } catch (error) {
-      toast.error(error.message || "Registration failed");
+      return;
     }
+
+    const newUserId =
+      (users.length > 0 ? Math.max(...users.map((u) => parseInt(u.id))) : 0) +
+      1;
+    const fullName = `${formData.firstName} ${formData.lastName}`;
+
+    const newUser = {
+      id: String(newUserId),
+      name: fullName,
+      email: normalizedEmail,
+      password: formData.password,
+      avatar:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    };
+
+    const dob = new Date(formData.dob);
+    const today = new Date();
+    let age = today.getFullYear() - dob.getFullYear();
+    const monthDiff = today.getMonth() - dob.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+      age--;
+    }
+
+    const newProfile = {
+      id: String(newUserId),
+      name: fullName,
+      email: normalizedEmail,
+      avatar: newUser.avatar,
+      gender: formData.gender,
+      dateOfBirth: formData.dob,
+      age: age,
+      height: formData.height,
+      maritalStatus: "Never Married",
+      birthName: formData.birthName || "",
+      birthTime: formData.birthTime || "",
+      complexion: formData.complexion || "",
+      bloodGroup: formData.bloodGroup || "",
+      caste: "",
+      motherTongue: "",
+      profileCreatedBy: "Self",
+      location: {
+        country: "India",
+        state: "",
+        city: "",
+      },
+      education: {
+        qualification: formData.education,
+        occupation: formData.job,
+        annualIncome: formData.annualIncome,
+        fieldOfStudy: fieldOfStudy,
+        workLocation: formData.jobLocation,
+      },
+      family: {
+        familyType: "Nuclear",
+        fatherName: formData.fatherName || "",
+        fatherOccupation: formData.fatherJob,
+        motherName: formData.motherName || "",
+        motherOccupation: formData.motherJob,
+        siblings: formData.siblings,
+        paternalUncleName: formData.paternalUncleName || "",
+        paternalUncleJob: formData.paternalUncleJob || "",
+        maternalUncleName: formData.maternalUncleName || "",
+        maternalUncleJob: formData.maternalUncleJob || "",
+      },
+      profileCompleted: 60, // A starting value
+    };
+
+    addUser(newUser);
+    saveUserProfile(newUser.id, newProfile);
+
+    toast.success("Registration successful! Please log in.");
+    navigate("/login");
   };
+
+  const steps = [
+    { id: 1, label: "Personal Information" },
+    { id: 2, label: "Education & Career" },
+    { id: 3, label: "Family Details" },
+  ];
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 sm:py-24 px-4 sm:px-6 lg:px-8 mt-10">
       <div className="max-w-4xl w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
-        {step === 1 ? (
+        {/* Stepper UI */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between relative max-w-2xl mx-auto">
+            {/* Progress Bar Background */}
+            <div className="absolute top-5 left-0 w-full h-0.5 bg-gray-200 -z-0"></div>
+            {/* Active Progress Bar */}
+            <div
+              className="absolute top-5 left-0 h-0.5 bg-pink-500 transition-all duration-300 -z-0"
+              style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
+            ></div>
+
+            {steps.map((s) => (
+              <div
+                key={s.id}
+                className="relative z-10 flex flex-col items-center"
+              >
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors duration-300 ${
+                    step >= s.id
+                      ? "bg-pink-500 border-pink-500 text-white"
+                      : "bg-white border-gray-300 text-gray-400"
+                  }`}
+                >
+                  {step > s.id ? (
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  ) : (
+                    <span>{s.id}</span>
+                  )}
+                </div>
+                <span
+                  className={`mt-2 text-[10px] sm:text-xs font-semibold ${step >= s.id ? "text-pink-600" : "text-gray-500"}`}
+                >
+                  {s.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {step === 1 && (
           <>
             <div>
-              <h3 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              <h3 className="text-center text-3xl font-extrabold text-gray-900">
                 Create an Account & Personal Info
               </h3>
               <p className="mt-2 text-center text-sm text-gray-600">
-                Fill out the form to get started.
+                Tell us about yourself to find your perfect match.
               </p>
             </div>
             <form
@@ -537,33 +513,11 @@ const Register = () => {
               }}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Profile Image */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Profile Image
-                  </label>
-                  <div className="mt-1 flex items-center gap-4">
-                    {formData.imagePreview && (
-                      <img
-                        src={formData.imagePreview}
-                        alt="Preview"
-                        className="h-16 w-16 rounded-full object-cover border-2 border-pink-100"
-                      />
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
-                    />
-                  </div>
-                </div>
-
                 {/* First Name */}
                 <div>
                   <label
                     htmlFor="first-name"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     First Name
                   </label>
@@ -582,7 +536,7 @@ const Register = () => {
                 <div>
                   <label
                     htmlFor="last-name"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     Last Name
                   </label>
@@ -598,11 +552,10 @@ const Register = () => {
                   />
                 </div>
 
-                {/* Email */}
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     Email Address
                   </label>
@@ -617,11 +570,10 @@ const Register = () => {
                     placeholder="Email Address"
                   />
                 </div>
-                {/* Password */}
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     Password
                   </label>
@@ -641,7 +593,7 @@ const Register = () => {
                 <div className="relative">
                   <label
                     htmlFor="gender"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     Gender
                   </label>
@@ -665,69 +617,21 @@ const Register = () => {
                     </div>
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Religion
-                  </label>
-                  <div className="mt-1 relative">
-                    <select
-                      name="religion"
-                      required
-                      onChange={handleChange}
-                      value={formData.religion || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md"
-                    >
-                      <option value="" disabled>
-                        Select Religion
-                      </option>
-                      {religionOptions.map((r) => (
-                        <option key={r} value={r}>
-                          {r}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Caste
-                  </label>
-                  <div className="mt-1 relative">
-                    <select
-                      name="caste"
-                      required
-                      onChange={handleChange}
-                      value={formData.caste || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md"
-                    >
-                      <option value="" disabled>
-                        Select Caste
-                      </option>
-                      {casteOptions.map((c) => (
-                        <option key={c} value={c}>
-                          {c}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
                 {/* DOB */}
                 <div>
                   <label
                     htmlFor="dob"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     Date of Birth
                   </label>
                   <input
                     id="dob"
-                    name="dateOfBirth"
+                    name="dob"
                     type="date"
                     required
                     onChange={handleChange}
-                    value={formData.dateOfBirth || ""}
+                    value={formData.dob || ""}
                     className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                   />
                 </div>
@@ -736,7 +640,7 @@ const Register = () => {
                 <div>
                   <label
                     htmlFor="birth-name"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     Birth Name
                   </label>
@@ -754,7 +658,7 @@ const Register = () => {
                 <div>
                   <label
                     htmlFor="birth-time"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     Birth Time
                   </label>
@@ -773,7 +677,7 @@ const Register = () => {
                 <div>
                   <label
                     htmlFor="height"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     Height
                   </label>
@@ -804,7 +708,7 @@ const Register = () => {
                 <div>
                   <label
                     htmlFor="complexion"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     Complexion
                   </label>
@@ -836,7 +740,7 @@ const Register = () => {
                 <div>
                   <label
                     htmlFor="blood-group"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-gray-600"
                   >
                     Blood Group
                   </label>
@@ -855,141 +759,6 @@ const Register = () => {
                       {bloodGroupOptions.map((bg) => (
                         <option key={bg} value={bg}>
                           {bg}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <FaChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Education */}
-                <div>
-                  <label
-                    htmlFor="education"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Education
-                  </label>
-
-                  <div className="mt-1 relative">
-                    <select
-                      id="education"
-                      name="education"
-                      required
-                      value={formData.education || ""}
-                      onChange={(e) => {
-                        handleChange(e);
-                        setDegree(e.target.value);
-                        handleChange({
-                          target: { name: "fieldOfStudy", value: "" },
-                        });
-                      }}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
-                    >
-                      <option value="" disabled>
-                        Select Education
-                      </option>
-
-                      {Object.keys(fieldOfStudyOptions).map((deg, index) => (
-                        <option key={index} value={deg}>
-                          {deg}
-                        </option>
-                      ))}
-                    </select>
-
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <FaChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Job */}
-                <div className="md:col-span-2">
-                  <label
-                    htmlFor="job"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Job
-                  </label>
-                  <div className="mt-1 relative">
-                    <select
-                      id="job"
-                      name="job"
-                      required
-                      onChange={handleChange}
-                      value={formData.job || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
-                    >
-                      <option value="" disabled>
-                        Select Job
-                      </option>
-                      {jobOptions.map((job) => (
-                        <option key={job} value={job}>
-                          {job}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <FaChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-                {/* Job Location */}
-                <div className="md:col-span-2">
-                  <label
-                    htmlFor="jobLocation"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Job Location
-                  </label>
-                  <div className="mt-1 relative">
-                    <select
-                      id="jobLocation"
-                      name="jobLocation"
-                      required
-                      onChange={handleChange}
-                      value={formData.jobLocation || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
-                    >
-                      <option value="" disabled>
-                        Select State
-                      </option>
-                      {indianStates.map((state) => (
-                        <option key={state} value={state}>
-                          {state}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <FaChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-                {/* Annual Income */}
-                <div className="md:col-span-2">
-                  <label
-                    htmlFor="annual-income"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Annual Income
-                  </label>
-                  <div className="mt-1 relative">
-                    <select
-                      id="annual-income"
-                      name="annualIncome"
-                      required
-                      onChange={handleChange}
-                      value={formData.annualIncome || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
-                    >
-                      <option value="" disabled>
-                        Select Annual Income
-                      </option>
-                      {incomeOptions.map((income) => (
-                        <option key={income} value={income}>
-                          {income}
                         </option>
                       ))}
                     </select>
@@ -1019,11 +788,211 @@ const Register = () => {
               </p>
             </form>
           </>
-        ) : (
+        )}
+
+        {step === 2 && (
           <>
             <div>
               <h3 className="text-center text-3xl font-extrabold text-gray-900">
-                Family Background
+                Education & Career
+              </h3>
+              <p className="mt-2 text-center text-sm text-gray-600">
+                Tell us about your professional background.
+              </p>
+            </div>
+            <form
+              className="mt-8 space-y-6"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setStep(3);
+              }}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Education */}
+                <div>
+                  <label
+                    htmlFor="education"
+                    className="block text-sm font-medium text-gray-600"
+                  >
+                    Highest Qualification
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="education"
+                      name="education"
+                      required
+                      value={formData.education || ""}
+                      onChange={(e) => {
+                        handleChange(e);
+                        setDegree(e.target.value);
+                        setFieldOfStudy("");
+                      }}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled>
+                        Select Education
+                      </option>
+                      {Object.keys(fieldOfStudyOptions).map((deg, index) => (
+                        <option key={index} value={deg}>
+                          {deg}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+                {/* Field of Study */}
+                <div>
+                  <label
+                    htmlFor="fieldOfStudy"
+                    className="block text-sm font-medium text-gray-600"
+                  >
+                    Major/Branch
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="fieldOfStudy"
+                      name="fieldOfStudy"
+                      required
+                      onChange={handleFieldOfStudyChange}
+                      value={fieldOfStudy}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled>
+                        Select Field of Study
+                      </option>
+                      {degree &&
+                        fieldOfStudyOptions[degree]?.map((branch, index) => (
+                          <option key={index} value={branch}>
+                            {branch}
+                          </option>
+                        ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+                {/* Job */}
+                <div className="md:col-span-2">
+                  <label
+                    htmlFor="job"
+                    className="block text-sm font-medium text-gray-600"
+                  >
+                    Employed In
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="job"
+                      name="job"
+                      required
+                      onChange={handleChange}
+                      value={formData.job || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled>
+                        Select Employment Type
+                      </option>
+                      {jobOptions.map((job) => (
+                        <option key={job} value={job}>
+                          {job}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+                {/* Job Location */}
+                <div className="md:col-span-2">
+                  <label
+                    htmlFor="jobLocation"
+                    className="block text-sm font-medium text-gray-600"
+                  >
+                    Working State
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="jobLocation"
+                      name="jobLocation"
+                      required
+                      onChange={handleChange}
+                      value={formData.jobLocation || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled>
+                        Select State
+                      </option>
+                      {indianStates.map((state) => (
+                        <option key={state} value={state}>
+                          {state}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+                {/* Annual Income */}
+                <div className="md:col-span-2">
+                  <label
+                    htmlFor="annual-income"
+                    className="block text-sm font-medium text-gray-600"
+                  >
+                    Annual Income
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="annual-income"
+                      name="annualIncome"
+                      required
+                      onChange={handleChange}
+                      value={formData.annualIncome || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled>
+                        Select Annual Income
+                      </option>
+                      {incomeOptions.map((income) => (
+                        <option key={income} value={income}>
+                          {income}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="pt-6 flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="group relative w-full flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                >
+                  Back
+                </button>
+                <button
+                  type="submit"
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                >
+                  Save & Continue
+                </button>
+              </div>
+            </form>
+          </>
+        )}
+
+        {step === 3 && (
+          <>
+            <div>
+              <h3 className="text-center text-3xl font-extrabold text-gray-900">
+                Family Details
               </h3>
               <p className="mt-2 text-center text-sm text-gray-600">
                 Tell us about your family.

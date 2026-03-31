@@ -16,6 +16,15 @@ body {
   min-height: 100vh;
 }
 
+/* Chat theme variables - easy to override in your app or per-theme */
+:root {
+  --chat-own-bg: #0f172a; /* dark slate */
+  --chat-own-text: #ffffff;
+  --chat-other-bg: #ffffff;
+  --chat-other-text: #111827;
+  --chat-timestamp: #9ca3af;
+}
+
 #root {
   min-height: 100vh;
 }

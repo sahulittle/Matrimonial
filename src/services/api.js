@@ -3,7 +3,7 @@
  */
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5003/api";
+  import.meta.env.VITE_API_URL || "http://localhost:5002/api";
 
 /**
  * Generic fetch wrapper with error handling
@@ -131,6 +131,35 @@ export const interestApi = {
 export const messageApi = {
   sendMessage: (receiverId, content, attachments = []) =>
     api.post("/users/messages/send", { receiverId, content, attachments }),
+  editMessage: (messageId, content) =>
+    api.put(`/users/messages/${messageId}`, { content }),
+  sendMessageMultipart: async (receiverId, content, files = []) => {
+    const url = `${API_BASE_URL}/users/messages/send`;
+    const form = new FormData();
+    form.append("receiverId", receiverId);
+    form.append("content", content || "");
+    files.forEach((file) => form.append("attachments", file));
+
+    const token = localStorage.getItem("authToken");
+
+    const res = await fetch(url, {
+      method: "POST",
+      credentials: "include",
+      headers: token
+        ? {
+          Authorization: `Bearer ${token}`,
+        }
+        : {},
+      body: form,
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: 'Upload failed' }));
+      throw new Error(err.message || 'Upload failed');
+    }
+
+    return await res.json();
+  },
   getMessages: (otherUserId, page = 1, limit = 20) =>
     api.get(
       `/users/messages?otherUserId=${otherUserId}&page=${page}&limit=${limit}`,

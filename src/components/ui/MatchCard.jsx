@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Heart,
   Star,
@@ -92,6 +92,19 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
     }
   };
 
+  const navigate = useNavigate();
+
+  const handleOpenChat = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const targetId = profile?._id || profile?.id || profile?.userId;
+    if (!targetId) {
+      console.error("Cannot open chat: missing profile id", profile);
+      return;
+    }
+    navigate("/user/messages", { state: { newConversationWith: targetId } });
+  };
+
   /* ---------------- Horizontal Layout ---------------- */
 
   if (layout === "horizontal") {
@@ -167,7 +180,11 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
         <div className="flex flex-col gap-2">
           {/* MAIN BUTTON */}
           <button
-            onClick={handleSendInterest}
+            onClick={
+              interestStatus === "accepted"
+                ? handleOpenChat
+                : handleSendInterest
+            }
             disabled={interestStatus === "pending"}
             className={`w-full py-2 rounded-lg flex items-center justify-center gap-2 ${
               interestStatus === "accepted"

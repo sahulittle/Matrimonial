@@ -1,13 +1,30 @@
 import { Check } from "lucide-react";
 
-const ChatMessage = ({ message, isOwn, showAvatar = true, avatar }) => {
+const ChatMessage = ({
+  message,
+  isOwn,
+  showAvatar = true,
+  avatar,
+  onEdit,
+  onDelete,
+}) => {
   const formatTime = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
+  // Use the same colors for received messages as sending messages per user request
+  const bubbleStyle = {
+    backgroundColor: "var(--chat-own-bg, #0f172a)",
+    color: "var(--chat-own-text, #ffffff)",
+  };
+
+  const timeStyle = {
+    color: "var(--chat-timestamp, #9ca3af)",
+  };
+
   return (
-    <div className={`flex gap-3 mb-4 ${isOwn ? "flex-row-reverse" : ""}`}>
+    <div className={`group flex gap-3 mb-4 ${isOwn ? "flex-row-reverse" : ""}`}>
       {/* Avatar */}
       {showAvatar && !isOwn && (
         <img
@@ -24,34 +41,52 @@ const ChatMessage = ({ message, isOwn, showAvatar = true, avatar }) => {
         className={`max-w-[70%] ${isOwn ? "items-end" : "items-start"} flex flex-col`}
       >
         <div
-          className={`px-4 py-2.5 rounded-2xl ${
-            isOwn
-              ? "bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-tr-sm"
-              : "bg-white border border-gray-200 text-gray-800 rounded-tl-sm"
-          }`}
+          className="px-4 py-2.5 rounded-2xl break-words max-w-full relative"
+          style={bubbleStyle}
         >
-          <p className="text-sm leading-relaxed">
-            {message.text || message.message}
+          <p className="text-sm leading-relaxed break-words whitespace-pre-wrap">
+            {message.text || message.message || ""}
           </p>
+
+          {isOwn && (onEdit || onDelete) && (
+            <div className="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {onEdit && (
+                <button
+                  onClick={() => onEdit(message)}
+                  className="p-1 rounded text-xs bg-white/20 hover:bg-white/30"
+                  type="button"
+                >
+                  Edit
+                </button>
+              )}
+              {onDelete && (
+                <button
+                  onClick={() => onDelete(message)}
+                  className="p-1 rounded text-xs bg-white/20 hover:bg-white/30"
+                  type="button"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div
           className={`flex items-center gap-2 mt-1 ${isOwn ? "justify-end" : ""}`}
         >
-          <span className="text-xs text-gray-400">
+          <span className="text-xs" style={timeStyle}>
             {message.timestamp ? formatTime(message.timestamp) : message.time}
           </span>
 
           {isOwn && (
-            <span className="text-xs text-gray-400 flex items-center gap-1">
+            <span className="text-xs flex items-center gap-1" style={timeStyle}>
               {/* status ticks: sending, delivered, read */}
               {message.status === "sending" && <span>...</span>}
               {message.status === "failed" && (
                 <span className="text-red-500">!</span>
               )}
-              {message.status === "delivered" && (
-                <Check className="w-4 h-4 text-gray-400" />
-              )}
+              {message.status === "delivered" && <Check className="w-4 h-4" />}
               {message.status === "read" && (
                 <div className="flex -space-x-1">
                   <Check className="w-4 h-4 text-primary-500" />

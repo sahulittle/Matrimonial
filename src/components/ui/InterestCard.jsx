@@ -86,8 +86,12 @@ const InterestCard = ({
   const handleOpenChat = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!profile?._id) return;
-    navigate("/user/messages", { state: { newConversationWith: profile._id } });
+    const targetId = profile?._id || profile?.id || profile?.userId;
+    if (!targetId) {
+      console.error("Cannot open chat: missing profile id", profile);
+      return;
+    }
+    navigate("/user/messages", { state: { newConversationWith: targetId } });
   };
 
   return (
