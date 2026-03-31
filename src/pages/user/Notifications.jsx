@@ -1,39 +1,93 @@
-import { useState, useEffect } from 'react'
-import { Bell, Check, Trash2 } from 'lucide-react'
-import NotificationItem from '../../components/ui/NotificationItem'
-import {
-  getUserNotifications,
-  markAllNotificationsAsRead,
-  removeNotificationStorage,
-} from '../../utils/storage'
-import { useAuth } from '../../context/AuthContext'
+import { useState, useEffect } from "react";
+import { Bell, Check, Trash2 } from "lucide-react";
+import NotificationItem from "../../components/ui/NotificationItem";
+import { useAuth } from "../../context/AuthContext";
+import { useNotifications } from "../../hooks/useApi";
+import { notificationApi } from "../../services/api";
 
 const Notifications = () => {
-  const { user, refreshData } = useAuth()
-  const [notifications, setNotifications] = useState([])
-  const unreadCount = notifications.filter(n => !n.read).length
+  const { user, refreshData } = useAuth();
+  const {
+    notifications: apiNotifications,
+    unreadCount,
+    getNotifications,
+    getUnreadCount,
+    markAsRead,
+    markAllAsRead,
+  } = useNotifications();
+
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     if (user) {
-      setNotifications(getUserNotifications(user.id))
+      // initial load
+      getNotifications().then((res) => {
+        const list = (res?.notifications || []).map((n) => ({
+          ...n,
+          id: n._id || n.id,
+          read: n.isRead ?? n.read,
+        }));
+        setNotifications(list);
+      });
+      getUnreadCount().catch(() => {});
     }
-  }, [user])
+  }, [user]);
 
-  const handleMarkAllAsRead = () => {
-    if (user?.id) {
-      markAllNotificationsAsRead(user.id)
-      setNotifications(getUserNotifications(user.id))
-      refreshData()
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAllAsRead();
+      await getNotifications();
+      await getUnreadCount();
+      // refresh local list
+      const res = await getNotifications();
+      setNotifications(
+        (res.notifications || []).map((n) => ({
+          ...n,
+          id: n._id || n.id,
+          read: n.isRead ?? n.read,
+        })),
+      );
+      refreshData();
+    } catch (err) {
+      console.error(err);
     }
-  }
+  };
 
-  const handleRemoveNotification = (notificationId) => {
-    if (user?.id) {
-      removeNotificationStorage(user.id, notificationId)
-      setNotifications(getUserNotifications(user.id))
-      refreshData()
+  const handleRemoveNotification = async (notificationId) => {
+    try {
+      await notificationApi.deleteNotification(notificationId);
+      const res = await getNotifications();
+      setNotifications(
+        (res.notifications || []).map((n) => ({
+          ...n,
+          id: n._id || n.id,
+          read: n.isRead ?? n.read,
+        })),
+      );
+      await getUnreadCount();
+      refreshData();
+    } catch (err) {
+      console.error("Failed to delete notification", err);
     }
-  }
+  };
+
+  const handleMarkAsRead = async (notificationId) => {
+    try {
+      await markAsRead(notificationId);
+      // update local state
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n._id === notificationId || n.id === notificationId
+            ? { ...n, read: true }
+            : n,
+        ),
+      );
+      await getUnreadCount();
+      refreshData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6 animate-fadeIn">
@@ -62,7 +116,9 @@ const Notifications = () => {
               <Bell className="w-5 h-5 text-pink-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{notifications.length}</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {notifications.length}
+              </p>
               <p className="text-sm text-gray-500">Total</p>
             </div>
           </div>
@@ -84,22 +140,25 @@ const Notifications = () => {
       {notifications.length > 0 ? (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {notifications.map((notification) => (
-            <NotificationItem 
-              key={notification.id} 
-              notification={notification} 
+            <NotificationItem
+              key={notification.id}
+              notification={notification}
               onRemove={(id) => handleRemoveNotification(id)}
+              onMarkRead={(id) => handleMarkAsRead(id)}
             />
           ))}
         </div>
       ) : (
         <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">
           <Bell className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No Notifications</h3>
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            No Notifications
+          </h3>
           <p className="text-gray-500">You're all caught up!</p>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Notifications
+export default Notifications;

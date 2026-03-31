@@ -1,10 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Heart, MessageCircle, Eye, Check, CheckCheck, X } from "lucide-react";
-import { markNotificationAsReadStorage } from "../../utils/storage";
 import { useAuth } from "../../context/AuthContext";
 
-const NotificationItem = ({ notification, onRemove }) => {
+const NotificationItem = ({ notification, onRemove, onMarkRead }) => {
   const { user, refreshData } = useAuth();
 
   const getIcon = (type) => {
@@ -61,8 +60,14 @@ const NotificationItem = ({ notification, onRemove }) => {
     if (e.target.closest(".remove-btn")) return;
 
     if (!notification.read && user?.id) {
-      markNotificationAsReadStorage(user.id, notification.id);
-      refreshData();
+      if (typeof onMarkRead === "function") {
+        onMarkRead(notification._id || notification.id);
+      } else if (typeof notification.onMarkRead === "function") {
+        notification.onMarkRead(notification._id || notification.id);
+      } else {
+        // fallback: trigger global refresh
+        refreshData();
+      }
     }
   };
 

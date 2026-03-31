@@ -74,6 +74,11 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   };
 
+  // allow components to refresh app data
+  const refreshData = async () => {
+    await loadAppData();
+  };
+
   /**
    * Register user
    */
@@ -245,6 +250,7 @@ export const AuthProvider = ({ children }) => {
     updatePreferences,
     changePassword,
     setAppData,
+    refreshData,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
