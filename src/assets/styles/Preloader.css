@@ -1,7 +1,7 @@
 /* Fullscreen preloader with a large heart design and centered logo */
 .preloader {
   position: fixed;
-  inset: 0; /* top:0; right:0; bottom:0; left:0 */
+  inset: 0;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -19,15 +19,13 @@
   padding: 24px;
 }
 
-/* Heart shape made from a rotated square plus two circles */
+/* Heart shape */
 .heart {
-  /* smaller heart */
   width: 200px;
   height: 200px;
   position: relative;
   transform: rotate(-45deg);
-  /* Softer, light-pink gradient */
-  background: linear-gradient(135deg, #efadcd 100%, #efadcd 1000%, #efadcd 100%);
+  background: linear-gradient(135deg, #efadcd 100%, #efadcd 100%);
   box-shadow:
     0 12px 30px rgba(255, 182, 212, 0.14),
     inset 0 -6px 12px rgba(0, 0, 0, 0.03);
@@ -44,32 +42,32 @@
   height: 200px;
   background: inherit;
   border-radius: 50%;
-  z-index: -1; /* keep circles behind the main heart so logo remains visible */
+  z-index: -1;
 }
 
 .heart::before {
   top: -100px;
   left: 0;
 }
+
 .heart::after {
   top: 0;
   left: 100px;
 }
 
-/* Logo sits centered inside the heart; rotate back to stay upright */
+/* Logo inside heart */
 .heart .logo {
   position: absolute;
   left: 50%;
   top: 50%;
-  bottom: 80%;
-  transform: translate(-50%, -50%) rotate(45deg) scale(1.7);
-  width: 800px;
-  height: 800px;
+  transform: translate(-50%, -50%) rotate(45deg) scale(1.5);
+  width: 260px;
+  height: 260px;
   object-fit: contain;
-  padding: 10px;
   z-index: 3;
 }
 
+/* Animation */
 @keyframes heartBeat {
   0%,
   100% {
@@ -80,30 +78,67 @@
   }
 }
 
-/* Responsive adjustments */
+/* =========================
+   📱 MOBILE (FIXED)
+========================= */
 @media (max-width: 640px) {
   .heart {
-    width: 240px;
-    height: 240px;
+    width: 160px;
+    height: 160px;
   }
+
   .heart::before,
   .heart::after {
-    width: 240px;
-    height: 240px;
+    width: 160px;
+    height: 160px;
   }
+
   .heart::before {
-    top: -120px;
+    top: -80px;
   }
+
   .heart::after {
-    left: 120px;
+    left: 80px;
   }
+
   .heart .logo {
-    width: 360px;
-    height: 360px;
+    width: 180px;
+    height: 180px;
+    transform: translate(-50%, -50%) rotate(45deg) scale(1.2);
   }
 }
 
-/* Small decorative floating hearts using CSS gradients on the preloader background */
+/* =========================
+   📱 EXTRA SMALL DEVICES
+========================= */
+@media (max-width: 400px) {
+  .heart {
+    width: 130px;
+    height: 130px;
+  }
+
+  .heart::before,
+  .heart::after {
+    width: 130px;
+    height: 130px;
+  }
+
+  .heart::before {
+    top: -65px;
+  }
+
+  .heart::after {
+    left: 65px;
+  }
+
+  .heart .logo {
+    width: 150px;
+    height: 150px;
+    transform: translate(-50%, -50%) rotate(45deg) scale(1.1);
+  }
+}
+
+/* Decorative floating dots */
 .preloader::after {
   content: "";
   position: absolute;
