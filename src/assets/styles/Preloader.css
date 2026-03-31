@@ -6,8 +6,8 @@
   justify-content: center;
   align-items: center;
   background:
-    radial-gradient(circle at 20% 20%, #ffe6f2 0%, transparent 25%),
-    radial-gradient(circle at 80% 80%, #fff0f6 0%, transparent 25%),
+    radial-gradient(circle at 20% 20%, #ffe6f2 100%, transparent 25%),
+    radial-gradient(circle at 80% 80%, #fff0f6 100%, transparent 25%),
     linear-gradient(180deg, #fff1f7 0%, #ffe6f2 100%);
   z-index: 9999;
 }
@@ -27,7 +27,7 @@
   position: relative;
   transform: rotate(-45deg);
   /* Softer, light-pink gradient */
-  background: linear-gradient(135deg, #ffe6f2 0%, #ffd6e8 50%, #ffc1de 100%);
+  background: linear-gradient(135deg, #efadcd 100%, #efadcd 1000%, #efadcd 100%);
   box-shadow:
     0 12px 30px rgba(255, 182, 212, 0.14),
     inset 0 -6px 12px rgba(0, 0, 0, 0.03);
@@ -61,11 +61,12 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%) rotate(45deg) scale(1.5);
-  width: 700px;
-  height: 700px;
+  bottom: 80%;
+  transform: translate(-50%, -50%) rotate(45deg) scale(1.7);
+  width: 800px;
+  height: 800px;
   object-fit: contain;
-  padding: 12px;
+  padding: 10px;
   z-index: 3;
 }
 
