@@ -25,7 +25,7 @@ const Contact = () => {
     ];
 
     return (
-        <div className="bg-gray-100 py-20 mt-24">
+        <div className="bg-gray-100 py-16 sm:py-20 mt-24">
             <div className="container mx-auto px-6">
                 {/* Top Section */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 text-center">
@@ -41,11 +41,11 @@ const Contact = () => {
                 </div>
 
                 {/* Bottom Section */}
-                <div className="bg-white rounded-lg shadow-lg p-8 lg:p-12 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div className="bg-white rounded-lg shadow-lg p-5 sm:p-8 lg:p-12 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
                     {/* Left Side: Form */}
                     <div>
                         <h4 className="text-3xl font-bold text-gray-800 mb-6">Get In Touch With Us</h4>
-                        <form className="space-y-6">
+                        <form className="space-y-5 sm:space-y-6">
                             <input type="text" name="name" placeholder="Your Name" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" />
                             <input type="email" name="email" placeholder="Your Email Address" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" />
                             <input type="text" name="subject" placeholder="Subject" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" />

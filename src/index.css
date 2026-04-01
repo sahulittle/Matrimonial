@@ -16,6 +16,14 @@ body {
   min-height: 100vh;
 }
 
+@layer base {
+  form input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  form select,
+  form textarea {
+    width: 100%;
+  }
+}
+
 /* Chat theme variables - easy to override in your app or per-theme */
 :root {
   --chat-own-bg: #0f172a; /* dark slate */

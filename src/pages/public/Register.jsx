@@ -348,30 +348,18 @@ const Register = () => {
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 sm:py-24 px-4 sm:px-6 lg:px-8 mt-10">
       <div className="max-w-4xl w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
-        {/* Progress Stepper */}
-        <div className="relative mb-6">
-          <div
-            className="absolute inset-0 flex items-center"
-            aria-hidden="true"
-          >
-            <div className="w-full border-t border-gray-200"></div>
-          </div>
+        {/* Stepper UI */}
+        <div className="mb-10">
+          <div className="flex items-center justify-between relative max-w-2xl mx-auto">
+            {/* Progress Bar Background */}
+            <div className="absolute top-5 left-0 w-full h-0.5 bg-gray-200 -z-0"></div>
+            {/* Active Progress Bar */}
+            <div
+              className="absolute top-5 left-0 h-0.5 bg-pink-500 transition-all duration-300 -z-0"
+              style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
+            ></div>
 
-          <div className="relative flex justify-between items-center max-w-2xl mx-auto px-6">
-            {[
-              {
-                id: 1,
-                label: "Personal Information",
-              },
-              {
-                id: 2,
-                label: "Education & Career",
-              },
-              {
-                id: 3,
-                label: "Family Details",
-              },
-            ].map((s) => (
+            {steps.map((s) => (
               <div
                 key={s.id}
                 className="flex-1 flex flex-col items-center text-center cursor-pointer"
@@ -413,28 +401,6 @@ const Register = () => {
               }}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Profile Image */}
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Profile Image
-                  </label>
-                  <div className="mt-1 flex items-center gap-4">
-                    {formData.imagePreview && (
-                      <img
-                        src={formData.imagePreview}
-                        alt="Preview"
-                        className="h-16 w-16 rounded-full object-cover border-2 border-pink-100"
-                      />
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
-                    />
-                  </div>
-                </div>
-
                 {/* First Name */}
                 <div>
                   <label
@@ -740,6 +706,45 @@ const Register = () => {
                   </div>
                 </div>
 
+              <div className="pt-6">
+                <button
+                  type="submit"
+                  className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                >
+                  Save & Continue
+                </button>
+              </div>
+              <p className="mt-2 text-center text-sm text-gray-600">
+                Already have an account?{" "}
+                <Link
+                  to="/login"
+                  className="font-medium text-pink-600 hover:text-pink-500"
+                >
+                  Login to your Account
+                </Link>
+              </p>
+            </form>
+          </>
+        )}
+
+        {step === 2 && (
+          <>
+            <div>
+              <h3 className="text-center text-3xl font-extrabold text-gray-900">
+                Education & Career
+              </h3>
+              <p className="mt-2 text-center text-sm text-gray-600">
+                Tell us about your professional background.
+              </p>
+            </div>
+            <form
+              className="mt-8 space-y-6"
+              onSubmit={(e) => {
+                e.preventDefault();
+                setStep(3);
+              }}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Education */}
                 <div>
                   <label
@@ -875,44 +880,14 @@ const Register = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Field of Study (dependent on Education) */}
-              {degree && fieldOfStudyOptions[degree] && (
-                <div>
-                  <label
-                    htmlFor="field-of-study"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Field of Study
-                  </label>
-
-                  <div className="mt-1 relative">
-                    <select
-                      id="field-of-study"
-                      name="fieldOfStudy"
-                      required
-                      onChange={handleChange}
-                      value={formData.fieldOfStudy || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
-                    >
-                      <option value="" disabled>
-                        Select Field of Study
-                      </option>
-                      {fieldOfStudyOptions[degree].map((f, idx) => (
-                        <option key={idx} value={f}>
-                          {f}
-                        </option>
-                      ))}
-                    </select>
-
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <FaChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              <div className="pt-6">
+              <div className="pt-6 flex gap-4">
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="group relative w-full flex justify-center py-3 px-4 border border-gray-300 text-sm font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+                >
+                  Back
+                </button>
                 <button
                   type="submit"
                   className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-full text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
@@ -942,7 +917,7 @@ const Register = () => {
               </p>
             </div>
             <form className="mt-8 space-y-6" onSubmit={handleFinalSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 {/* Father's Name */}
                 <div>
                   <label
@@ -1126,7 +1101,7 @@ const Register = () => {
                 </div>
               </div>
 
-              <div className="pt-6 flex gap-4">
+              <div className="pt-6 flex flex-col sm:flex-row gap-4">
                 <button
                   type="button"
                   onClick={() => setStep(1)}

@@ -23,7 +23,7 @@ const HeroSection = () => {
   ];
 
   return (
-    <div className="relative w-full flex items-center justify-center overflow-hidden mt-24 py-24 px-10 sm:px-6">
+    <div className="relative w-full flex items-center justify-center overflow-hidden mt-20 sm:mt-24 py-14 sm:py-24 px-4 sm:px-6 lg:px-10">
       {/* Background Images */}
       {images.map((img, index) => (
         <div
@@ -39,7 +39,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 bg-black/50"></div>
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 flex flex-col lg:flex-row items-center justify-between gap-12">
+      <div className="relative z-10 container mx-auto max-w-7xl sm:px-6 lg:px-8 py-8 sm:py-12 flex flex-col lg:flex-row items-center justify-between gap-10 lg:gap-12">
         {/* Left Side */}
         <div className="text-white text-center lg:text-left lg:w-1/2 space-y-6 animate-fade-in-up lg:ml-10">
           <h3 className="text-2xl md:text-3xl font-semibold text-pink-400 tracking-wide">Welcome to <span className='text-white'>Marathi Shubha Vivah</span>
@@ -53,38 +53,38 @@ const HeroSection = () => {
         </div>
 
         {/* Right Side - Form */}
-        <div className="bg-white/95 backdrop-blur-md p-8 rounded-2xl shadow-2xl w-full max-w-lg lg:w-5/12 border-t-4 border-pink-500 lg:mr-10">
+        <div className="bg-white/95 backdrop-blur-md p-5 sm:p-8 rounded-2xl shadow-2xl w-full max-w-xl lg:w-5/12 border-t-4 border-pink-500 lg:mr-10">
           <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Find Your Partner</h2>
-          <form className="space-y-4">
+          <form className="space-y-5">
             
             {/* State */}
             <div>
               <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">State</label>
-              <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none text-gray-700">
+              <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none text-gray-700">
                 <option value="">Select State</option>
                 {indianStates.map((state, idx) => (
-                  <option key={idx} value={state}>{state}</option>
+                  <option className='w-full' key={idx} value={state}>{state}</option>
                 ))}
               </select>
             </div>
 
             {/* City & Profession */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">City</label>
-                <input type="text" placeholder="City" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" />
+                <input type="text" placeholder="City" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Profession</label>
-                <input type="text" placeholder="Profession" className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" />
+                <input type="text" placeholder="Profession" className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none" />
               </div>
             </div>
 
             {/* Marital Status & Looking For */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Marital Status</label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-gray-700">
+                <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-gray-700">
                   <option value="single">Single</option>
                   <option value="married">Married</option>
                   <option value="divorced">Divorced</option>
@@ -93,7 +93,7 @@ const HeroSection = () => {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Looking For</label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-gray-700">
+                <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-gray-700">
                   <option value="bride">Bride</option>
                   <option value="groom">Groom</option>
                 </select>
@@ -101,17 +101,17 @@ const HeroSection = () => {
             </div>
 
             {/* Habits */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Smoking</label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-gray-700">
+                <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-gray-700">
                   <option value="non-smoker">Non-Smoker</option>
                   <option value="smoker">Smoker</option>
                 </select>
               </div>
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Drinking</label>
-                <select className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-gray-700">
+                <select className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-gray-700">
                   <option value="non-drinker">Non-Drinker</option>
                   <option value="drinker">Drinker</option>
                 </select>

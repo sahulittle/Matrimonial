@@ -486,12 +486,12 @@ const Profile = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
           {/* Basic Tab */}
           {activeTab === "basic" && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Basic Personal Information</h3>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 <div>
                   <label className="block text-sm font-medium mb-2">Full Name *</label>
                   <input
@@ -590,7 +590,7 @@ const Profile = () => {
           {activeTab === "education" && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Education & Career</h3>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 <div>
                   <label className="block text-sm font-medium mb-2">Education</label>
                   <div className="mt-1 relative">
@@ -695,7 +695,7 @@ const Profile = () => {
           {activeTab === "family" && (
             <div className="space-y-6">
               <h3 className="text-lg font-semibold text-gray-900">Family Information</h3>
-              <div className="grid md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 <div>
                   <label className="block text-sm font-medium mb-2">Father's Name</label>
                   <input

@@ -264,8 +264,8 @@ const ManagePackages = () => {
 
       {/* Add/Edit Package Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+          <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h4 className="text-xl font-bold text-gray-800">
                 {editingPackage ? "Edit" : "Add New"} Package
@@ -278,7 +278,7 @@ const ManagePackages = () => {
               </button>
             </div>
             <form onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Name
@@ -368,7 +368,7 @@ const ManagePackages = () => {
                   </label>
 
                   {formData.benefits.map((feature, index) => (
-                    <div key={index} className="flex gap-2 mb-2">
+                    <div key={index} className="flex flex-col sm:flex-row gap-2 mb-2">
                       <input
                         type="text"
                         value={feature}
@@ -382,7 +382,7 @@ const ManagePackages = () => {
                       <button
                         type="button"
                         onClick={() => removeFeature(index)}
-                        className="px-3 bg-red-500 text-white rounded-lg"
+                        className="px-3 py-2 bg-red-500 text-white rounded-lg sm:w-auto"
                       >
                         ✕
                       </button>
@@ -398,11 +398,11 @@ const ManagePackages = () => {
                   </button>
                 </div>
               </div>
-              <div className="mt-8 flex justify-end">
+              <div className="mt-8 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg mr-4 hover:bg-gray-300"
+                  className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300"
                 >
                   Cancel
                 </button>
