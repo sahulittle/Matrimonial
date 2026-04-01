@@ -13,9 +13,10 @@ import {
   messageApi,
   interestApi,
 } from "../services/api";
+
 import { initSocket, disconnectSocket } from "../services/socketService";
 import toast from "react-hot-toast";
-import { getUserProfile } from "../api/userApi/userApi"; // ✅ NEW API
+import { getUserProfile, updateUserProfile } from "../api/userApi/userApi"; // ✅ NEW API
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -34,24 +35,26 @@ export const AuthProvider = ({ children }) => {
 
   // Initialize auth from stored token
   useEffect(() => {
-    const storedToken = localStorage.getItem("authToken");
-    const storedUser = localStorage.getItem("user");
+    const init = async () => {
+      const storedToken = localStorage.getItem("authToken");
+      const storedUser = localStorage.getItem("user");
 
-    if (storedToken && storedUser) {
-      const userData = JSON.parse(storedUser);
+      if (storedToken && storedUser) {
+        const userData = JSON.parse(storedUser);
 
-      setAuthToken(storedToken);
-      setUser(userData);
+        setAuthToken(storedToken);
+        setUser(userData);
 
-      initSocket(userData._id, userData.role === "admin");
+        initSocket(userData._id, userData.role === "admin");
 
-      loadAppData();
+        await loadAppData(); // ✅ wait
+        await fetchUserProfile(); // ✅ wait
+      }
 
-      // ✅ ADD THIS LINE
-      fetchUserProfile();
-    } else {
-      setLoading(false);
-    }
+      setLoading(false); // ✅ after everything
+    };
+
+    init();
   }, []);
 
   const loadAppData = async () => {
@@ -135,17 +138,19 @@ export const AuthProvider = ({ children }) => {
    */
   const fetchUserProfile = useCallback(async () => {
     try {
-      // ✅ call NEW API
       const response = await getUserProfile();
 
-      console.log("NEW PROFILE:", response);
+      console.log("PROFILE RESPONSE:", response);
 
-      // ✅ map correctly for Navbar
+      // ✅ USE RESPONSE DIRECTLY (NOT response.user)
+      const userData = response;
+
       const formattedProfile = {
-        _id: response._id,
-        name: response.name,
-        email: response.email,
-        avatar: response.avatar, // ✅ IMPORTANT
+        _id: userData._id,
+        name: userData.name,
+        email: userData.email,
+        avatar: userData.avatar,
+        ...userData,
       };
 
       setProfile(formattedProfile);
@@ -154,7 +159,6 @@ export const AuthProvider = ({ children }) => {
       return formattedProfile;
     } catch (error) {
       console.error("Error fetching profile:", error);
-      throw error;
     }
   }, []);
 
@@ -164,9 +168,12 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = useCallback(async (newProfileData) => {
     try {
       setLoading(true);
-      const response = await userProfileApi.updateProfile(newProfileData);
+
+      const response = await updateUserProfile(newProfileData);
+
       setProfile(response.user);
       setUser(response.user);
+
       toast.success("Profile updated successfully");
       return response.user;
     } catch (error) {

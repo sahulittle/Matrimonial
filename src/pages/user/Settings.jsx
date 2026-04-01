@@ -78,35 +78,64 @@ const Settings = () => {
     { id: "notifications", label: "Notifications", icon: Bell },
   ];
 
-  const handleChange = (key, value) => {
-    setSettings({ ...settings, [key]: value });
+  const handleChange = async (key, value, persist = false) => {
+    const newSettings = { ...settings, [key]: value };
+    setSettings(newSettings);
     setSaved(false);
+
+    if (persist) {
+      try {
+        const payload = { [key]: value };
+        const res = await updateSettings(payload);
+        toast.success(res?.message || "Setting updated");
+      } catch (err) {
+        const msg =
+          err?.message || err?.response?.data?.message || "Update failed";
+        toast.error(msg);
+      }
+    }
   };
 
   const handlePasswordChange = async () => {
     if (passwords.newPassword !== passwords.confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
 
-    await changePassword({
-      currentPassword: passwords.currentPassword,
-      newPassword: passwords.newPassword,
-    });
+    try {
+      const res = await changePassword({
+        currentPassword: passwords.currentPassword,
+        newPassword: passwords.newPassword,
+      });
 
-    toast.success("Password updated");
-    toast.error("Error updating password");
+      toast.success(res?.message || "Password updated");
+      // clear password fields
+      setPasswords({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err) {
+      const msg =
+        err?.message ||
+        err?.response?.data?.message ||
+        "Error updating password";
+      toast.error(msg);
+    }
   };
   const handleSave = async () => {
     try {
       setIsSaving(true);
+      const res = await updateSettings(settings);
 
-      await updateSettings(settings);
-
+      toast.success(res?.message || "Settings saved");
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } catch (error) {
       console.error(error);
+      const msg =
+        error?.message || error?.response?.data?.message || "Save failed";
+      toast.error(msg);
     } finally {
       setIsSaving(false);
     }
@@ -208,6 +237,7 @@ const Settings = () => {
                             currentPassword: e.target.value,
                           })
                         }
+                        className="w-full pl-4 pr-4 py-3 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -224,6 +254,7 @@ const Settings = () => {
                             newPassword: e.target.value,
                           })
                         }
+                        className="w-full pl-4 pr-4 py-3 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                       />
                     </div>
                     <div>
@@ -240,6 +271,7 @@ const Settings = () => {
                             confirmPassword: e.target.value,
                           })
                         }
+                        className="w-full pl-4 pr-4 py-3 border border-gray-200 rounded-xl focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 outline-none transition-all"
                       />
                     </div>
                   </div>
@@ -266,7 +298,7 @@ const Settings = () => {
                     </div>
                     <button
                       onClick={() =>
-                        handleChange("hidePhone", !settings.hidePhone)
+                        handleChange("hidePhone", !settings.hidePhone, true)
                       }
                       className={`w-12 h-6 rounded-full transition-colors ${
                         settings.hidePhone ? "bg-primary-500" : "bg-gray-300"
@@ -291,7 +323,7 @@ const Settings = () => {
                     </div>
                     <button
                       onClick={() =>
-                        handleChange("hidePhotos", !settings.hidePhotos)
+                        handleChange("hidePhotos", !settings.hidePhotos, true)
                       }
                       className={`w-12 h-6 rounded-full transition-colors ${
                         settings.hidePhotos ? "bg-primary-500" : "bg-gray-300"
@@ -323,7 +355,7 @@ const Settings = () => {
                             value={option}
                             checked={settings.profileVisibility === option}
                             onChange={() =>
-                              handleChange("profileVisibility", option)
+                              handleChange("profileVisibility", option, true)
                             }
                             className="w-4 h-4 text-primary-600 border-gray-300 focus:ring-primary-500"
                           />
@@ -360,6 +392,7 @@ const Settings = () => {
                         handleChange(
                           "emailNotifications",
                           !settings.emailNotifications,
+                          true,
                         )
                       }
                       className={`w-12 h-6 rounded-full transition-colors ${
@@ -392,6 +425,7 @@ const Settings = () => {
                         handleChange(
                           "smsNotifications",
                           !settings.smsNotifications,
+                          true,
                         )
                       }
                       className={`w-12 h-6 rounded-full transition-colors ${
@@ -421,7 +455,11 @@ const Settings = () => {
                     </div>
                     <button
                       onClick={() =>
-                        handleChange("interestAlerts", !settings.interestAlerts)
+                        handleChange(
+                          "interestAlerts",
+                          !settings.interestAlerts,
+                          true,
+                        )
                       }
                       className={`w-12 h-6 rounded-full transition-colors ${
                         settings.interestAlerts
@@ -450,7 +488,11 @@ const Settings = () => {
                     </div>
                     <button
                       onClick={() =>
-                        handleChange("messageAlerts", !settings.messageAlerts)
+                        handleChange(
+                          "messageAlerts",
+                          !settings.messageAlerts,
+                          true,
+                        )
                       }
                       className={`w-12 h-6 rounded-full transition-colors ${
                         settings.messageAlerts
@@ -482,6 +524,7 @@ const Settings = () => {
                         handleChange(
                           "profileViewAlerts",
                           !settings.profileViewAlerts,
+                          true,
                         )
                       }
                       className={`w-12 h-6 rounded-full transition-colors ${

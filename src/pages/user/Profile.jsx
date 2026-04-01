@@ -1,829 +1,1057 @@
-import { useState, useEffect, useMemo } from "react"
-import { useAuth } from "../../context/AuthContext"
+import React, { useState, useEffect, useRef } from "react";
+import { getUserProfile, updateUserProfile } from "../../api/userApi/userApi";
 
-import {
-  User,
-  Briefcase,
-  Users,
-  Save,
-  Loader2,
-  Check,
-  Camera
-} from "lucide-react"
-import { FaChevronDown } from "react-icons/fa"
+const Section = ({ title, children, onEdit }) => (
+  <div className="border-t last:border-b border-gray-200 py-4">
+    <div className="flex justify-between items-start mb-3">
+      <div className="flex items-center gap-3">
+        <div className="w-9 h-9 bg-blue-50 text-blue-600 rounded-md flex items-center justify-center">
+          {/* simple section icon */}
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12h6m2 0a2 2 0 010 4H7a2 2 0 010-4h10zM7 8h10M7 4h10"
+            />
+          </svg>
+        </div>
 
-const Profile = () => {
-  const { user: currentUser, profile: currentProfile, updateProfile, loading } = useAuth()
+        <h3 className="text-base font-semibold text-gray-700">{title}</h3>
+      </div>
 
-  const [activeTab, setActiveTab] = useState("basic")
-  const [isSaving, setIsSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
-  const [completionPercentage, setCompletionPercentage] = useState(0)
-  const [degree, setDegree] = useState("");
-  const [fieldOfStudy, setFieldOfStudy] = useState("");
+      {onEdit && (
+        <button
+          onClick={onEdit}
+          aria-label={`Edit ${title}`}
+          className="text-sm text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-md flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M11 5h6M5 5h.01M12 12h6m-6 4h6"
+            />
+          </svg>
+          <span className="hidden sm:inline">Edit</span>
+        </button>
+      )}
+    </div>
+    {children}
+  </div>
+);
 
+const Row = ({ label, value }) => (
+  <div className="flex justify-between text-sm py-2 items-center">
+    <span className="text-gray-500 w-1/3">{label}</span>
+    <span className="font-medium text-gray-700 w-2/3 truncate">
+      {value || "-"}
+    </span>
+  </div>
+);
 
-  const qualifications = [];
-  const occupations = [
-    'Private Company',
-    'Government/Public Sector',
-    'Defence/Civil Service',
-    'Business/Self Employed',
-    'Not Working',
-  ];
-  const complexionOptions = ['Fair', 'Light', 'Medium', 'Dark'];
-  const bloodGroupOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
-  const indianStates = [
-    "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh",
-    "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jharkhand", "Karnataka",
-    "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram",
-    "Nagaland", "Odisha", "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu",
-    "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal",
-    "Andaman and Nicobar Islands", "Chandigarh", "Dadra and Nagar Haveli and Daman and Diu",
-    "Delhi", "Jammu and Kashmir", "Ladakh", "Lakshadweep", "Puducherry"
-  ];
+// ✅ AGE CALCULATOR
+const calculateAge = (dob) => {
+  if (!dob) return "-";
+  const diff = Date.now() - new Date(dob).getTime();
+  return Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+};
 
-  const fieldOfStudyOptions = {
-    "B.Tech": [
-      "Computer Science Engineering",
-      "Information Technology",
-      "Artificial Intelligence",
-      "Artificial Intelligence & Data Science",
-      "Data Science",
-      "Cyber Security",
-      "Software Engineering",
-      "Mechanical Engineering",
-      "Civil Engineering",
-      "Electrical Engineering",
-      "Electronics Engineering",
-      "Electronics & Communication Engineering",
-      "Electrical & Electronics Engineering",
-      "Chemical Engineering",
-      "Petroleum Engineering",
-      "Aerospace Engineering",
-      "Automobile Engineering",
-      "Biotechnology Engineering",
-      "Biomedical Engineering",
-      "Environmental Engineering",
-      "Industrial Engineering",
-      "Mining Engineering",
-      "Marine Engineering",
-      "Agricultural Engineering",
-      "Food Technology",
-      "Textile Engineering",
-      "Robotics Engineering",
-      "Mechatronics Engineering"
-    ],
-
-    "B.Sc": [
-      "Physics",
-      "Chemistry",
-      "Mathematics",
-      "Statistics",
-      "Biology",
-      "Botany",
-      "Zoology",
-      "Biotechnology",
-      "Microbiology",
-      "Biochemistry",
-      "Environmental Science",
-      "Computer Science",
-      "Information Technology",
-      "Data Science",
-      "Agriculture",
-      "Nursing",
-      "Psychology",
-      "Geology",
-      "Forensic Science"
-    ],
-
-    "BA": [
-      "English Literature",
-      "History",
-      "Political Science",
-      "Sociology",
-      "Psychology",
-      "Economics",
-      "Geography",
-      "Philosophy",
-      "Journalism",
-      "Mass Communication",
-      "Public Administration",
-      "Fine Arts",
-      "Music",
-      "Education",
-      "Anthropology"
-    ],
-
-    "BBA": [
-      "Marketing",
-      "Finance",
-      "Human Resource Management",
-      "International Business",
-      "Entrepreneurship",
-      "Business Analytics",
-      "Supply Chain Management",
-      "Operations Management",
-      "Hospital Management",
-      "Retail Management"
-    ],
-
-    "BCA": [
-      "Computer Applications",
-      "Software Development",
-      "Web Development",
-      "Mobile App Development",
-      "Database Management",
-      "Data Science",
-      "Artificial Intelligence",
-      "Cyber Security",
-      "Cloud Computing"
-    ],
-
-    "B.Com": [
-      "Accounting",
-      "Finance",
-      "Banking",
-      "Insurance",
-      "Taxation",
-      "Economics",
-      "Business Administration",
-      "Marketing",
-      "E-Commerce",
-      "International Business"
-    ],
-    "LAW": [
-      "Corporate Law",
-      "Criminal Law",
-      "Civil Law",
-      "Constitutional Law",
-      "International Law",
-      "Human Rights Law",
-      "Intellectual Property Law",
-      "Environmental Law",
-      "Taxation Law"
-    ],
-
-    "MBA": [
-      "Finance",
-      "Marketing",
-      "Human Resource Management",
-      "International Business",
-      "Business Analytics",
-      "Operations Management",
-      "Supply Chain Management",
-      "Entrepreneurship",
-      "Healthcare Management",
-      "Hospital Management",
-      "Retail Management"
-    ],
-
-    "MBBS": [
-      "General Medicine",
-      "General Surgery",
-      "Pediatrics",
-      "Orthopedics",
-      "Gynecology",
-      "Cardiology",
-      "Neurology",
-      "Dermatology",
-      "Radiology",
-      "Anesthesiology"
-    ],
-    "PHD": [
-      "Computer Science",
-      "Engineering",
-      "Management",
-      "Economics",
-      "Physics",
-      "Chemistry",
-      "Mathematics",
-      "Biotechnology",
-      "Psychology",
-      "Law",
-      "Political Science",
-      "Education"
-    ],
-    "M.Com": [
-      "Accounting",
-      "Finance",
-      "Banking",
-      "Insurance",
-      "Taxation",
-      "International Business",
-      "Marketing",
-      "Human Resource Management"
-    ],
-    "M.Tech": [
-      "Computer Science Engineering",
-      "Artificial Intelligence",
-      "Data Science",
-      "Cyber Security",
-      "Software Engineering",
-      "Mechanical Engineering",
-      "Civil Engineering",
-      "Electrical Engineering",
-      "Electronics & Communication Engineering",
-      "Chemical Engineering",
-      "Biotechnology Engineering",
-      "Robotics",
-      "Mechatronics"
-    ],
-    "M.A": [
-      "English",
-      "History",
-      "Political Science",
-      "Sociology",
-      "Psychology",
-      "Economics",
-      "Geography",
-      "Philosophy",
-      "Journalism",
-      "Public Administration",
-      "Education"
-    ],
-    "M.SC": [
-      "Physics",
-      "Chemistry",
-      "Mathematics",
-      "Statistics",
-      "Biotechnology",
-      "Microbiology",
-      "Biochemistry",
-      "Environmental Science",
-      "Computer Science",
-      "Information Technology",
-      "Data Science",
-      "Agriculture",
-      "Psychology"
-    ],
-  }
-
-  const heightOptions = [
-    { value: "4'6\"", label: "4'6\"" },
-    { value: "4'8\"", label: "4'8\"" },
-    { value: "4'10\"", label: "4'10\"" },
-    { value: "5'0\"", label: "5'0\"" },
-    { value: "5'2\"", label: "5'2\"" },
-    { value: "5'4\"", label: "5'4\"" },
-    { value: "5'6\"", label: "5'6\"" },
-    { value: "5'8\"", label: "5'8\"" },
-    { value: "5'10\"", label: "5'10\"" },
-    { value: "6'0\"", label: "6'0\"" },
-    { value: "6'2\"", label: "6'2\"" },
-    { value: "6'4\"", label: "6'4\"" }
-  ]
-
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    avatar: "",
-  });
+export default function Profile() {
+  const [user, setUser] = useState(null);
+  const [isBasicEditOpen, setIsBasicEditOpen] = useState(false);
+  const [formData, setFormData] = useState({});
+  const [isReligionOpen, setIsReligionOpen] = useState(false);
+  const [isEducationOpen, setIsEducationOpen] = useState(false);
+  const [isCareerOpen, setIsCareerOpen] = useState(false);
+  const [isFamilyOpen, setIsFamilyOpen] = useState(false);
+  const [isExtendedOpen, setIsExtendedOpen] = useState(false);
+  // ✅ FETCH PROFILE
+  useEffect(() => {
+    getUserProfile()
+      .then((res) => {
+        const u = res.user || res.data || res;
+        setUser(u);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   useEffect(() => {
-    if (!currentProfile) return
+    if (user) {
+      setFormData({
+        // BASIC
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        gender: user.gender || "",
+        dateOfBirth: user.dateOfBirth || "",
+        birthTime: user.birthTime || "",
+        birthName: user.birthName || "",
+        height: user.height || "",
+        complexion: user.complexion || "",
+        bloodGroup: user.bloodGroup || "",
 
-    setFormData({
-      name: currentProfile.name || "",
-      avatar: currentProfile.avatar || "",
-      gender: currentProfile.gender || "Male",
-      dateOfBirth: currentProfile.dateOfBirth || "",
-      height: currentProfile.height || "",
-      birthName: currentProfile.birthName || '',
-      birthTime: currentProfile.birthTime || '',
-      complexion: currentProfile.complexion || '',
-      bloodGroup: currentProfile.bloodGroup || '',
+        // RELIGION
+        religion: user.religion || "",
+        caste: user.caste || "",
 
-      education: {
-        qualification: currentProfile.education?.qualification || "",
-        occupation: currentProfile.education?.occupation || "",
-        fieldOfStudy: currentProfile.education?.fieldOfStudy || "",
-        workLocation: currentProfile.education?.workLocation || "",
-        annualIncome: currentProfile.education?.annualIncome || ""
-      },
+        // EDUCATION
+        education: user.education || "",
+        fieldOfStudy: user.fieldOfStudy || "",
 
-      family: {
-        fatherName: currentProfile.family?.fatherName || '',
-        fatherOccupation: currentProfile.family?.fatherOccupation || "",
-        motherName: currentProfile.family?.motherName || '',
-        motherOccupation: currentProfile.family?.motherOccupation || "",
-        siblings: currentProfile.family?.siblings || "",
-        paternalUncleName: currentProfile.family?.paternalUncleName || '',
-        paternalUncleJob: currentProfile.family?.paternalUncleJob || '',
-        maternalUncleName: currentProfile.family?.maternalUncleName || '',
-        maternalUncleJob: currentProfile.family?.maternalUncleJob || '',
-      },
-    })
-    setDegree(currentProfile.education?.qualification || "");
-    setFieldOfStudy(currentProfile.education?.fieldOfStudy || "");
+        // CAREER
+        job: user.job || "",
+        jobLocation: user.jobLocation || "",
+        annualIncome: user.annualIncome || "",
 
-  }, [currentProfile])
+        // FAMILY
+        fatherName: user.fatherName || "",
+        fatherJob: user.fatherJob || "",
+        motherName: user.motherName || "",
+        motherJob: user.motherJob || "",
+        siblings: user.siblings || "",
 
-  // LIVE PROFILE COMPLETION UPDATE
-  // This useEffect recalculates completion whenever formData or imagePreview changes
-  useEffect(() => {
-    if (!formData || !formData.name) return
+        // EXTENDED
+        paternalUncleName: user.paternalUncleName || "",
+        paternalUncleJob: user.paternalUncleJob || "",
+        maternalUncleName: user.maternalUncleName || "",
+        maternalUncleJob: user.maternalUncleJob || "",
+      });
+    }
+  }, [user]);
+  // ✅ HERE (correct place)
+  const handleBasicSave = async () => {
+    try {
+      const res = await updateUserProfile(formData);
 
-    let score = 0
+      const updatedUser = res.user || res.data || res;
+      setUser(updatedUser);
 
-    if (formData.name) score += 10
-    if (formData.dateOfBirth) score += 10
-    if (formData.height) score += 10
-    if (formData.education?.qualification) score += 10
-    if (formData.education?.occupation) score += 10
-    if (formData.education?.annualIncome) score += 10
-    if (formData.family?.fatherName) score += 10
-    if (formData.family?.motherName) score += 10
-    if (formData.family?.siblings) score += 10
-    if (formData.bloodGroup) score += 10
-
-    setCompletionPercentage(score)
-  }, [formData])
-
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, avatar: reader.result }));
-        setSaved(false);
-      };
-      reader.readAsDataURL(file);
+      setIsBasicEditOpen(false);
+    } catch (err) {
+      console.error("Update failed", err);
     }
   };
 
-  const tabs = [
-    { id: "basic", label: "Basic Details", icon: User },
-    { id: "education", label: "Education & Career", icon: Briefcase },
-    { id: "family", label: "Family Details", icon: Users }
-  ]
+  const handleReligionSave = async () => {
+    const res = await updateUserProfile({
+      religion: formData.religion,
+      caste: formData.caste,
+    });
+    setUser(res.user || res.data || res);
+    setIsReligionOpen(false);
+  };
 
-  const handleChange = (section, field, value) => {
-    if (section) {
-      setFormData(prev => ({
-        ...prev,
-        [section]: {
-          ...prev[section],
-          [field]: value
-        }
-      }))
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        [field]: value
-      }))
-    }
-    setSaved(false)
-  }
+  const handleEducationSave = async () => {
+    const res = await updateUserProfile({
+      education: formData.education,
+      fieldOfStudy: formData.fieldOfStudy,
+    });
+    setUser(res.user || res.data || res);
+    setIsEducationOpen(false);
+  };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    if (isSaving) return
+  const handleCareerSave = async () => {
+    const res = await updateUserProfile({
+      job: formData.job,
+      jobLocation: formData.jobLocation,
+      annualIncome: formData.annualIncome,
+    });
+    setUser(res.user || res.data || res);
+    setIsCareerOpen(false);
+  };
 
-    setIsSaving(true)
+  const handleFamilySave = async () => {
+    const res = await updateUserProfile({
+      fatherName: formData.fatherName,
+      fatherJob: formData.fatherJob,
+      motherName: formData.motherName,
+      motherJob: formData.motherJob,
+      siblings: formData.siblings,
+    });
+    setUser(res.user || res.data || res);
+    setIsFamilyOpen(false);
+  };
 
-    const dataToSave = { ...formData };
+  const handleExtendedSave = async () => {
+    const res = await updateUserProfile({
+      paternalUncleName: formData.paternalUncleName,
+      paternalUncleJob: formData.paternalUncleJob,
+      maternalUncleName: formData.maternalUncleName,
+      maternalUncleJob: formData.maternalUncleJob,
+    });
+    setUser(res.user || res.data || res);
+    setIsExtendedOpen(false);
+  };
+  // ================= PHOTO BLOCK =================
+  function ProfilePhotoBlock() {
+    const [preview, setPreview] = useState(null);
+    const [editing, setEditing] = useState(false);
+    const inputRef = useRef(null);
 
-    if (dataToSave.dateOfBirth) {
-      const dob = new Date(dataToSave.dateOfBirth)
-      const today = new Date()
-      let age = today.getFullYear() - dob.getFullYear()
-      const monthDiff = today.getMonth() - dob.getMonth()
-      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
-        age--
+    const handleChoose = () => inputRef.current?.click();
+
+    const handleFile = (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        setPreview(ev.target.result);
+        setEditing(true);
+      };
+      reader.readAsDataURL(file);
+    };
+
+    const handleSave = async () => {
+      try {
+        const res = await updateUserProfile({
+          profilePhoto: preview,
+        });
+
+        const updatedUser = res.user || res.data || res;
+        setUser(updatedUser);
+
+        setEditing(false);
+        setPreview(null);
+      } catch (err) {
+        console.error("Photo upload failed", err);
       }
-      dataToSave.age = age
-    }
+    };
 
-    await new Promise((resolve) => setTimeout(resolve, 800))
-
-    await updateProfile(dataToSave)
-
-    setIsSaving(false)
-    setSaved(true)
-
-    setTimeout(() => setSaved(false), 3000)
-  }
-
-  if (loading || !currentProfile) {
-    return <div>Loading profile...</div>
-  }
-
-  return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6 animate-fadeIn">
-      {/* Profile Header */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <div className="flex flex-col md:flex-row items-center gap-6">
-          <div className="relative w-24 h-24 group">
+    return (
+      <>
+        <div className="flex items-center gap-4">
+          <div className="relative">
             <img
-              src={formData.avatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"}
-              alt={formData.name}
-              className="w-24 h-24 rounded-lg object-cover border-2 border-white shadow-sm"
+              src={preview || user?.profilePhoto || "/default-avatar.png"}
+              alt="profile"
+              className="w-28 h-28 object-cover rounded-full ring-2 ring-blue-50"
             />
-            <label htmlFor="profile-upload" className="absolute bottom-0 right-0 p-1.5 bg-white rounded-full shadow-md cursor-pointer border border-gray-100 hover:bg-gray-50 transition-colors">
-              <Camera className="w-4 h-4 text-gray-600" />
-              <input 
-                type="file" 
-                id="profile-upload" 
-                accept="image/*" 
-                onChange={handleImageChange} 
-                className="hidden" 
-              />
-            </label>
-          </div>
 
-          <div className="text-center md:text-left">
-            <h1 className="text-2xl font-bold text-gray-900">
-              {formData?.name || "Your Name"}
-            </h1>
-            <p className="text-gray-500">{currentProfile?.email}</p>
-          </div>
-
-          <div className="ml-auto text-center">
-            <div className="relative w-20 h-20">
-              <svg className="w-20 h-20 transform -rotate-90">
-                <circle cx="40" cy="40" r="36" stroke="#e5e7eb" strokeWidth="6" fill="none" />
-                <circle
-                  cx="40" cy="40" r="36"
-                  stroke="#ec4899"
-                  strokeWidth="6"
-                  fill="none"
-                  strokeDasharray={`${completionPercentage * 2.26} 226`}
+            <button
+              onClick={handleChoose}
+              title="Change photo"
+              className="absolute right-0 bottom-0 bg-white border rounded-full p-1 text-blue-600 shadow-sm hover:bg-blue-50"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+              >
+                <path
                   strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"
                 />
               </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-lg font-bold text-gray-900">
-                {completionPercentage}%
-              </span>
-            </div>
-            <p className="text-sm text-gray-500 mt-1">Profile Complete</p>
-          </div>
-        </div>
-      </div>
+            </button>
 
-      {/* Profile Form */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-        {/* Tabs */}
-        <div className="border-b border-gray-100 overflow-x-auto">
-          <div className="flex min-w-max px-4">
-            {tabs.map((tab) => {
-              const Icon = tab.icon
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-4 text-sm font-medium border-b-2 whitespace-nowrap transition-colors ${activeTab === tab.id
-                    ? "border-pink-500 text-pink-600"
-                    : "border-transparent text-gray-500 hover:text-gray-700"
-                    }`}
-                >
-                  <Icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              )
-            })}
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFile}
+              className="hidden"
+            />
+          </div>
+
+          <div>
+            <h2 className="text-lg font-semibold">
+              {user?.firstName} {user?.lastName}
+            </h2>
+
+            <p className="text-sm text-gray-500">
+              {user?._id ? `SH${user._id.toString().slice(-6)}` : ""}
+            </p>
+
+            <p className="text-sm text-gray-600 mt-2">
+              {calculateAge(user?.dateOfBirth)} / {user?.height || "-"} •{" "}
+              {user?.jobLocation || "-"}
+            </p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
-          {/* Basic Tab */}
-          {activeTab === "basic" && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900">Basic Personal Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Full Name *</label>
-                  <input
-                    type="text"
-                    value={formData?.name || ""}
-                    onChange={(e) => handleChange(null, "name", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Gender *</label>
-                  <select
-                    value={formData?.gender || "Male"}
-                    onChange={(e) => handleChange(null, "gender", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  >
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Date of Birth</label>
-                  <input
-                    type="date"
-                    value={formData?.dateOfBirth || ""}
-                    onChange={(e) => handleChange(null, "dateOfBirth", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Height</label>
-                  <select
-                    value={formData?.height || ""}
-                    onChange={(e) => handleChange(null, "height", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  >
-                    <option value="">Select Height</option>
-                    {heightOptions.map((h) => (
-                      <option key={h.value} value={h.value}>{h.label}</option>
-                    ))} </select>
-                </div>
+        <div className="mt-4 text-sm text-gray-600 bg-gray-50 p-3 rounded-md">
+          {user?.about || "No description added"}
+        </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">Birth Name</label>
-                  <input
-                    type="text"
-                    value={formData?.birthName || ""}
-                    onChange={(e) => handleChange(null, "birthName", e.target.value)}
-                    placeholder="Enter your birth name"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Birth Time</label>
-                  <input
-                    type="time"
-                    value={formData?.birthTime || ""}
-                    onChange={(e) => handleChange(null, "birthTime", e.target.value)}
-                    placeholder="Enter your birth time"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Complexion</label>
-                  <select
-                    value={formData?.complexion || ""}
-                    onChange={(e) => handleChange(null, "complexion", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  >
-                    <option value="">Select Complexion</option>
-                    {complexionOptions.map((c) => (
-                      <option key={c} value={c.toLowerCase()}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Blood Group</label>
-                  <select
-                    value={formData?.bloodGroup || ""}
-                    onChange={(e) => handleChange(null, "bloodGroup", e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  >
-                    <option value="">Select Blood Group</option>
-                    {bloodGroupOptions.map((bg) => (
-                      <option key={bg} value={bg}>{bg}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Education Tab */}
-          {activeTab === "education" && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900">Education & Career</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Education</label>
-                  <div className="mt-1 relative">
-                    <select
-                      value={degree}
-                      onChange={(e) => {
-                        const newDegree = e.target.value;
-                        setDegree(newDegree);
-                        setFieldOfStudy("");
-                        handleChange('education', 'qualification', newDegree);
-                        handleChange('education', 'fieldOfStudy', "");
-                      }}
-                      className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-pink-500 focus:border-pink-500 pr-8"
-                    >
-                      <option value="">Select Education</option>
-                      {Object.keys(fieldOfStudyOptions).map((deg, index) => (
-                        <option key={index} value={deg}>
-                          {deg}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-700">
-                      <FaChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-2">Field of Study</label>
-                  <div className="mt-1 relative">
-                    <select
-                      value={fieldOfStudy}
-                      onChange={(e) => {
-                        const newField = e.target.value;
-                        setFieldOfStudy(newField);
-                        handleChange('education', 'fieldOfStudy', newField);
-                      }}
-                      className="appearance-none block w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-pink-500 focus:border-pink-500 pr-8"
-                      disabled={!degree}
-                    >
-                      <option value="">Select Field of Study</option>
-                      {degree &&
-                        fieldOfStudyOptions[degree]?.map((branch, index) => (
-                          <option key={index} value={branch}>
-                            {branch}
-                          </option>
-                        ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-700">
-                      <FaChevronDown className="h-4 w-4" />
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Occupation</label>
-                  <select
-                    value={formData?.education?.occupation || ""}
-                    onChange={(e) => handleChange('education', 'occupation', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  >
-                    <option value="">Select Occupation</option>
-                    {occupations.map((o, index) => (
-                      <option key={o + index} value={o}>{o}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Work Location</label>
-                  <select
-                    value={formData?.education?.workLocation || ""}
-                    onChange={(e) => handleChange('education', 'workLocation', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  >
-                    <option value="">Select State</option>
-                    {indianStates.map(state => (
-                      <option key={state} value={state}>{state}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Annual Income</label>
-                  <select
-                    value={formData?.education?.annualIncome || ""}
-                    onChange={(e) => handleChange('education', 'annualIncome', e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  >
-                    <option value="">Select Income Range</option>
-                    {[
-                      'Upto 1 Lakh', '1 to 2 Lakhs', '2 to 3 Lakhs', '3 to 4 Lakhs', '4 to 5 Lakhs',
-                      '5 to 7.5 Lakhs', '7.5 to 10 Lakhs', '10 to 15 Lakhs', '15 to 20 Lakhs',
-                      '20 to 30 Lakhs', '30 to 50 Lakhs', '50 to 75 Lakhs', '75 Lakhs to 1 Crore', '1 Crore & above'
-                    ].map(inc => (
-                      <option key={inc} value={inc}>{inc}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Family Tab */}
-          {activeTab === "family" && (
-            <div className="space-y-6">
-              <h3 className="text-lg font-semibold text-gray-900">Family Information</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                <div>
-                  <label className="block text-sm font-medium mb-2">Father's Name</label>
-                  <input
-                    type="text"
-                    value={formData?.family?.fatherName || ""}
-                    onChange={(e) => handleChange('family', 'fatherName', e.target.value)}
-                    placeholder="Enter father's name"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Father's Occupation</label>
-                  <input
-                    type="text"
-                    value={formData?.family?.fatherOccupation || ""}
-                    onChange={(e) => handleChange('family', 'fatherOccupation', e.target.value)}
-                    placeholder="e.g., Business, Doctor, Retired"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Mother's Name</label>
-                  <input
-                    type="text"
-                    value={formData?.family?.motherName || ""}
-                    onChange={(e) => handleChange('family', 'motherName', e.target.value)}
-                    placeholder="Enter mother's name"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Mother's Occupation</label>
-                  <input
-                    type="text"
-                    value={formData?.family?.motherOccupation || ""}
-                    onChange={(e) => handleChange('family', 'motherOccupation', e.target.value)}
-                    placeholder="e.g., Home Maker, Teacher"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Siblings</label>
-                  <input
-                    type="text"
-                    value={formData?.family?.siblings || ""}
-                    onChange={(e) => handleChange('family', 'siblings', e.target.value)}
-                    placeholder="e.g., 1 Brother, 1 Sister"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <h4 className="text-md font-semibold text-gray-800 mt-4 mb-2">Extended Family</h4>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Paternal Uncle's Name</label>
-                  <input
-                    type="text"
-                    value={formData?.family?.paternalUncleName || ""}
-                    onChange={(e) => handleChange('family', 'paternalUncleName', e.target.value)}
-                    placeholder="Paternal Uncle's Name"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Paternal Uncle's Job</label>
-                  <input
-                    type="text"
-                    value={formData?.family?.paternalUncleJob || ""}
-                    onChange={(e) => handleChange('family', 'paternalUncleJob', e.target.value)}
-                    placeholder="Paternal Uncle's Job"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Maternal Uncle's Name</label>
-                  <input
-                    type="text"
-                    value={formData?.family?.maternalUncleName || ""}
-                    onChange={(e) => handleChange('family', 'maternalUncleName', e.target.value)}
-                    placeholder="Maternal Uncle's Name"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium mb-2">Maternal Uncle's Job</label>
-                  <input
-                    type="text"
-                    value={formData?.family?.maternalUncleJob || ""}
-                    onChange={(e) => handleChange('family', 'maternalUncleJob', e.target.value)}
-                    placeholder="Maternal Uncle's Job"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl"
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="flex justify-end mt-8 pt-6 border-t border-gray-100">
+        {editing && (
+          <div className="mt-3 flex gap-2">
             <button
-              type="submit"
-              disabled={isSaving}
-              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-xl hover:shadow-lg hover:shadow-pink-500/25 transition-all"
+              onClick={handleSave}
+              className="px-3 py-1 bg-blue-600 text-white rounded shadow-sm"
             >
-              {isSaving ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Saving...
-                </>
-              ) : saved ? (
-                <>
-                  <Check className="w-5 h-5" />
-                  Saved!
-                </>
-              ) : (
-                <>
-                  <Save className="w-5 h-5" />
-                  Save Changes
-                </>
-              )}
+              Save
+            </button>
+            <button
+              onClick={() => {
+                setPreview(null);
+                setEditing(false);
+              }}
+              className="px-3 py-1 border rounded"
+            >
+              Cancel
             </button>
           </div>
+        )}
+      </>
+    );
+  }
 
-        </form>
+  if (!user) return <div>Loading...</div>;
 
+  return (
+    <div className="min-h-screen bg-gray-100 p-6">
+      <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow-lg p-6">
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* LEFT */}
+          <aside>
+            <div className="border rounded-lg p-4">
+              <ProfilePhotoBlock />
+            </div>
+          </aside>
+
+          {/* RIGHT */}
+          <main className="lg:col-span-2">
+            <div className="bg-white border rounded-lg p-4">
+              {/* BASIC */}
+              <Section
+                title="Basics & Lifestyle"
+                onEdit={() => setIsBasicEditOpen(true)}
+              >
+                <Row
+                  label="Name"
+                  value={`${user?.firstName || ""} ${user?.lastName || ""}`}
+                />
+                <Row label="Email" value={user?.email} />
+                <Row label="Gender" value={user?.gender} />
+                <Row label="Age" value={calculateAge(user?.dateOfBirth)} />
+                <Row label="DOB" value={user?.dateOfBirth} />
+                <Row label="Birth Time" value={user?.birthTime} />
+                <Row label="Birth Name" value={user?.birthName} />
+                <Row label="Height" value={user?.height} />
+                <Row label="Complexion" value={user?.complexion} />
+                <Row label="Blood Group" value={user?.bloodGroup} />
+              </Section>
+
+              {/* RELIGION */}
+              <Section
+                title="Religious Background"
+                onEdit={() => setIsReligionOpen(true)}
+              >
+                <Row label="Religion" value={user?.religion} />
+                <Row label="Caste" value={user?.caste} />
+              </Section>
+
+              {/* EDUCATION */}
+              <Section
+                title="Education Details"
+                onEdit={() => setIsEducationOpen(true)}
+              >
+                <Row label="Education" value={user?.education} />
+                <Row label="Field of Study" value={user?.fieldOfStudy} />
+              </Section>
+
+              {/* CAREER */}
+              <Section
+                title="Career Details"
+                onEdit={() => setIsCareerOpen(true)}
+              >
+                <Row label="Job" value={user?.job} />
+                <Row label="Job Location" value={user?.jobLocation} />
+                <Row label="Annual Income" value={user?.annualIncome} />
+              </Section>
+
+              {/* FAMILY */}
+              <Section
+                title="Family Details"
+                onEdit={() => setIsFamilyOpen(true)}
+              >
+                <Row label="Father Name" value={user?.fatherName} />
+                <Row label="Father Job" value={user?.fatherJob} />
+                <Row label="Mother Name" value={user?.motherName} />
+                <Row label="Mother Job" value={user?.motherJob} />
+                <Row label="Siblings" value={user?.siblings} />
+              </Section>
+
+              {/* EXTENDED FAMILY */}
+              <Section
+                title="Extended Family"
+                onEdit={() => setIsExtendedOpen(true)}
+              >
+                <Row
+                  label="Paternal Uncle Name"
+                  value={user?.paternalUncleName}
+                />
+                <Row
+                  label="Paternal Uncle Job"
+                  value={user?.paternalUncleJob}
+                />
+                <Row
+                  label="Maternal Uncle Name"
+                  value={user?.maternalUncleName}
+                />
+                <Row
+                  label="Maternal Uncle Job"
+                  value={user?.maternalUncleJob}
+                />
+              </Section>
+            </div>
+          </main>
+        </div>
       </div>
 
-    </div>
-  )
-}
+      {/* modal for edit  */}
+      {/* isBasicEditOpen */}
+      {isBasicEditOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg relative">
+            <div className="flex items-start justify-between mb-4">
+              <h2 className="text-lg font-semibold">Edit Basics & Lifestyle</h2>
+              <button
+                aria-label="Close"
+                onClick={() => setIsBasicEditOpen(false)}
+                className="text-gray-400 hover:text-gray-600 rounded-md p-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
 
-export default Profile
+            <div className="grid grid-cols-2 gap-3">
+              {/* NAME */}
+              <div>
+                <label className="text-sm text-gray-600">First Name</label>
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  value={formData.firstName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, firstName: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Last Name</label>
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  value={formData.lastName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, lastName: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* EMAIL */}
+              <div className="col-span-2">
+                <label className="text-sm text-gray-600">Email</label>
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* GENDER */}
+              <div>
+                <label className="text-sm text-gray-600">Gender</label>
+                <input
+                  type="text"
+                  placeholder="Gender"
+                  value={formData.gender}
+                  onChange={(e) =>
+                    setFormData({ ...formData, gender: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* DOB */}
+              <div>
+                <label className="text-sm text-gray-600">Date of Birth</label>
+                <input
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) =>
+                    setFormData({ ...formData, dateOfBirth: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* BIRTH TIME */}
+              <div>
+                <label className="text-sm text-gray-600">Birth Time</label>
+                <input
+                  type="time"
+                  value={formData.birthTime}
+                  onChange={(e) =>
+                    setFormData({ ...formData, birthTime: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* BIRTH NAME */}
+              <div className="col-span-2">
+                <label className="text-sm text-gray-600">Birth Name</label>
+                <input
+                  type="text"
+                  placeholder="Birth Name"
+                  value={formData.birthName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, birthName: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* HEIGHT */}
+              <div>
+                <label className="text-sm text-gray-600">Height</label>
+                <input
+                  type="text"
+                  placeholder="Height"
+                  value={formData.height}
+                  onChange={(e) =>
+                    setFormData({ ...formData, height: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* COMPLEXION */}
+              <div>
+                <label className="text-sm text-gray-600">Complexion</label>
+                <input
+                  type="text"
+                  placeholder="Complexion"
+                  value={formData.complexion}
+                  onChange={(e) =>
+                    setFormData({ ...formData, complexion: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* BLOOD GROUP */}
+              <div>
+                <label className="text-sm text-gray-600">Blood Group</label>
+                <input
+                  type="text"
+                  placeholder="Blood Group"
+                  value={formData.bloodGroup}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bloodGroup: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setIsBasicEditOpen(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleBasicSave}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* RELIGION MODAL */}
+      {isReligionOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
+            <div className="flex items-start justify-between mb-4">
+              <h2 className="text-lg font-semibold">
+                Edit Religious Background
+              </h2>
+              <button
+                aria-label="Close"
+                onClick={() => setIsReligionOpen(false)}
+                className="text-gray-400 hover:text-gray-600 rounded-md p-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm text-gray-600">Religion</label>
+                <input
+                  type="text"
+                  placeholder="Religion"
+                  value={formData.religion || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, religion: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Caste</label>
+                <input
+                  type="text"
+                  placeholder="Caste"
+                  value={formData.caste || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, caste: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setIsReligionOpen(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleReligionSave}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EDUCATION MODAL */}
+      {isEducationOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
+            <div className="flex items-start justify-between mb-4">
+              <h2 className="text-lg font-semibold">Edit Education Details</h2>
+              <button
+                aria-label="Close"
+                onClick={() => setIsEducationOpen(false)}
+                className="text-gray-400 hover:text-gray-600 rounded-md p-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm text-gray-600">Education</label>
+                <input
+                  placeholder="Education"
+                  value={formData.education || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, education: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Field of Study</label>
+                <input
+                  placeholder="Field of Study"
+                  value={formData.fieldOfStudy || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fieldOfStudy: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setIsEducationOpen(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleEducationSave}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* CAREER MODAL */}
+
+      {isCareerOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
+            <div className="flex items-start justify-between mb-4">
+              <h2 className="text-lg font-semibold">Edit Career Details</h2>
+              <button
+                aria-label="Close"
+                onClick={() => setIsCareerOpen(false)}
+                className="text-gray-400 hover:text-gray-600 rounded-md p-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm text-gray-600">Job</label>
+                <input
+                  placeholder="Job"
+                  value={formData.job || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, job: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Job Location</label>
+                <input
+                  placeholder="Job Location"
+                  value={formData.jobLocation || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, jobLocation: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="text-sm text-gray-600">Annual Income</label>
+                <input
+                  placeholder="Annual Income"
+                  value={formData.annualIncome || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, annualIncome: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setIsCareerOpen(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleCareerSave}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* . FAMILY MODAL */}
+      {isFamilyOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
+            <div className="flex items-start justify-between mb-4">
+              <h2 className="text-lg font-semibold">Edit Family Details</h2>
+              <button
+                aria-label="Close"
+                onClick={() => setIsFamilyOpen(false)}
+                className="text-gray-400 hover:text-gray-600 rounded-md p-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm text-gray-600">Father Name</label>
+                <input
+                  placeholder="Father Name"
+                  value={formData.fatherName || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fatherName: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Father Job</label>
+                <input
+                  placeholder="Father Job"
+                  value={formData.fatherJob || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, fatherJob: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Mother Name</label>
+                <input
+                  placeholder="Mother Name"
+                  value={formData.motherName || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, motherName: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Mother Job</label>
+                <input
+                  placeholder="Mother Job"
+                  value={formData.motherJob || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, motherJob: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="text-sm text-gray-600">Siblings</label>
+                <input
+                  placeholder="Siblings"
+                  value={formData.siblings || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, siblings: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setIsFamilyOpen(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleFamilySave}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EXTENDED FAMILY */}
+      {isExtendedOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
+            <div className="flex items-start justify-between mb-4">
+              <h2 className="text-lg font-semibold">Edit Extended Family</h2>
+              <button
+                aria-label="Close"
+                onClick={() => setIsExtendedOpen(false)}
+                className="text-gray-400 hover:text-gray-600 rounded-md p-1"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-sm text-gray-600">
+                  Paternal Uncle Name
+                </label>
+                <input
+                  placeholder="Paternal Uncle Name"
+                  value={formData.paternalUncleName || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      paternalUncleName: e.target.value,
+                    })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">
+                  Paternal Uncle Job
+                </label>
+                <input
+                  placeholder="Paternal Uncle Job"
+                  value={formData.paternalUncleJob || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      paternalUncleJob: e.target.value,
+                    })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">
+                  Maternal Uncle Name
+                </label>
+                <input
+                  placeholder="Maternal Uncle Name"
+                  value={formData.maternalUncleName || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      maternalUncleName: e.target.value,
+                    })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">
+                  Maternal Uncle Job
+                </label>
+                <input
+                  placeholder="Maternal Uncle Job"
+                  value={formData.maternalUncleJob || ""}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      maternalUncleJob: e.target.value,
+                    })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => setIsExtendedOpen(false)}
+                className="px-4 py-2 border rounded"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleExtendedSave}
+                className="px-4 py-2 bg-blue-600 text-white rounded"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

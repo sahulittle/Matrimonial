@@ -150,8 +150,27 @@ const DASHBOARD = `${BASE_URL}/dashboard`;
 
 // PROFILE
 export const getUserProfile = async () => {
-  const res = await axios.get(`${DASHBOARD}/get-profile`, authHeader());
-  return res?.data || {};
+  try {
+    const res = await axios.get(
+      `${BASE_URL}/profile`,   // ✅ correct endpoint
+      authHeader()
+    );
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Failed to fetch profile" };
+  }
+};
+export const updateUserProfile = async (data) => {
+  try {
+    const res = await axios.put(
+      `${BASE_URL}/profile`,   // ✅ correct
+      data,
+      authHeader()
+    );
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Update failed" };
+  }
 };
 
 // STATS
