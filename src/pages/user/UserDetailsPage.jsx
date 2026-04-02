@@ -2,12 +2,17 @@ import React from "react";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { getUserById, trackVisit } from "../../api/userApi/userApi";
+import {
+  getUserById,
+  trackVisit,
+  getSentInterests,
+} from "../../api/userApi/userApi";
 const UserDetailsPage = () => {
   const [activeTab, setActiveTab] = useState("details");
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [sentInterest, setSentInterest] = useState(null);
   const navigate = useNavigate();
   const age = user?.dateOfBirth
     ? Math.floor(
@@ -34,8 +39,47 @@ const UserDetailsPage = () => {
       }
     };
 
-    if (id) fetchUser();
+    const fetchSentInterest = async () => {
+      try {
+        const res = await getSentInterests();
+        const interests = res.interests || res || [];
+        const match = Array.isArray(interests)
+          ? interests.find(
+              (it) => it.receiverId === id || it.receiverId?._id === id,
+            )
+          : null;
+        if (match) setSentInterest(match);
+      } catch (err) {
+        console.error("Failed to fetch sent interests", err);
+      }
+    };
+
+    if (id) {
+      fetchUser();
+      fetchSentInterest();
+    }
   }, [id]);
+
+  const formatDateShort = (dateStr) => {
+    try {
+      const d = new Date(dateStr);
+      const today = new Date();
+      if (
+        d.getFullYear() === today.getFullYear() &&
+        d.getMonth() === today.getMonth() &&
+        d.getDate() === today.getDate()
+      ) {
+        return "Today";
+      }
+      return d.toLocaleDateString(undefined, {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    } catch (e) {
+      return "";
+    }
+  };
   return (
     <div className="bg-gradient-to-br from-[#fdfbfb] to-[#ebedee] min-h-screen p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
@@ -106,7 +150,7 @@ const UserDetailsPage = () => {
                 <p>
                   {age} yrs, {user?.height}
                 </p>
-                <p>{user?.maritalStatus || "Not specified"}</p>
+                {/* <p>{user?.maritalStatus || "Not specified"}</p> */}
                 <p>{user?.jobLocation}</p>
                 <p>{user?.jobLocation}</p>
                 <p>
@@ -116,9 +160,11 @@ const UserDetailsPage = () => {
                 <p>{user?.education}</p>
               </div>
 
-              <p className="text-xs text-gray-400 mt-3">
-                Invitation sent on 21 Mar 2026
-              </p>
+              {sentInterest ? (
+                <p className="text-xs text-gray-400 mt-3">
+                  Invitation sent on {formatDateShort(sentInterest.createdAt)}
+                </p>
+              ) : null}
             </div>
 
             {/* ACTION BUTTONS */}
@@ -141,7 +187,7 @@ const UserDetailsPage = () => {
                 onClick={() => setShowUpgradeModal(true)}
                 className="px-4 py-1.5 rounded-lg text-white text-xs bg-gradient-to-r from-pink-500 to-rose-500 shadow hover:scale-105 transition"
               >
-                MatriLab Chat
+                Marathi Shubha Vivah
               </button>
             </div>
           </div>

@@ -142,14 +142,14 @@ export const AuthProvider = ({ children }) => {
 
       console.log("PROFILE RESPONSE:", response);
 
-      // ✅ USE RESPONSE DIRECTLY (NOT response.user)
-      const userData = response;
+      // Response may be either { user } or the user object directly
+      const userData = response.user || response;
 
       const formattedProfile = {
-        _id: userData._id,
-        name: userData.name,
+        _id: userData._id || userData._id,
+        name: `${userData.firstName || ""} ${userData.lastName || ""}`,
         email: userData.email,
-        avatar: userData.avatar,
+        avatar: userData.profilePhoto || userData.avatar,
         ...userData,
       };
 

@@ -300,15 +300,14 @@ const Settings = () => {
                       onClick={() =>
                         handleChange("hidePhone", !settings.hidePhone, true)
                       }
-                      className={`w-12 h-6 rounded-full transition-colors ${
-                        settings.hidePhone ? "bg-primary-500" : "bg-gray-300"
+                      className={`relative w-12 h-6 rounded-full transition-colors overflow-hidden ${
+                        settings.hidePhone ? "bg-blue-600" : "bg-gray-300"
                       }`}
+                      aria-pressed={settings.hidePhone}
                     >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
-                          settings.hidePhone
-                            ? "translate-x-6"
-                            : "translate-x-0.5"
+                      <span
+                        className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
+                          settings.hidePhone ? "left-6" : "left-1"
                         }`}
                       />
                     </button>
@@ -325,15 +324,14 @@ const Settings = () => {
                       onClick={() =>
                         handleChange("hidePhotos", !settings.hidePhotos, true)
                       }
-                      className={`w-12 h-6 rounded-full transition-colors ${
-                        settings.hidePhotos ? "bg-primary-500" : "bg-gray-300"
+                      className={`relative w-12 h-6 rounded-full transition-colors overflow-hidden ${
+                        settings.hidePhotos ? "bg-blue-600" : "bg-gray-300"
                       }`}
+                      aria-pressed={settings.hidePhotos}
                     >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
-                          settings.hidePhotos
-                            ? "translate-x-6"
-                            : "translate-x-0.5"
+                      <span
+                        className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
+                          settings.hidePhotos ? "left-6" : "left-1"
                         }`}
                       />
                     </button>
@@ -395,17 +393,16 @@ const Settings = () => {
                           true,
                         )
                       }
-                      className={`w-12 h-6 rounded-full transition-colors ${
+                      className={`relative w-12 h-6 rounded-full transition-colors overflow-hidden ${
                         settings.emailNotifications
-                          ? "bg-primary-500"
+                          ? "bg-blue-600"
                           : "bg-gray-300"
                       }`}
+                      aria-pressed={settings.emailNotifications}
                     >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
-                          settings.emailNotifications
-                            ? "translate-x-6"
-                            : "translate-x-0.5"
+                      <span
+                        className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
+                          settings.emailNotifications ? "left-6" : "left-1"
                         }`}
                       />
                     </button>
@@ -428,17 +425,16 @@ const Settings = () => {
                           true,
                         )
                       }
-                      className={`w-12 h-6 rounded-full transition-colors ${
+                      className={`relative w-12 h-6 rounded-full transition-colors overflow-hidden ${
                         settings.smsNotifications
-                          ? "bg-primary-500"
+                          ? "bg-blue-600"
                           : "bg-gray-300"
                       }`}
+                      aria-pressed={settings.smsNotifications}
                     >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
-                          settings.smsNotifications
-                            ? "translate-x-6"
-                            : "translate-x-0.5"
+                      <span
+                        className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
+                          settings.smsNotifications ? "left-6" : "left-1"
                         }`}
                       />
                     </button>
@@ -461,17 +457,14 @@ const Settings = () => {
                           true,
                         )
                       }
-                      className={`w-12 h-6 rounded-full transition-colors ${
-                        settings.interestAlerts
-                          ? "bg-primary-500"
-                          : "bg-gray-300"
+                      className={`relative w-12 h-6 rounded-full transition-colors overflow-hidden ${
+                        settings.interestAlerts ? "bg-blue-600" : "bg-gray-300"
                       }`}
+                      aria-pressed={settings.interestAlerts}
                     >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
-                          settings.interestAlerts
-                            ? "translate-x-6"
-                            : "translate-x-0.5"
+                      <span
+                        className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
+                          settings.interestAlerts ? "left-6" : "left-1"
                         }`}
                       />
                     </button>
@@ -494,17 +487,14 @@ const Settings = () => {
                           true,
                         )
                       }
-                      className={`w-12 h-6 rounded-full transition-colors ${
-                        settings.messageAlerts
-                          ? "bg-primary-500"
-                          : "bg-gray-300"
+                      className={`relative w-12 h-6 rounded-full transition-colors overflow-hidden ${
+                        settings.messageAlerts ? "bg-blue-600" : "bg-gray-300"
                       }`}
+                      aria-pressed={settings.messageAlerts}
                     >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
-                          settings.messageAlerts
-                            ? "translate-x-6"
-                            : "translate-x-0.5"
+                      <span
+                        className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
+                          settings.messageAlerts ? "left-6" : "left-1"
                         }`}
                       />
                     </button>
@@ -527,17 +517,16 @@ const Settings = () => {
                           true,
                         )
                       }
-                      className={`w-12 h-6 rounded-full transition-colors ${
+                      className={`relative w-12 h-6 rounded-full transition-colors overflow-hidden ${
                         settings.profileViewAlerts
-                          ? "bg-primary-500"
+                          ? "bg-blue-600"
                           : "bg-gray-300"
                       }`}
+                      aria-pressed={settings.profileViewAlerts}
                     >
-                      <div
-                        className={`w-5 h-5 bg-white rounded-full shadow transform transition-transform ${
-                          settings.profileViewAlerts
-                            ? "translate-x-6"
-                            : "translate-x-0.5"
+                      <span
+                        className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${
+                          settings.profileViewAlerts ? "left-6" : "left-1"
                         }`}
                       />
                     </button>
@@ -551,7 +540,7 @@ const Settings = () => {
               <button
                 onClick={handleSave}
                 disabled={isSaving}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-primary-500/25 transition-all disabled:opacity-70"
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-sm transition-all disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isSaving ? (
                   <>

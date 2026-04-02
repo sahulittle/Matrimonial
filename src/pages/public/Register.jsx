@@ -3,11 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaChevronDown } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { registerUser } from "../../api/userApi/userApi";
+import { casteOptions } from "../../utils/options";
 
 const Register = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({ religion: "Hindu" });
   const [degree, setDegree] = useState("");
 
   // Options for dropdowns
@@ -91,147 +92,6 @@ const Register = () => {
   ];
   const religionOptions = ["Hindu"];
 
-  const casteOptions = [
-    "96 Kuli Maratha",
-    "Agri",
-    "Ahir Shimpi",
-    "Ahirwal",
-    "Anjana (Chaudhari Patel)",
-    "Aramari (Gabit)",
-    "Arya Vysya",
-    "Bairwa",
-    "Balai",
-    "Banjara",
-    "Barai",
-    "Bari",
-    "Bhavsar (Khatriya)",
-    "Bhandari",
-    "Bhoi",
-    "Bhill",
-    "Brahman (Anavil Desai)",
-    "Brahman (Audichya Vaidiki)",
-    "Brahman Bardai",
-    "Brahman Daivadnya",
-    "Brahman Deshastha",
-    "Brahman Karhade",
-    "Brahman Khadayata",
-    "Brahman Khedaval",
-    "Brahman Kokanastha",
-    "Brahman Mevada",
-    "Brahman Rajgor",
-    "Brahman Rarhi",
-    "Brahman Rigvedi",
-    "Brahman Saraswat",
-    "Brahman Sarua",
-    "Brahman Shri Gaud",
-    "Brahman Smartha",
-    "Brahman Tapodhan",
-    "Brahman Valam",
-    "Brahman Zalora",
-    "CKP",
-    "Cash Che Bar",
-    "Chambhar",
-    "Charan",
-    "Deshmukh",
-    "Devang Koshthi",
-    "Dhanak",
-    "Dhangar",
-    "Dhor (Kakkayya)",
-    "Gabit",
-    "Gavandi",
-    "Gawali",
-    "Ghisadi",
-    "Gomantak",
-    "Gond",
-    "Gondhali",
-    "Gurav",
-    "Halba Koshti",
-    "Holar",
-    "Intercaste",
-    "Jangam",
-    "Jadhav",
-    "Jog (Nath)",
-    "Julaha",
-    "Kalar",
-    "Kanakkan Padanna",
-    "Kundara",
-    "Kasar",
-    "Kayastha",
-    "Khatik",
-    "Kokanastha Maratha",
-    "Koli",
-    "Koli Mahadev",
-    "Konkani",
-    "Koshti",
-    "Kshatriya",
-    "Kshatriya Raju",
-    "Kumaoni Rajput",
-    "Kumbhar",
-    "Kunbi",
-    "Kunbi Lonari",
-    "Kumbi Maratha",
-    "Kurbi Tirali",
-    "Leva Patil",
-    "Lingayat",
-    "Lohar",
-    "Madivala (Dhobi)",
-    "Mahar",
-    "Mair Rajput Swarnakar",
-    "Mali",
-    "Malvani",
-    "Mannan (Velan/Vannan)",
-    "Maratha",
-    "Maratha Kshatriya",
-    "Matang",
-    "Meghwal",
-    "Nabit",
-    "Nhavi",
-    "Atari",
-    "Other Brahman",
-    "Pallan (Devendra Kula Vellunan)",
-    "Panan",
-    "Paravan (Bharatar)",
-    "Parit",
-    "Paswan (Dusadh)",
-    "Patel",
-    "Pathare Prabhu",
-    "Patil",
-    "Poundra",
-    "Pulaya (Cheruman)",
-    "Rajput",
-    "Ramoshi",
-    "Rohit (Chamar)",
-    "SC",
-    "SKP",
-    "ST",
-    "Samagar",
-    "Sambava",
-    "Satnami",
-    "Savji",
-    "Shipkar",
-    "Shimpi (Namdev)",
-    "Sonar",
-    "Sonkar",
-    "Suthar",
-    "Swakula Sali",
-    "Teli",
-    "Thandan",
-    "Vadar",
-    "Vaishnav",
-    "Vaishav Kapol",
-    "Vaishnav Khadayata",
-    "Vaishva Ladd",
-    "Vashnav Modh",
-    "Vaishnav Porvad",
-    "Vaishnav Vania",
-    "Vaishnav Vaniya",
-    "Vani",
-    "Vaniya",
-    "Vanjari",
-    "Vyasa",
-    "Yadav",
-    "Other",
-  ];
   // Generate height options from 4ft 5in to 7ft
   const heightOptions = [];
   for (let feet = 4; feet <= 7; feet++) {
@@ -547,22 +407,17 @@ const Register = () => {
                     Religion
                   </label>
                   <div className="mt-1 relative">
-                    <select
+                    <input
+                      type="hidden"
                       name="religion"
-                      required
-                      onChange={handleChange}
-                      value={formData.religion || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md"
-                    >
-                      <option value="" disabled>
-                        Select Religion
-                      </option>
-                      {religionOptions.map((r) => (
-                        <option key={r} value={r}>
-                          {r}
-                        </option>
-                      ))}
-                    </select>
+                      value={formData.religion}
+                    />
+                    <input
+                      type="text"
+                      readOnly
+                      value={formData.religion}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-700"
+                    />
                   </div>
                 </div>
 

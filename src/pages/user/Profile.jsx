@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getUserProfile, updateUserProfile } from "../../api/userApi/userApi";
+import { casteOptions } from "../../utils/options";
 
 const Section = ({ title, children, onEdit }) => (
   <div className="border-t last:border-b border-gray-200 py-4">
@@ -105,7 +106,7 @@ export default function Profile() {
         bloodGroup: user.bloodGroup || "",
 
         // RELIGION
-        religion: user.religion || "",
+        religion: user.religion || "Hindu",
         caste: user.caste || "",
 
         // EDUCATION
@@ -147,8 +148,8 @@ export default function Profile() {
   };
 
   const handleReligionSave = async () => {
+    // Religion is fixed (Hindu) and should not be changed here — update only caste
     const res = await updateUserProfile({
-      religion: formData.religion,
       caste: formData.caste,
     });
     setUser(res.user || res.data || res);
@@ -421,8 +422,8 @@ export default function Profile() {
       {/* modal for edit  */}
       {/* isBasicEditOpen */}
       {isBasicEditOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-lg relative">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start sm:items-center justify-center overflow-auto z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto relative">
             <div className="flex items-start justify-between mb-4">
               <h2 className="text-lg font-semibold">Edit Basics & Lifestyle</h2>
               <button
@@ -604,8 +605,8 @@ export default function Profile() {
       )}
       {/* RELIGION MODAL */}
       {isReligionOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start sm:items-center justify-center overflow-auto z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between mb-4">
               <h2 className="text-lg font-semibold">
                 Edit Religious Background
@@ -646,15 +647,24 @@ export default function Profile() {
 
               <div>
                 <label className="text-sm text-gray-600">Caste</label>
-                <input
-                  type="text"
-                  placeholder="Caste"
-                  value={formData.caste || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, caste: e.target.value })
-                  }
-                  className="border p-2 rounded mt-1 w-full"
-                />
+                <div className="mt-1">
+                  <select
+                    value={formData.caste || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, caste: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full max-h-48 overflow-auto"
+                  >
+                    <option value="" disabled>
+                      Select Caste
+                    </option>
+                    {casteOptions.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -679,8 +689,8 @@ export default function Profile() {
 
       {/* EDUCATION MODAL */}
       {isEducationOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start sm:items-center justify-center overflow-auto z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between mb-4">
               <h2 className="text-lg font-semibold">Edit Education Details</h2>
               <button
@@ -750,8 +760,8 @@ export default function Profile() {
       {/* CAREER MODAL */}
 
       {isCareerOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start sm:items-center justify-center overflow-auto z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between mb-4">
               <h2 className="text-lg font-semibold">Edit Career Details</h2>
               <button
@@ -833,8 +843,8 @@ export default function Profile() {
 
       {/* . FAMILY MODAL */}
       {isFamilyOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start sm:items-center justify-center overflow-auto z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between mb-4">
               <h2 className="text-lg font-semibold">Edit Family Details</h2>
               <button
@@ -940,8 +950,8 @@ export default function Profile() {
 
       {/* EXTENDED FAMILY */}
       {isExtendedOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-start sm:items-center justify-center overflow-auto z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between mb-4">
               <h2 className="text-lg font-semibold">Edit Extended Family</h2>
               <button
