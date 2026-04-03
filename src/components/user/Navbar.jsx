@@ -49,15 +49,15 @@ const Navbar = () => {
         {/* Left Side: Contact Info */}
         <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 md:gap-6 mb-2 md:mb-0">
           <a
-            href="mailto:info@matrilab.com"
+            href="mailto:info@marathishubhavivah.com"
             className="flex items-center gap-2 transition-colors hover:text-pink-600"
           >
             <FaEnvelope className="text-pink-500" />
-            <span>info@matrilab.com</span>
+            <span>info@xxxxxx.com</span>
           </a>
           <div className="flex items-center gap-2">
             <FaPhoneAlt className="text-pink-500" />
-            <span>+1 234 567 890</span>
+            <span>+91xxxxxxxxxx</span>
           </div>
         </div>
 
