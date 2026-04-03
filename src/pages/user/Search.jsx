@@ -249,6 +249,9 @@ const initialFilters = {
 
 const SearchPage = () => {
   const [filters, setFilters] = useState(initialFilters);
+  const [ageError, setAgeError] = useState("");
+  const [minAgeInvalid, setMinAgeInvalid] = useState(false);
+  const [maxAgeInvalid, setMaxAgeInvalid] = useState(false);
   const [searchResults, setSearchResults] = useState([]);
   const [showFilters, setShowFilters] = useState(true);
   const [searched, setSearched] = useState(false);
@@ -262,6 +265,7 @@ const SearchPage = () => {
       [key]: value,
     }));
   };
+
   useEffect(() => {
     const loadExtra = async () => {
       try {
@@ -332,6 +336,37 @@ const SearchPage = () => {
     { key: "education", label: "Education", options: qualifications },
   ];
 
+  const validateAges = (min, max) => {
+    setAgeError("");
+    setMinAgeInvalid(false);
+    setMaxAgeInvalid(false);
+
+    let ok = true;
+
+    const minN = min === "" ? null : Number(min);
+    const maxN = max === "" ? null : Number(max);
+
+    if (minN != null && (isNaN(minN) || minN < 18)) {
+      setAgeError("Minimum age must be a number and at least 18.");
+      setMinAgeInvalid(true);
+      ok = false;
+    }
+
+    if (maxN != null && (isNaN(maxN) || maxN <= 18)) {
+      setAgeError("Maximum age must be a number and greater than 18.");
+      setMaxAgeInvalid(true);
+      ok = false;
+    }
+
+    if (ok && minN != null && maxN != null && minN > maxN) {
+      setAgeError("Minimum age cannot be greater than maximum age.");
+      setMinAgeInvalid(true);
+      setMaxAgeInvalid(true);
+      ok = false;
+    }
+
+    return ok;
+  };
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Header */}
@@ -377,28 +412,39 @@ const SearchPage = () => {
               <div className="flex flex-col sm:flex-row gap-3 mt-2">
                 <input
                   type="number"
+                  min={18}
                   value={filters.ageRange[0]}
-                  onChange={(e) =>
-                    handleFilterChange("ageRange", [
-                      parseInt(e.target.value) || 18,
-                      filters.ageRange[1],
-                    ])
-                  }
-                  className="w-full border rounded-lg px-3 py-2"
+                  onChange={(e) => {
+                    const newMin =
+                      e.target.value === "" ? "" : Number(e.target.value);
+                    const newRange = [newMin, filters.ageRange[1]];
+                    handleFilterChange("ageRange", newRange);
+                    validateAges(newRange[0], newRange[1]);
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 ${
+                    minAgeInvalid ? "border-red-500" : ""
+                  }`}
                 />
 
                 <input
                   type="number"
+                  min={18}
                   value={filters.ageRange[1]}
-                  onChange={(e) =>
-                    handleFilterChange("ageRange", [
-                      filters.ageRange[0],
-                      parseInt(e.target.value) || 50,
-                    ])
-                  }
-                  className="w-full border rounded-lg px-3 py-2"
+                  onChange={(e) => {
+                    const newMax =
+                      e.target.value === "" ? "" : Number(e.target.value);
+                    const newRange = [filters.ageRange[0], newMax];
+                    handleFilterChange("ageRange", newRange);
+                    validateAges(newRange[0], newRange[1]);
+                  }}
+                  className={`w-full border rounded-lg px-3 py-2 ${
+                    maxAgeInvalid ? "border-red-500" : ""
+                  }`}
                 />
               </div>
+              {ageError && (
+                <p className="text-sm text-red-600 mt-1">{ageError}</p>
+              )}
             </div>
 
             {/* Religion / Caste / Education */}

@@ -8,7 +8,10 @@ import { casteOptions } from "../../utils/options";
 const Register = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({ religion: "Hindu" });
+  const [formData, setFormData] = useState({
+    religion: "Hindu",
+    maritalStatus: "single",
+  });
   const [degree, setDegree] = useState("");
 
   // Options for dropdowns
@@ -402,6 +405,84 @@ const Register = () => {
                   </div>
                 </div>
 
+                {/* Marital Status */}
+                <div className="relative">
+                  <label
+                    htmlFor="maritalStatus"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Marital Status
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="maritalStatus"
+                      name="maritalStatus"
+                      required
+                      onChange={handleChange}
+                      value={formData.maritalStatus || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled>
+                        Select Marital Status
+                      </option>
+                      <option value="single">Single</option>
+                      <option value="divorced">Divorced</option>
+                      <option value="widowed">Widowed</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* State */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    State
+                  </label>
+                  <div className="mt-1 relative">
+                    <select
+                      id="state"
+                      name="state"
+                      required
+                      onChange={handleChange}
+                      value={formData.state || ""}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                    >
+                      <option value="" disabled>
+                        Select State
+                      </option>
+                      {indianStates.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                      <FaChevronDown className="h-4 w-4" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* City */}
+                <div>
+                  <label
+                    htmlFor="city"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    City
+                  </label>
+                  <input
+                    id="city"
+                    name="city"
+                    type="text"
+                    onChange={handleChange}
+                    value={formData.city || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="City"
+                  />
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Religion
@@ -636,6 +717,26 @@ const Register = () => {
                   </div>
                 </div>
 
+
+                {/* Languages */}
+                <div>
+                  <label
+                    htmlFor="languages"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Languages (comma separated)
+                  </label>
+                  <input
+                    id="languages"
+                    name="languages"
+                    type="text"
+                    onChange={handleChange}
+                    value={formData.languages || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="e.g. Marathi, Hindi, English"
+                  />
+                </div>
+
                 {/* Job */}
                 <div className="md:col-span-2">
                   <label
@@ -697,6 +798,73 @@ const Register = () => {
                       <FaChevronDown className="h-4 w-4" />
                     </div>
                   </div>
+                </div>
+                {/* Present Address */}
+                <div className="md:col-span-2">
+                  <label
+                    htmlFor="presentAddress"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Present Address
+                  </label>
+                  <textarea
+                    id="presentAddress"
+                    name="presentAddress"
+                    onChange={handleChange}
+                    value={formData.presentAddress || ""}
+                    rows={2}
+                    className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md"
+                    placeholder="Present address"
+                  />
+                </div>
+
+
+                {/* Smoking */}
+                <div>
+                  <label
+                    htmlFor="smoking"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Smoking Habit
+                  </label>
+                  <select
+                    id="smoking"
+                    name="smoking"
+                    onChange={handleChange}
+                    value={formData.smoking || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                  >
+                    <option value="" disabled>
+                      Select Smoking Habit
+                    </option>
+                    <option value="non-smoker">Non-Smoker</option>
+                    <option value="occasional">Occasional</option>
+                    <option value="smoker">Smoker</option>
+                  </select>
+                </div>
+
+                {/* Drinking */}
+                <div>
+                  <label
+                    htmlFor="drinking"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    Drinking Status
+                  </label>
+                  <select
+                    id="drinking"
+                    name="drinking"
+                    onChange={handleChange}
+                    value={formData.drinking || ""}
+                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                  >
+                    <option value="" disabled>
+                      Select Drinking Status
+                    </option>
+                    <option value="non-drinker">Non-Drinker</option>
+                    <option value="occasional">Occasional</option>
+                    <option value="drinker">Drinker</option>
+                  </select>
                 </div>
                 {/* Annual Income */}
                 <div className="md:col-span-2">

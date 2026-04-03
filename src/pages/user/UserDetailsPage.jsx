@@ -24,8 +24,8 @@ const UserDetailsPage = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await getUserById(id);
-        setUser(res.user);
+        const profile = await getUserById(id);
+        setUser(profile);
 
         // ✅ TRACK VISIT HERE
         const visitedKey = `visited_${id}`;
@@ -138,26 +138,57 @@ const UserDetailsPage = () => {
                 <span className="text-emerald-500 font-medium">
                   ● Online now
                 </span>
-                <span className="hover:text-pink-500 cursor-pointer">
-                  You & Her
-                </span>
-                <span className="hover:text-pink-500 cursor-pointer">
-                  Astro
-                </span>
               </div>
 
               <div className="grid grid-cols-2 gap-x-8 mt-4 text-sm text-gray-700">
                 <p>
-                  {age} yrs, {user?.height}
+                  <span className="font-semibold text-gray-800">Age:</span>{" "}
+                  {age ? `${age} yrs,` : "Not specified"}
+                  <span className="mx-3 font-semibold text-gray-800">
+                    Height:
+                  </span>
+                  {user?.height || "Not specified"}
                 </p>
-                {/* <p>{user?.maritalStatus || "Not specified"}</p> */}
-                <p>{user?.jobLocation}</p>
-                <p>{user?.jobLocation}</p>
+
                 <p>
-                  {user?.religion}, {user?.caste}
+                  <span className="font-semibold text-gray-800">
+                    Marital Status:
+                  </span>{" "}
+                  {user?.maritalStatus || "Not specified"}
                 </p>
-                <p>{user?.job}</p>
-                <p>{user?.education}</p>
+
+                <p>
+                  <span className="font-semibold text-gray-800">
+                    Job Location:
+                  </span>{" "}
+                  {user?.jobLocation || user?.city || "Not specified"}
+                </p>
+
+                <p>
+                  <span className="font-semibold text-gray-800">State:</span>{" "}
+                  {user?.state || user?.jobLocation || "Not specified"}
+                </p>
+
+                <p>
+                  <span className="font-semibold text-gray-800">Religion:</span>{" "}
+                  {user?.religion || "Not specified"},
+                  <span className="mx-3 font-semibold text-gray-800">
+                    Caste:
+                  </span>{" "}
+                  {user?.caste || "Not specified"}
+                </p>
+
+                <p>
+                  <span className="font-semibold text-gray-800">Job:</span>{" "}
+                  {user?.job || "Not specified"}
+                </p>
+
+                <p>
+                  <span className="font-semibold text-gray-800">
+                    Education:
+                  </span>{" "}
+                  {user?.education || "Not specified"}
+                </p>
               </div>
 
               {sentInterest ? (
@@ -206,7 +237,7 @@ const UserDetailsPage = () => {
                 Detailed Profile
               </button>
 
-              <button
+              {/* <button
                 onClick={() => setActiveTab("preferences")}
                 className={`px-5 py-3 font-semibold ${
                   activeTab === "preferences"
@@ -215,7 +246,7 @@ const UserDetailsPage = () => {
                 }`}
               >
                 Partner Preferences
-              </button>
+              </button> */}
             </div>
 
             <div className="p-5">
@@ -226,20 +257,17 @@ const UserDetailsPage = () => {
                     icon="❝"
                     title={`About ${user?.firstName || "User"} ${user?.lastName || ""}`}
                   >
-                    <div className="flex items-center gap-2 mb-2 text-xs">
+                    {/* <div className="flex items-center gap-2 mb-2 text-xs">
                       <span className="border px-2 py-0.5 rounded-full text-gray-500">
                         ID: SH0712632
                       </span>
                       <span className="border px-2 py-0.5 rounded-full text-gray-500">
                         Profile Managed by Parent
                       </span>
-                    </div>
+                    </div> */}
 
                     <p className="text-sm text-gray-600 leading-relaxed">
-                      I am looking for a suitable partner for my daughter. She
-                      is currently living in India. With hard work and
-                      determination, she has built a successful career. We are
-                      looking for a kind natured and mature individual.
+                      {user?.about || user?.bio || "No description added yet."}
                     </p>
                   </TimelineBlock>
 
@@ -263,6 +291,7 @@ const UserDetailsPage = () => {
                               : "+91 XXXXXXXX"}
                           </span>
                         </p>
+                        {/* Address & Languages moved to Background */}
 
                         {/* EMAIL */}
                         <p className="text-sm mt-2 text-gray-700">
@@ -292,56 +321,106 @@ const UserDetailsPage = () => {
                   </TimelineBlock>
                   {/* LIFESTYLE */}
                   <TimelineBlock icon="🍗" title="Lifestyle">
-                    <div className="flex flex-col items-center w-40 border rounded-lg p-4 bg-gray-50">
-                      <span className="text-3xl">🍗</span>
-                      <p className="text-sm text-gray-600 text-center mt-2">
-                        Occasionally Non-Vegetarian
-                      </p>
+                    <div className="flex flex-col items-start w-full border rounded-lg p-4 bg-gray-50">
+                      <div className="flex items-center gap-3">
+                        <span className="text-2xl">🍽️</span>
+                        <div className="text-sm text-gray-600">
+                          {user?.diet ||
+                            user?.foodPreference ||
+                            "Diet: Not specified"}
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex items-center gap-3">
+                        <span className="text-2xl">🚬</span>
+                        <div className="text-sm text-gray-600">
+                          Smoking: {user?.smoking || "Not specified"}
+                        </div>
+                      </div>
+
+                      <div className="mt-3 flex items-center gap-3">
+                        <span className="text-2xl">🍷</span>
+                        <div className="text-sm text-gray-600">
+                          Drinking: {user?.drinking || "Not specified"}
+                        </div>
+                      </div>
+
+                      {user?.presentAddress ||
+                      (user?.languages && user.languages.length) ? (
+                        <div className="mt-3 text-sm text-gray-600">
+                          {/* moved Address/Languages to Contact Details */}
+                        </div>
+                      ) : null}
                     </div>
                   </TimelineBlock>
 
                   {/* BACKGROUND */}
                   <TimelineBlock icon="🎓" title="Background">
                     <div className="space-y-1 text-sm text-gray-600">
-                      {/* RELIGION */}
                       <p>🕌 {user?.religion || "Not specified"}</p>
-
-                      {/* CASTE */}
                       <p>👑 {user?.caste || "Not specified"}</p>
-
-                      {/* LOCATION */}
                       <p>
-                        📍 Lives in {user?.jobLocation || "Location not added"},
-                        India
+                        📍 Lives in{" "}
+                        {user?.jobLocation ||
+                          user?.city ||
+                          "Location not added"}
+                        , India
                       </p>
+                      {user?.state ? <p>🏠 State: {user.state}</p> : null}
+                      {user?.presentAddress ? (
+                        <p>🏠 Address: {user.presentAddress}</p>
+                      ) : null}
+                      {user?.languages ? (
+                        <p>
+                          🗣️ Languages:{" "}
+                          {Array.isArray(user.languages)
+                            ? user.languages.join(", ")
+                            : user.languages}
+                        </p>
+                      ) : null}
                     </div>
                   </TimelineBlock>
 
                   {/* FAMILY */}
                   <TimelineBlock icon="👨‍👩‍👧" title="Family Details">
-                    <div className="flex gap-2 mb-2">
-                      <span className="px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-600">
-                        Nuclear
-                      </span>
-                      <span className="px-3 py-1 rounded-full text-xs bg-gray-100 text-gray-600">
-                        Moderate
-                      </span>
-                    </div>
-
                     <div className="text-sm text-gray-600 space-y-1">
-                      <p>Father runs a business</p>
-                      <p>Mother is a homemaker</p>
-                      <p>1 Brother</p>
-                      <p>Family income: 10–30 lakhs</p>
+                      {user?.family && typeof user.family === "object" ? (
+                        <>
+                          {user.family.father && (
+                            <p>Father: {user.family.father}</p>
+                          )}
+                          {user.family.mother && (
+                            <p>Mother: {user.family.mother}</p>
+                          )}
+                          {user.family.siblings && (
+                            <p>Siblings: {user.family.siblings}</p>
+                          )}
+                          {user.family.income && (
+                            <p>Family income: {user.family.income}</p>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <p>
+                            {user?.familyDetails ||
+                              "Family information not provided"}
+                          </p>
+                        </>
+                      )}
                     </div>
                   </TimelineBlock>
 
                   {/* EDUCATION */}
                   <TimelineBlock icon="🎓" title="Education & Career">
                     <div className="text-sm text-gray-600 space-y-1">
-                      <p>BAMS - Bachelor of Ayurvedic Medicine and Surgery</p>
-                      <p>Medicine</p>
-                      <p>Currently not working</p>
+                      <p>{user?.education || "Education not specified"}</p>
+                      {user?.fieldOfStudy && <p>{user.fieldOfStudy}</p>}
+                      <p>
+                        {user?.employmentStatus ||
+                          user?.job ||
+                          "Not working / Not specified"}
+                      </p>
+                      {user?.jobLocation && <p>Works in: {user.jobLocation}</p>}
                     </div>
                   </TimelineBlock>
                 </div>
@@ -485,7 +564,7 @@ const ModernPreferences = ({ user }) => {
 
   return (
     <>
-      <div>
+      {/* <div>
         <h3 className="text-lg font-bold text-gray-800 mb-4">
           What {user?.firstName}'s Partner Preferences
         </h3>
@@ -516,7 +595,7 @@ const ModernPreferences = ({ user }) => {
             </div>
           ))}
         </div>
-      </div>
+      </div> */}
     </>
   );
 };

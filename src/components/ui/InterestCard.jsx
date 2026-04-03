@@ -17,7 +17,9 @@ const InterestCard = ({
 
   const message = interest?.message;
   const status = interest?.status;
-  const receivedAt = interest?.createdAt;
+  // support multiple possible timestamp fields (createdAt, sentAt, created_at)
+  const receivedAt =
+    interest?.createdAt || interest?.sentAt || interest?.created_at || "";
 
   const handleAccept = (e) => {
     e.preventDefault();
@@ -74,7 +76,12 @@ const InterestCard = ({
     if (diff === 1) return "Yesterday";
     if (diff < 7) return `${diff} days ago`;
 
-    return date.toLocaleDateString();
+    // Format as: Apr 02, 2026
+    return date.toLocaleDateString(undefined, {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   const age = profile?.dateOfBirth
@@ -156,7 +163,9 @@ const InterestCard = ({
           )}
 
           <p className="text-xs text-gray-400">
-            {type === "received" ? "Received" : "Sent"} {formatDate(receivedAt)}
+            {type === "received"
+              ? `Received on ${formatDate(receivedAt)}`
+              : `Invitation sent on ${formatDate(receivedAt)}`}
           </p>
         </div>
       </div>

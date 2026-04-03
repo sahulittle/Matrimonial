@@ -342,7 +342,7 @@ const Settings = () => {
                       Profile Visibility
                     </p>
                     <div className="space-y-2">
-                      {["public", "members", "premium"].map((option) => (
+                      {["public", "premium"].map((option) => (
                         <label
                           key={option}
                           className="flex items-center gap-3 cursor-pointer"

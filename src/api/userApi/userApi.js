@@ -207,7 +207,8 @@ export const getUserById = async (id) => {
     `${BASE_URL}/profile/${id}`,
     authHeader()
   );
-  return res.data; // contains { success, user }
+  // normalize response: controller may return { profile } or { user }
+  return res.data.profile || res.data.user || res.data;
 };
 // INTERESTS
 export const getNewInterests = async () => {
@@ -408,4 +409,35 @@ export const confirmPayment = async (data) => {
     data,
     authHeader()
   );
+};
+
+// PUBLIC SEARCH (no auth)
+export const publicSearchProfiles = async (filters = {}) => {
+  try {
+    const params = {
+      minAge: filters.ageRange?.[0] || filters.minAge,
+      maxAge: filters.ageRange?.[1] || filters.maxAge,
+      religion: filters.religion,
+      caste: filters.caste,
+      education: filters.education,
+      location:
+        filters.location ||
+        (filters.state
+          ? filters.state + (filters.city ? ", " + filters.city : "")
+          : filters.city),
+      gender: filters.gender,
+      maritalStatus: filters.maritalStatus,
+      profession: filters.profession,
+      smoking: filters.smoking,
+      drinking: filters.drinking,
+    };
+
+    const res = await axios.get(`${BASE_URL}/search/public`, {
+      params,
+    });
+
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Search failed" };
+  }
 };
