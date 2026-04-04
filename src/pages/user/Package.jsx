@@ -34,26 +34,32 @@ const Packages = () => {
         packageId: pkg._id,
       });
 
-      // createPaymentIntent returns response body (not axios response)
-      const { ccavenue } = res;
+      // ✅ FIX: Correct destructuring
+      console.log("FULL RESPONSE:", res);
+      const { ccavenue } = res.data;
 
-      if (!ccavenue) {
-        console.error("CCavenue payload missing", res);
-        alert("Payment initiation failed. Please try again later.");
+      console.log("CCAVENUE DATA:", ccavenue);
+
+      // ✅ Safety check
+      if (!ccavenue || !ccavenue.encRequest || !ccavenue.access_code) {
+        console.error("❌ CCavenue payload missing", res.data);
+        alert("Payment initiation failed. Please try again.");
         return;
       }
 
+      // ✅ Create form dynamically
       const form = document.createElement("form");
       form.method = "POST";
-
       form.action =
         "https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction";
 
+      // encRequest
       const enc = document.createElement("input");
       enc.type = "hidden";
       enc.name = "encRequest";
       enc.value = ccavenue.encRequest;
 
+      // access_code
       const access = document.createElement("input");
       access.type = "hidden";
       access.name = "access_code";
@@ -63,10 +69,12 @@ const Packages = () => {
       form.appendChild(access);
 
       document.body.appendChild(form);
+
+      // ✅ Submit form
       form.submit();
     } catch (err) {
-      console.error(err);
-      alert("Payment failed");
+      console.error("❌ Payment Error:", err);
+      alert("Payment failed. Please try again.");
     }
   };
 
