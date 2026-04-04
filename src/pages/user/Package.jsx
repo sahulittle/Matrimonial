@@ -2,8 +2,6 @@ import React from "react";
 import { FaCheck } from "react-icons/fa";
 import { useState, useEffect } from "react";
 
-import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
-
 import {
   createPaymentIntent,
   confirmPayment,
@@ -11,8 +9,6 @@ import {
 } from "../../api/userApi/userApi";
 
 const Packages = () => {
-  const stripe = useStripe();
-  const elements = useElements();
   const [selectedPackage, setSelectedPackage] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -34,53 +30,33 @@ const Packages = () => {
   // ✅ PAYMENT FUNCTION
   const handlePayment = async (pkg) => {
     try {
-      if (!stripe || !elements) {
-        alert("Stripe not loaded");
-        return;
-      }
-
-      const cardElement = elements.getElement(CardElement);
-
-      if (!cardElement) {
-        alert("Card element not found");
-        return;
-      }
-
-      // 🔄 Loading (optional UX)
-      console.log("Creating payment intent...");
-
-      // 1️⃣ Create Payment Intent
       const res = await createPaymentIntent({
         packageId: pkg._id,
       });
 
-      const { clientSecret, paymentId } = res.data;
+      const { ccavenue } = res.data;
 
-      // 2️⃣ Confirm Payment
-      const result = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement,
-        },
-      });
+      const form = document.createElement("form");
+      form.method = "POST";
 
-      // ❌ Error handling
-      if (result.error) {
-        alert(result.error.message);
-        return;
-      }
+      form.action =
+        "https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction";
 
-      // ✅ Success
-      if (result.paymentIntent.status === "succeeded") {
-        await confirmPayment({
-          paymentId,
-          transactionId: result.paymentIntent.id,
-        });
+      const enc = document.createElement("input");
+      enc.type = "hidden";
+      enc.name = "encRequest";
+      enc.value = ccavenue.encRequest;
 
-        alert("✅ Payment Successful 🎉");
+      const access = document.createElement("input");
+      access.type = "hidden";
+      access.name = "access_code";
+      access.value = ccavenue.access_code;
 
-        setShowModal(false);
-        setSelectedPackage(null);
-      }
+      form.appendChild(enc);
+      form.appendChild(access);
+
+      document.body.appendChild(form);
+      form.submit();
     } catch (err) {
       console.error(err);
       alert("Payment failed");
@@ -188,10 +164,7 @@ const Packages = () => {
               ₹{selectedPackage?.price}
             </p>
 
-            {/* Card Input */}
-            <div className="border p-4 rounded mb-4">
-              <CardElement />
-            </div>
+           
 
             {/* Pay Button */}
             {/* Pay Button with Loading */}

@@ -266,7 +266,7 @@ const UserDetailsPage = () => {
                       </span>
                     </div> */}
 
-                    <p className="text-sm text-gray-600 leading-relaxed">
+                    <p className="text-sm text-gray-600 leading-relaxed break-words whitespace-pre-wrap max-w-full">
                       {user?.about || user?.bio || "No description added yet."}
                     </p>
                   </TimelineBlock>
@@ -525,7 +525,7 @@ const TimelineBlock = ({ icon, title, children }) => (
     </div>
 
     {/* CONTENT */}
-    <div className="flex-1 pb-6">
+    <div className="flex-1 pb-6 min-w-0 ">
       <h3 className="font-semibold text-gray-800 mb-2">{title}</h3>
       {children}
     </div>

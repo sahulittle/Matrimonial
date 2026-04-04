@@ -94,6 +94,7 @@ const Register = () => {
     "Puducherry",
   ];
   const religionOptions = ["Hindu"];
+  const [dobError, setDobError] = useState("");
 
   // Generate height options from 4ft 5in to 7ft
   const heightOptions = [];
@@ -161,6 +162,17 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
+    if (name === "dateOfBirth") {
+      const age = getAge(value);
+
+      if (age < 18) {
+        setDobError("You must be at least 18 years old");
+      } else {
+        setDobError("");
+      }
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
   const handleImageChange = (e) => {
@@ -183,6 +195,19 @@ const Register = () => {
         imagePreview: URL.createObjectURL(file),
       }));
     }
+  };
+  const getAge = (dob) => {
+    const birthDate = new Date(dob);
+    const today = new Date();
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const m = today.getMonth() - birthDate.getMonth();
+
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    return age;
   };
 
   const handleFinalSubmit = async (e) => {
@@ -272,6 +297,20 @@ const Register = () => {
               className="mt-8 space-y-6"
               onSubmit={(e) => {
                 e.preventDefault();
+
+                if (!formData.dateOfBirth) {
+                  setDobError("Date of Birth is required");
+                  return;
+                }
+
+                const age = getAge(formData.dateOfBirth);
+
+                if (age < 18) {
+                  setDobError("You must be at least 18 years old");
+                  return;
+                }
+
+                setDobError("");
                 setStep(2);
               }}
             >
@@ -542,6 +581,9 @@ const Register = () => {
                     value={formData.dateOfBirth || ""}
                     className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                   />
+                  {dobError && (
+                    <p className="text-red-500 text-sm mt-1">{dobError}</p>
+                  )}
                 </div>
 
                 {/* Birth Name */}
@@ -717,7 +759,6 @@ const Register = () => {
                   </div>
                 </div>
 
-
                 {/* Languages */}
                 <div>
                   <label
@@ -817,7 +858,6 @@ const Register = () => {
                     placeholder="Present address"
                   />
                 </div>
-
 
                 {/* Smoking */}
                 <div>

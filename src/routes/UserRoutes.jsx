@@ -18,7 +18,8 @@ import Signup from "../pages/user/Signup";
 import ProfileView from "../pages/user/ProfileView";
 import UserDetailsPage from "../pages/user/UserDetailsPage";
 import Packages from "../pages/user/Package";
-
+import PaymentSuccess from "../pages/user/PaymentSuccess";
+import PaymentFailed from "../pages/user/PaymentFailed";
 
 /**
  * UserRoutes - All authenticated user route definitions
@@ -44,6 +45,8 @@ const UserRoutes = () => (
       <Route path="user-details/:id" element={<UserDetailsPage />} />
       <Route path="user-details" element={<UserDetailsPage />} />
       <Route path="packages" element={<Packages />} />
+      <Route path="payment-success" element={<PaymentSuccess />} />
+      <Route path="payment-failed" element={<PaymentFailed />} />
 
       {/* Catch-all to redirect to dashboard */}
       <Route path="*" element={<Navigate to="dashboard" replace />} />
