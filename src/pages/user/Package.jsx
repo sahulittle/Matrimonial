@@ -48,10 +48,13 @@ const Packages = () => {
       }
 
       // ✅ Create form dynamically
+      // ✅ Create form dynamically
       const form = document.createElement("form");
       form.method = "POST";
+
+      // 🔥 THIS IS THE ONLY CHANGE
       form.action =
-        "https://test.ccavenue.com/transaction/transaction.do?command=initiateTransaction";
+        "https://secure.ccavenue.com/transaction/transaction.do?command=initiateTransaction";
 
       // encRequest
       const enc = document.createElement("input");
