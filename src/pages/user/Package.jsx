@@ -34,7 +34,14 @@ const Packages = () => {
         packageId: pkg._id,
       });
 
-      const { ccavenue } = res.data;
+      // createPaymentIntent returns response body (not axios response)
+      const { ccavenue } = res;
+
+      if (!ccavenue) {
+        console.error("CCavenue payload missing", res);
+        alert("Payment initiation failed. Please try again later.");
+        return;
+      }
 
       const form = document.createElement("form");
       form.method = "POST";
@@ -163,8 +170,6 @@ const Packages = () => {
             <p className="text-center text-pink-500 text-2xl font-bold mb-4">
               ₹{selectedPackage?.price}
             </p>
-
-           
 
             {/* Pay Button */}
             {/* Pay Button with Loading */}
