@@ -800,6 +800,11 @@ export default function Profile() {
                   title="Partner Preferences"
                   onEdit={() => {
                     console.log("Opening Partner Preferences modal");
+                    // Ensure Preferred Religion defaults to Hindu when opening
+                    setFormData((prev) => ({
+                      ...prev,
+                      preferredReligion: prev?.preferredReligion || "Hindu",
+                    }));
                     setIsPartnerPrefOpen(true);
                   }}
                 >
@@ -1030,6 +1035,7 @@ export default function Profile() {
                 </label>
                 <input
                   placeholder="e.g. B.Tech"
+                  type="text"
                   value={formData.preferredEducation || ""}
                   onChange={(e) =>
                     setFormData({
@@ -1395,7 +1401,8 @@ export default function Profile() {
 
               <div>
                 <label className="text-sm text-gray-600">Field of Study</label>
-                <input
+                <textarea
+                  rows={3}
                   placeholder="Field of Study"
                   value={formData.fieldOfStudy || ""}
                   onChange={(e) =>
@@ -1683,7 +1690,9 @@ export default function Profile() {
 
                 <div>
                   <label className="text-sm text-gray-600">Life Style</label>
-                  <input
+                  {/* Treat 'Other' as a free-text field */}
+                  <textarea
+                    rows={3}
                     placeholder="e.g. Vegetarian"
                     value={formData.lifestyle || ""}
                     onChange={(e) =>

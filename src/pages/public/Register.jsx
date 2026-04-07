@@ -96,6 +96,140 @@ const Register = () => {
   const religionOptions = ["Hindu"];
   const [dobError, setDobError] = useState("");
 
+  // Cities in Maharashtra (used when state/jobLocation is Maharashtra)
+  const maharashtraCities = [
+    "Mumbai",
+    "Navi Mumbai",
+    "Thane",
+    "Kalyan",
+    "Dombivli",
+    "Bhiwandi",
+    "Ulhasnagar",
+    "Mira-Bhayandar",
+    "Vasai",
+    "Virar",
+    "Palghar",
+    "Dahanu",
+    "Boisar",
+    "Pune",
+    "Pimpri-Chinchwad",
+    "Baramati",
+    "Talegaon",
+    "Shirur",
+    "Satara",
+    "Karad",
+    "Wai",
+    "Mahabaleshwar",
+    "Sangli",
+    "Miraj",
+    "Tasgaon",
+    "Islampur",
+    "Kolhapur",
+    "Ichalkaranji",
+    "Gadhinglaj",
+    "Kurundwad",
+    "Solapur",
+    "Pandharpur",
+    "Akkalkot",
+    "Barshi",
+    "Nashik",
+    "Malegaon",
+    "Sinnar",
+    "Igatpuri",
+    "Manmad",
+    "Ahmednagar",
+    "Shirdi",
+    "Kopargaon",
+    "Sangamner",
+    "Shrirampur",
+    "Dhule",
+    "Shirpur",
+    "Sakri",
+    "Jalgaon",
+    "Bhusawal",
+    "Amalner",
+    "Chalisgaon",
+    "Pachora",
+    "Nandurbar",
+    "Shahada",
+    "Taloda",
+    "Chhatrapati Sambhajinagar",
+    "Aurangabad",
+    "Kannad",
+    "Paithan",
+    "Jalna",
+    "Ambad",
+    "Partur",
+    "Beed",
+    "Georai",
+    "Ambajogai",
+    "Osmanabad",
+    "Tuljapur",
+    "Omerga",
+    "Latur",
+    "Udgir",
+    "Ausa",
+    "Nanded",
+    "Deglur",
+    "Mukhed",
+    "Parbhani",
+    "Gangakhed",
+    "Pathri",
+    "Hingoli",
+    "Kalamnuri",
+    "Basmat",
+    "Amravati",
+    "Achalpur",
+    "Chandur",
+    "Akola",
+    "Akot",
+    "Balapur",
+    "Buldhana",
+    "Khamgaon",
+    "Shegaon",
+    "Malkapur",
+    "Yavatmal",
+    "Wani",
+    "Pusad",
+    "Darwha",
+    "Washim",
+    "Karanja",
+    "Mangrulpir",
+    "Nagpur",
+    "Kamptee",
+    "Hingna",
+    "Wardha",
+    "Hinganghat",
+    "Pulgaon",
+    "Chandrapur",
+    "Ballarpur",
+    "Warora",
+    "Gadchiroli",
+    "Desaiganj",
+    "Aheri",
+    "Bhandara",
+    "Tumsar",
+    "Pauni",
+    "Gondia",
+    "Tirora",
+    "Amgaon",
+    "Raigad",
+    "Alibaug",
+    "Panvel",
+    "Uran",
+    "Khopoli",
+    "Karjat",
+    "Ratnagiri",
+    "Chiplun",
+    "Dapoli",
+    "Khed",
+    "Sindhudurg",
+    "Kankavli",
+    "Malvan",
+    "Sawantwadi",
+    "Vengurla",
+  ];
+
   // Generate height options from 4ft 5in to 7ft
   const heightOptions = [];
   for (let feet = 4; feet <= 7; feet++) {
@@ -728,7 +862,11 @@ const Register = () => {
                       id="jobLocation"
                       name="jobLocation"
                       required
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        handleChange(e);
+                        // clear city when state changes so user can reselect
+                        setFormData((prev) => ({ ...prev, city: "" }));
+                      }}
                       value={formData.jobLocation || ""}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
@@ -744,6 +882,51 @@ const Register = () => {
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <FaChevronDown className="h-4 w-4" />
                     </div>
+                  </div>
+                </div>
+
+                {/* City - show dropdown for Maharashtra, otherwise text input */}
+                <div className="md:col-span-2">
+                  <label
+                    htmlFor="city"
+                    className="block text-sm font-medium text-gray-700"
+                  >
+                    City
+                  </label>
+                  <div className="mt-1 relative">
+                    {formData.jobLocation === "Maharashtra" ? (
+                      <>
+                        <select
+                          id="city"
+                          name="city"
+                          onChange={handleChange}
+                          value={formData.city || ""}
+                          className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                        >
+                          <option value="" disabled>
+                            Select City
+                          </option>
+                          {maharashtraCities.map((c) => (
+                            <option key={c} value={c}>
+                              {c}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                          <FaChevronDown className="h-4 w-4" />
+                        </div>
+                      </>
+                    ) : (
+                      <input
+                        id="city"
+                        name="city"
+                        type="text"
+                        onChange={handleChange}
+                        value={formData.city || ""}
+                        className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                        placeholder="City"
+                      />
+                    )}
                   </div>
                 </div>
 
