@@ -184,13 +184,26 @@ const Dashboard = () => {
         </div>
 
         {profile?.profileCompleted < 100 && (
-          <Link
-            to="/user/profile"
-            className="text-sm text-pink-600 mt-3 inline-flex items-center gap-1.5 font-medium hover:text-pink-700"
-          >
-            Complete your profile
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+          <div className="mt-3">
+            <Link
+              to="/user/profile"
+              className="text-sm text-pink-600 inline-flex items-center gap-1.5 font-medium hover:text-pink-700"
+            >
+              Complete your profile
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+
+            {/* show missing fields summary if backend provided it */}
+            {Array.isArray(profile?.missingFields) &&
+              profile.missingFields.length > 0 && (
+                <p className="text-xs text-gray-500 mt-2">
+                  Missing: {profile.missingFields.slice(0, 4).join(", ")}
+                  {profile.missingFields.length > 4
+                    ? ` and ${profile.missingFields.length - 4} more`
+                    : ""}
+                </p>
+              )}
+          </div>
         )}
       </div>
 
@@ -379,11 +392,16 @@ const Dashboard = () => {
                 {visitors.slice(0, 5).map((visitor) => (
                   <Link
                     key={visitor._id}
-                    to={`/user-details/${visitor._id}`}
+                    to="/user/visitors"
+                    state={{ selectedVisitorId: visitor._id }}
                     className="shrink-0 text-center group"
                   >
                     <img
-                      src="https://cdn.dribbble.com/userupload/12012331/file/original-0d149e12db580c4cae321bad1ef47aa5.jpg?format=webp&resize=400x300&vertical=center"
+                      src={
+                        visitor.profilePhoto ||
+                        visitor.photos?.[0] ||
+                        "/default-avatar.png"
+                      }
                       alt={visitor.firstName}
                       className="w-14 h-14 rounded-full object-cover mb-1.5 border-2 border-transparent group-hover:border-pink-400 transition-all"
                     />

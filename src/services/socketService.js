@@ -34,12 +34,30 @@ export const initSocket = (userId, isAdmin = false) => {
       socket.emit("admin:join", { userId });
     } else {
       socket.emit("user:join", { userId });
+      // Notify server that this user is online so status map/db can be updated
+      socket.emit("user:online", { userId });
     }
   });
 
   socket.on("disconnect", () => {
     console.log("❌ Socket disconnected");
   });
+
+  // Try to notify server explicitly before the page unloads
+  const beforeUnloadHandler = () => {
+    try {
+      if (socket && socket.connected) {
+        socket.emit("user:offline", { userId });
+      }
+    } catch (e) {
+      /* ignore */
+    }
+  };
+
+  window.addEventListener("beforeunload", beforeUnloadHandler);
+
+  // cleanup removal when socket disconnects via disconnectSocket
+  socket._beforeUnloadHandler = beforeUnloadHandler;
 
   socket.on("error", (error) => {
     console.error("Socket error:", error);
@@ -53,6 +71,10 @@ export const initSocket = (userId, isAdmin = false) => {
  */
 export const disconnectSocket = () => {
   if (socket && socket.connected) {
+    if (socket._beforeUnloadHandler) {
+      window.removeEventListener("beforeunload", socket._beforeUnloadHandler);
+      delete socket._beforeUnloadHandler;
+    }
     socket.disconnect();
     socket = null;
   }

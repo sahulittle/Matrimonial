@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiPlus,
   FiX,
@@ -7,6 +7,12 @@ import {
   FiSearch,
   FiImage,
 } from "react-icons/fi";
+import {
+  getSuccessStories,
+  createSuccessStory,
+  updateSuccessStory,
+  deleteSuccessStory,
+} from "../../api/adminApi/adminApi";
 
 const SuccessStories = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,36 +22,23 @@ const SuccessStories = () => {
     brideName: "",
     groomName: "",
     img: "",
+    imageFile: null,
     description: "",
   });
 
-  // Initial mock data consistent with user-facing page
-  const [stories, setStories] = useState([
-    {
-      id: 1,
-      img: "https://whatknotin.wordpress.com/wp-content/uploads/2014/11/candid_wedding_photography-2431.jpg?w=584&h=390",
-      brideName: "Priya",
-      groomName: "Rohan",
-      description:
-        "Found my soulmate when I least expected it. Thank you, MatriLab!",
-    },
-    {
-      id: 2,
-      img: "https://d397bfy4gvgcdm.cloudfront.net/316996-Ceremony.jpeg",
-      brideName: "Anjali",
-      groomName: "Vikram",
-      description:
-        "A perfect match that turned into a beautiful journey for life.",
-    },
-    {
-      id: 3,
-      img: "https://harshstudiophotography.in/wp-content/uploads/2022/08/IMG_4150-1024x683.jpg",
-      brideName: "Sneha",
-      groomName: "Amit",
-      description:
-        "Our families connected instantly, and so did we. It was magical.",
-    },
-  ]);
+  const [stories, setStories] = useState([]);
+
+  useEffect(() => {
+    const fetch = async () => {
+      try {
+        const res = await getSuccessStories();
+        setStories(res || []);
+      } catch (err) {
+        console.error("Error loading success stories:", err);
+      }
+    };
+    fetch();
+  }, []);
 
   const filteredStories = stories.filter(
     (story) =>
@@ -73,27 +66,54 @@ const SuccessStories = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (editingStory) {
-      setStories(
-        stories.map((s) =>
-          s.id === editingStory.id ? { ...formData, id: s.id } : s,
-        ),
-      );
+    const { name, value, files } = e.target;
+    if (files && files[0]) {
+      setFormData((prev) => ({ ...prev, imageFile: files[0] }));
     } else {
-      setStories([{ ...formData, id: Date.now() }, ...stories]);
+      setFormData((prev) => ({ ...prev, [name]: value }));
     }
-    closeModal();
   };
 
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to delete this story?")) {
-      setStories(stories.filter((s) => s.id !== id));
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = new FormData();
+      payload.append("brideName", formData.brideName);
+      payload.append("groomName", formData.groomName);
+      payload.append("description", formData.description);
+      if (formData.imageFile) payload.append("image", formData.imageFile);
+
+      if (editingStory) {
+        const updated = await updateSuccessStory(
+          editingStory._id || editingStory.id,
+          payload,
+        );
+        // replace
+        setStories((prev) =>
+          prev.map((s) =>
+            s._id === (updated._id || updated.id) ? updated : s,
+          ),
+        );
+      } else {
+        const created = await createSuccessStory(payload);
+        setStories((prev) => [created, ...prev]);
+      }
+
+      closeModal();
+    } catch (err) {
+      console.error("Error saving story:", err);
+      alert("Failed to save story");
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this story?")) return;
+    try {
+      await deleteSuccessStory(id);
+      setStories((prev) => prev.filter((s) => s._id !== id && s.id !== id));
+    } catch (err) {
+      console.error("Failed to delete story:", err);
+      alert("Failed to delete story");
     }
   };
 

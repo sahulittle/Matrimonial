@@ -7,13 +7,18 @@ import {
   trackVisit,
   getSentInterests,
 } from "../../api/userApi/userApi";
+import { emit, on, off, getSocket } from "../../services/socketService";
+import { useAuth } from "../../context/AuthContext";
 const UserDetailsPage = () => {
   const [activeTab, setActiveTab] = useState("details");
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [sentInterest, setSentInterest] = useState(null);
+  const [isOnline, setIsOnline] = useState(false);
+  const [lastActive, setLastActive] = useState(null);
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const age = user?.dateOfBirth
     ? Math.floor(
         (new Date() - new Date(user.dateOfBirth)) /
@@ -58,6 +63,74 @@ const UserDetailsPage = () => {
       fetchUser();
       fetchSentInterest();
     }
+
+    // ===== Socket: request status and listen for updates =====
+    let interval = null;
+    let registered = false;
+
+    const registerStatusListeners = () => {
+      // avoid double register
+      if (registered) return;
+
+      try {
+        // ask server for the user's current status
+        emit("user:getStatus", { userId: id });
+
+        const onStatus = (data) => {
+          if (!data) return;
+          if (String(data.userId) === String(id)) {
+            setIsOnline(Boolean(data.isOnline || data.status === "online"));
+            setLastActive(data.lastActive || data.timestamp || null);
+          }
+        };
+
+        const onStatusChanged = (data) => {
+          if (!data) return;
+          if (String(data.userId) === String(id)) {
+            setIsOnline(data.status === "online");
+            setLastActive(data.lastActive || data.timestamp || null);
+          }
+        };
+
+        on("user:status", onStatus);
+        on("user:statusChanged", onStatusChanged);
+
+        registered = true;
+
+        // cleanup function for these listeners
+        const cleanup = () => {
+          off("user:status", onStatus);
+          off("user:statusChanged", onStatusChanged);
+        };
+
+        // attach cleanup to effect return by setting a property
+        registerStatusListeners.cleanup = cleanup;
+      } catch (e) {
+        // ignore silently
+      }
+    };
+
+    // If socket is ready, register immediately; otherwise poll until ready (max ~5s)
+    if (getSocket() && getSocket().connected) {
+      registerStatusListeners();
+    } else {
+      let attempts = 0;
+      interval = setInterval(() => {
+        attempts += 1;
+        if (getSocket() && getSocket().connected) {
+          registerStatusListeners();
+          clearInterval(interval);
+        } else if (attempts > 25) {
+          // give up after ~5s
+          clearInterval(interval);
+        }
+      }, 200);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+      if (registerStatusListeners.cleanup) registerStatusListeners.cleanup();
+    };
   }, [id]);
 
   const formatDateShort = (dateStr) => {
@@ -80,6 +153,77 @@ const UserDetailsPage = () => {
       return "";
     }
   };
+
+  const formatLastSeen = (ts) => {
+    if (!ts) return "";
+    try {
+      const d = new Date(ts);
+      const diff = Date.now() - d.getTime();
+      const mins = Math.floor(diff / (1000 * 60));
+      if (mins < 1) return "just now";
+      if (mins < 60) return `${mins} min${mins > 1 ? "s" : ""} ago`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+      const days = Math.floor(hours / 24);
+      if (days < 7) return `${days} day${days > 1 ? "s" : ""} ago`;
+      return d.toLocaleDateString();
+    } catch (e) {
+      return "";
+    }
+  };
+
+  // ---------------- Contact action handlers ----------------
+  const handleCallClick = () => {
+    if (!currentUser || currentUser.subscriptionStatus !== "active") {
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    const phone = user?.phone;
+    if (!phone) {
+      // no phone to call
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    // open native dialer
+    window.location.href = `tel:${phone}`;
+  };
+
+  const handleWhatsAppClick = () => {
+    if (!currentUser || currentUser.subscriptionStatus !== "active") {
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    const phone = user?.phone;
+    if (!phone) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    // normalize phone digits
+    const digits = phone.replace(/[^0-9+]/g, "");
+    // If no country code and 10 digits, assume India (91)
+    let waNumber = digits;
+    const plain = digits.replace(/^\+/, "");
+    if (!plain.startsWith("91") && plain.length === 10) {
+      waNumber = `91${plain}`;
+    }
+
+    const url = `https://wa.me/${waNumber}`;
+    window.open(url, "_blank");
+  };
+
+  const handleChatClick = () => {
+    if (!currentUser || currentUser.subscriptionStatus !== "active") {
+      setShowUpgradeModal(true);
+      return;
+    }
+
+    const targetId = user?._id || id;
+    navigate("/user/messages", { state: { newConversationWith: targetId } });
+  };
   return (
     <div className="bg-gradient-to-br from-[#fdfbfb] to-[#ebedee] min-h-screen p-6">
       <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6">
@@ -95,13 +239,14 @@ const UserDetailsPage = () => {
 
             <div className="p-4">
               <div className="flex items-center gap-2 text-emerald-600 text-sm font-semibold">
-                ✔ Verified profile
+                {/* ✔ Verified profile */}
               </div>
 
+              {/* Removed claims about Govt. ID / phone verification. Show member info instead. */}
               <p className="text-xs text-gray-500 mt-2">
-                Name verified against Govt. ID
+                Member since{" "}
+                {user?.createdAt ? formatDateShort(user.createdAt) : "—"}
               </p>
-              <p className="text-xs text-gray-500">Mobile no. is verified</p>
 
               {/* <button className="mt-3 text-xs font-medium text-pink-600 hover:text-pink-700 transition">
                 Get Your Blue Tick →
@@ -135,9 +280,20 @@ const UserDetailsPage = () => {
               </h2>
 
               <div className="flex gap-4 text-xs text-gray-500 mt-1">
-                <span className="text-emerald-500 font-medium">
-                  ● Online now
-                </span>
+                {isOnline ? (
+                  <span className="text-emerald-500 font-medium">
+                    ● Online now
+                  </span>
+                ) : (
+                  <span className="text-gray-400">
+                    ● Offline
+                    {lastActive ? (
+                      <span className="ml-2 text-xs text-gray-500">
+                        (last seen {formatLastSeen(lastActive)})
+                      </span>
+                    ) : null}
+                  </span>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-x-8 mt-4 text-sm text-gray-700">
@@ -201,24 +357,24 @@ const UserDetailsPage = () => {
             {/* ACTION BUTTONS */}
             <div className="flex flex-col gap-3 items-end">
               <button
-                onClick={() => setShowUpgradeModal(true)}
+                onClick={() => handleCallClick()}
                 className="px-4 py-1.5 rounded-lg border border-gray-300 text-xs hover:bg-gray-100 transition"
               >
                 📞 Call
               </button>
 
               <button
-                onClick={() => setShowUpgradeModal(true)}
+                onClick={() => handleWhatsAppClick()}
                 className="px-4 py-1.5 rounded-lg text-white text-xs bg-gradient-to-r from-emerald-500 to-green-600 shadow hover:scale-105 transition"
               >
                 WhatsApp
               </button>
 
               <button
-                onClick={() => setShowUpgradeModal(true)}
+                onClick={() => handleChatClick()}
                 className="px-4 py-1.5 rounded-lg text-white text-xs bg-gradient-to-r from-pink-500 to-rose-500 shadow hover:scale-105 transition"
               >
-                Marathi Shubha Vivah
+                Marathi Shubha Vivah Chat
               </button>
             </div>
           </div>

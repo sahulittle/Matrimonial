@@ -153,6 +153,11 @@ export const AuthProvider = ({ children }) => {
         ...userData,
       };
 
+      // include backend-calculated missing fields if provided
+      if (response.missingFields) {
+        formattedProfile.missingFields = response.missingFields;
+      }
+
       setProfile(formattedProfile);
       setUser((prev) => ({ ...prev, ...formattedProfile }));
 

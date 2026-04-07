@@ -1,34 +1,40 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { addUser, setCurrentUser, saveUserProfile, createDefaultProfile, getUsers } from '../../utils/storage'
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  addUser,
+  setCurrentUser,
+  saveUserProfile,
+  createDefaultProfile,
+  getUsers,
+} from "../../utils/storage";
 
 const Signup = () => {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [gender, setGender] = useState('Male')
-  const [age, setAge] = useState('')
-  const [religion, setReligion] = useState('Hindu')
-  const [motherTongue, setMotherTongue] = useState('Hindi')
-  const [error, setError] = useState('')
-  const navigate = useNavigate()
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [gender, setGender] = useState("Male");
+  const [age, setAge] = useState("");
+  const [religion, setReligion] = useState("Hindu");
+  const [motherTongue, setMotherTongue] = useState("Hindi");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
-    e.preventDefault()
-    setError('')
-    
+    e.preventDefault();
+    setError("");
+
     // Check if user already exists
-    const users = getUsers()
-    const existingUser = users.find(u => u.email === email)
-    
+    const users = getUsers();
+    const existingUser = users.find((u) => u.email === email);
+
     if (existingUser) {
-      setError('An account with this email already exists. Please login.')
-      return
+      setError("An account with this email already exists. Please login.");
+      return;
     }
-    
+
     // Generate unique ID for new user
-    const newUserId = (users.length + 1).toString()
-    
+    const newUserId = (users.length + 1).toString();
+
     // Create new user object
     const newUser = {
       id: newUserId,
@@ -38,34 +44,35 @@ const Signup = () => {
       age: parseInt(age) || 25,
       gender: gender,
       religion: religion,
-      motherTongue: motherTongue
-    }
-    
+      motherTongue: motherTongue,
+    };
+
     // Add user to storage
-    addUser(newUser)
-    
+    addUser(newUser);
+
     // Create default profile for the user
-    const defaultProfile = createDefaultProfile(newUser)
-    
+    const defaultProfile = createDefaultProfile(newUser);
+
     // Save profile to profiles storage
-    saveUserProfile(newUserId, defaultProfile)
-    
+    saveUserProfile(newUserId, defaultProfile);
+
     // Initialize user's interests in storage
-    const interests = JSON.parse(localStorage.getItem('interests')) || {}
-    interests[newUserId] = { sent: [], received: [] }
-    localStorage.setItem('interests', JSON.stringify(interests))
-    
+    const interests = JSON.parse(localStorage.getItem("interests")) || {};
+    interests[newUserId] = { sent: [], received: [] };
+    localStorage.setItem("interests", JSON.stringify(interests));
+
     // Initialize user's notifications in storage
-    const notifications = JSON.parse(localStorage.getItem('notifications')) || {}
-    notifications[newUserId] = []
-    localStorage.setItem('notifications', JSON.stringify(notifications))
-    
+    const notifications =
+      JSON.parse(localStorage.getItem("notifications")) || {};
+    notifications[newUserId] = [];
+    localStorage.setItem("notifications", JSON.stringify(notifications));
+
     // Set current user (without password)
-    setCurrentUser(newUser)
-    
+    setCurrentUser(newUser);
+
     // Navigate to dashboard
-    navigate('/user/dashboard')
-  }
+    navigate("/user/dashboard");
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-pink-100 to-rose-100 px-4 py-8">
@@ -76,7 +83,9 @@ const Signup = () => {
             <span className="text-3xl">💕</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
-          <p className="text-gray-500 mt-2">Join Shaadi.com to find your perfect match</p>
+          <p className="text-gray-500 mt-2">
+            Join Marathi Shubha Vivah to find your perfect match
+          </p>
         </div>
 
         {/* Form */}
@@ -215,15 +224,18 @@ const Signup = () => {
         {/* Login Link */}
         <div className="mt-6 text-center">
           <p className="text-gray-600">
-            Already have an account?{' '}
-            <Link to="/login" className="text-pink-500 font-semibold hover:underline">
+            Already have an account?{" "}
+            <Link
+              to="/login"
+              className="text-pink-500 font-semibold hover:underline"
+            >
               Login
             </Link>
           </p>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Signup
+export default Signup;

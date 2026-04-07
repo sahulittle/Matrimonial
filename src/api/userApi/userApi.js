@@ -59,6 +59,7 @@ export const searchProfiles = async (filters = {}) => {
     const params = {
       minAge: filters.ageRange?.[0],
       maxAge: filters.ageRange?.[1],
+      gender: filters.gender,
       religion: filters.religion,
       caste: filters.caste,
       education: filters.education,

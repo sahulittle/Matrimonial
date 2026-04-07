@@ -217,8 +217,8 @@ export const paymentApi = {
 
 // =============== TICKET API ===============
 export const ticketApi = {
-  createTicket: (subject, description, category) =>
-    api.post("/users/tickets", { subject, description, category }),
+  createTicket: (subject, description, priority = "Medium") =>
+    api.post("/users/tickets", { subject, details: description, priority }),
   getTickets: (status = null, page = 1, limit = 10) => {
     let url = `/users/tickets?page=${page}&limit=${limit}`;
     if (status) url += `&status=${status}`;

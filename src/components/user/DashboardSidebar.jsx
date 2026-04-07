@@ -1,109 +1,120 @@
-import { Link, useLocation } from 'react-router-dom'
-import { useAuth } from '../../context/AuthContext'
+import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 import {
-  LayoutDashboard, 
-  Users, 
-  Search, 
-  Heart, 
-  MessageCircle, 
-  Star, 
-  User, 
-  Settings, 
+  LayoutDashboard,
+  Users,
+  Search,
+  Heart,
+  MessageCircle,
+  Star,
+  User,
+  Settings,
   X,
-  Eye
-} from 'lucide-react'
+  Eye,
+  HelpCircle,
+} from "lucide-react";
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const { appData } = useAuth()
-  const location = useLocation()
+  const { appData } = useAuth();
+  const location = useLocation();
   const {
     recommendationsCount,
     pendingInterestsCount: pendingInterests,
     unreadMessagesCount: unreadMessages,
     shortlistCount,
-  } = appData || {}
+  } = appData || {};
 
   const menuItems = [
-    { 
-      path: '/user/dashboard',
-      label: 'Dashboard', 
+    {
+      path: "/user/dashboard",
+      label: "Dashboard",
       icon: LayoutDashboard,
-      badge: null
+      badge: null,
     },
-    { 
-      path: '/user/matches',
-      label: 'Matches', 
+    {
+      path: "/user/matches",
+      label: "Matches",
       icon: Users,
-      badge: recommendationsCount > 0 ? recommendationsCount : null
+      badge: recommendationsCount > 0 ? recommendationsCount : null,
     },
-    { 
-      path: '/user/search',
-      label: 'Search', 
+    {
+      path: "/user/search",
+      label: "Search",
       icon: Search,
-      badge: null
+      badge: null,
     },
-    { 
-      path: '/user/interests',
-      label: 'Interests', 
+    {
+      path: "/user/interests",
+      label: "Interests",
       icon: Heart,
-      badge: pendingInterests > 0 ? pendingInterests : null
+      badge: pendingInterests > 0 ? pendingInterests : null,
     },
-    { 
-      path: '/user/messages',
-      label: 'Messages', 
+    {
+      path: "/user/messages",
+      label: "Messages",
       icon: MessageCircle,
-      badge: unreadMessages > 0 ? unreadMessages : null
+      badge: unreadMessages > 0 ? unreadMessages : null,
     },
-    { 
-      path: '/user/shortlist',
-      label: 'Shortlist', 
+    {
+      path: "/user/tickets",
+      label: "Support Tickets",
+      icon: HelpCircle,
+      badge: null,
+    },
+    {
+      path: "/user/shortlist",
+      label: "Shortlist",
       icon: Star,
-      badge: shortlistCount > 0 ? shortlistCount : null
+      badge: shortlistCount > 0 ? shortlistCount : null,
     },
-    { 
-      path: '/user/visitors',
-      label: 'Visitors', 
+    {
+      path: "/user/visitors",
+      label: "Visitors",
       icon: Eye,
-      badge: null
+      badge: null,
     },
-    { 
-      path: '/user/profile',
-      label: 'My Profile', 
+    {
+      path: "/user/profile",
+      label: "My Profile",
       icon: User,
-      badge: null
+      badge: null,
     },
-    { 
-      path: '/user/settings',
-      label: 'Settings', 
+    {
+      path: "/user/settings",
+      label: "Settings",
       icon: Settings,
-      badge: null
+      badge: null,
     },
-  ]
+  ];
 
   return (
     <>
       {/* Mobile overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-30 lg:hidden backdrop-blur-sm transition-opacity"
           onClick={onClose}
         />
       )}
 
       {/* Sidebar */}
-      <aside 
+      <aside
         className={`
           fixed top-0 left-0 h-full w-[260px] bg-white border-r border-gray-200 z-40
           transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+          ${isOpen ? "translate-x-0" : "-translate-x-full"}
           lg:translate-x-0
         `}
       >
         <div className="flex flex-col h-full">
           {/* Logo and close button container */}
           <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 flex-shrink-0">
-            <Link to="/user/dashboard" className="flex items-center gap-3" onClick={onClose}>
+            <Link
+              to="/user/dashboard"
+              className="flex items-center gap-3"
+              onClick={onClose}
+            >
               <div className="w-9 h-9 bg-pink-600 rounded-lg flex items-center justify-center shadow-md shadow-pink-500/20">
                 <Heart className="w-5 h-5 text-white" />
               </div>
@@ -111,7 +122,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 MatriLab
               </span>
             </Link>
-            <button 
+            <button
               onClick={onClose}
               className="p-2 rounded-full hover:bg-gray-100 lg:hidden"
             >
@@ -122,9 +133,9 @@ const Sidebar = ({ isOpen, onClose }) => {
           {/* Navigation */}
           <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
             {menuItems.map((item) => {
-              const Icon = item.icon
-              const isActive = location.pathname === item.path
-              
+              const Icon = item.icon;
+              const isActive = location.pathname === item.path;
+
               return (
                 <Link
                   key={item.path}
@@ -132,26 +143,33 @@ const Sidebar = ({ isOpen, onClose }) => {
                   onClick={onClose}
                   className={`
                     group flex items-center gap-3.5 px-4 py-2.5 rounded-lg transition-all duration-200
-                    ${isActive 
-                      ? 'bg-pink-50 text-pink-600 font-semibold' 
-                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-800'
+                    ${
+                      isActive
+                        ? "bg-pink-50 text-pink-600 font-semibold"
+                        : "text-gray-500 hover:bg-gray-100 hover:text-gray-800"
                     }
                   `}
                 >
-                  <Icon className={`w-5 h-5 flex-shrink-0 transition-colors ${isActive ? 'text-pink-500' : 'text-gray-400 group-hover:text-gray-500'}`} />
+                  <Icon
+                    className={`w-5 h-5 flex-shrink-0 transition-colors ${isActive ? "text-pink-500" : "text-gray-400 group-hover:text-gray-500"}`}
+                  />
                   <span className="flex-1 text-sm">{item.label}</span>
                   {item.badge && (
-                    <span className={`
+                    <span
+                      className={`
                       ml-auto px-2 py-0.5 text-xs font-bold rounded-full
-                      ${isActive 
-                        ? 'bg-pink-600 text-white' 
-                        : 'bg-gray-200 text-gray-700'}
-                    `}>
-                      {item.badge > 99 ? '99+' : item.badge}
+                      ${
+                        isActive
+                          ? "bg-pink-600 text-white"
+                          : "bg-gray-200 text-gray-700"
+                      }
+                    `}
+                    >
+                      {item.badge > 99 ? "99+" : item.badge}
                     </span>
                   )}
                 </Link>
-              )
+              );
             })}
           </nav>
 
@@ -159,8 +177,14 @@ const Sidebar = ({ isOpen, onClose }) => {
           <div className="mt-auto p-4">
             <div className="bg-gradient-to-tr from-pink-50 to-rose-50 border border-pink-100 rounded-xl p-4 text-center">
               <h4 className="font-semibold text-gray-800">Go Premium</h4>
-              <p className="text-xs text-gray-500 mt-1 mb-4">Unlock more features and get more matches!</p>
-              <Link to="/user/packages" onClick={onClose} className="block w-full py-2 bg-pink-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-pink-500/20 hover:bg-pink-600 transition-all">
+              <p className="text-xs text-gray-500 mt-1 mb-4">
+                Unlock more features and get more matches!
+              </p>
+              <Link
+                to="/user/packages"
+                onClick={onClose}
+                className="block w-full py-2 bg-pink-500 text-white rounded-lg text-sm font-medium shadow-lg shadow-pink-500/20 hover:bg-pink-600 transition-all"
+              >
                 Upgrade
               </Link>
             </div>
@@ -168,7 +192,7 @@ const Sidebar = ({ isOpen, onClose }) => {
         </div>
       </aside>
     </>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

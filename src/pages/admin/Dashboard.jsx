@@ -28,6 +28,7 @@ import {
   Cell,
 } from "recharts";
 import React, { useEffect, useState } from "react";
+import { on, off } from "../../services/socketService";
 import { getDashboardStats, getGraphData } from "../../api/adminApi/adminApi";
 const StatCard = ({ icon, title, value, color }) => (
   <div className="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4">
@@ -60,6 +61,21 @@ const Dashboard = () => {
     };
 
     fetchData();
+    // realtime updates: refresh when backend notifies graph update
+    const handleGraphUpdate = async (data) => {
+      try {
+        // simply refetch stats and graph
+        const statsRes = await getDashboardStats();
+        const graphRes = await getGraphData();
+        setStatsData(statsRes.stats);
+        setGraphData(graphRes.data);
+      } catch (err) {
+        console.error("Error refreshing dashboard on graph update", err);
+      }
+    };
+
+    on("dashboard:graphUpdated", handleGraphUpdate);
+    return () => off("dashboard:graphUpdated", handleGraphUpdate);
   }, []);
   const stats = statsData
     ? [

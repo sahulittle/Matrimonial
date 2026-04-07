@@ -242,6 +242,7 @@ const qualifications = [
 
 const initialFilters = {
   ageRange: [18, 50],
+  gender: "",
   religion: "",
   caste: "",
   education: "",
@@ -405,6 +406,61 @@ const SearchPage = () => {
             </div>
 
             {/* Age */}
+
+            {/* Looking For (Gender) */}
+            <div className="mb-6">
+              <label className="text-sm font-medium">Looking for</label>
+
+              <div className="flex gap-3 mt-2">
+                <label
+                  className={`inline-flex items-center gap-2 px-3 py-2 border rounded-lg cursor-pointer ${filters.gender === "male" ? "bg-pink-50 border-pink-300" : ""}`}
+                >
+                  <input
+                    type="radio"
+                    name="lookingFor"
+                    value="male"
+                    checked={filters.gender === "male"}
+                    onChange={(e) =>
+                      handleFilterChange("gender", e.target.value)
+                    }
+                    className="hidden"
+                  />
+                  Male
+                </label>
+
+                <label
+                  className={`inline-flex items-center gap-2 px-3 py-2 border rounded-lg cursor-pointer ${filters.gender === "female" ? "bg-pink-50 border-pink-300" : ""}`}
+                >
+                  <input
+                    type="radio"
+                    name="lookingFor"
+                    value="female"
+                    checked={filters.gender === "female"}
+                    onChange={(e) =>
+                      handleFilterChange("gender", e.target.value)
+                    }
+                    className="hidden"
+                  />
+                  Female
+                </label>
+
+                <label
+                  className={`inline-flex items-center gap-2 px-3 py-2 border rounded-lg cursor-pointer ${filters.gender === "" ? "bg-pink-50 border-pink-300" : ""}`}
+                >
+                  <input
+                    type="radio"
+                    name="lookingFor"
+                    value=""
+                    checked={filters.gender === ""}
+                    onChange={(e) =>
+                      handleFilterChange("gender", e.target.value)
+                    }
+                    className="hidden"
+                  />
+                  Any
+                </label>
+              </div>
+            </div>
 
             <div className="mb-6">
               <label className="text-sm font-medium">Age Range</label>

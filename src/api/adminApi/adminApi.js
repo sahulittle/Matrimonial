@@ -35,11 +35,7 @@ export const getGraphData = async () => {
 };
 export const createPackage = async (data) => {
   try {
-    const res = await axios.post(
-      `${import.meta.env.VITE_API_URL}/admin/payments/packages`,
-      data,
-      authHeader()
-    );
+    const res = await axios.post(`${BASE_URL}/payments/packages`, data, authHeader());
     return res.data;
   } catch (error) {
     console.error("Error creating package:", error);
@@ -49,10 +45,7 @@ export const createPackage = async (data) => {
 
 export const getAllPackages = async () => {
   try {
-    const res = await axios.get(
-      `${import.meta.env.VITE_API_URL}/admin/payments/packages`,
-      authHeader()
-    );
+    const res = await axios.get(`${BASE_URL}/payments/packages`, authHeader());
     return res.data;
   } catch (error) {
     console.error("Error fetching packages:", error);
@@ -62,10 +55,7 @@ export const getAllPackages = async () => {
 
 export const deletePackage = async (id) => {
   try {
-    const res = await axios.delete(
-      `${import.meta.env.VITE_API_URL}/admin/payments/packages/${id}`,
-      authHeader()
-    );
+    const res = await axios.delete(`${BASE_URL}/payments/packages/${id}`, authHeader());
     return res.data;
   } catch (error) {
     console.error("Error deleting package:", error);
@@ -75,8 +65,9 @@ export const deletePackage = async (id) => {
 
 export const togglePackageStatus = async (id) => {
   try {
-    const res = await axios.patch(
-      `${import.meta.env.VITE_API_URL}/admin/payments/packages/toggle/${id}`,
+    // backend expects POST to /admin/payments/packages/:packageId/toggle
+    const res = await axios.post(
+      `${BASE_URL}/packages/${id}/toggle`,
       {},
       authHeader()
     );
@@ -88,10 +79,7 @@ export const togglePackageStatus = async (id) => {
 };
 export const getActivePackages = async () => {
   try {
-    const res = await axios.get(
-      `${import.meta.env.VITE_API_URL}/admin/payments/packages/active`,
-      authHeader()
-    );
+    const res = await axios.get(`${BASE_URL}/payments/packages/active`, authHeader());
     return res.data;
   } catch (error) {
     console.error("Error fetching active packages:", error);
@@ -101,7 +89,7 @@ export const getActivePackages = async () => {
 export const updatePackage = async (id, data) => {
   try {
     const res = await axios.put(
-      `${import.meta.env.VITE_API_URL}/admin/payments/packages/${id}`,
+      `${BASE_URL}/payments/packages/${id}`,
       data,
       authHeader(),
     );
@@ -344,4 +332,180 @@ export const getAllInterests = async (params = {}) => {
     }
   );
   return res.data;
+};
+
+// ================= REPORTS & TICKETS APIs =================
+
+export const getAllReports = async (params = {}) => {
+  try {
+    const res = await axios.get(`${BASE_URL}/reports`, {
+      ...authHeader(),
+      params,
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    throw error;
+  }
+};
+
+export const getReportDetails = async (reportId) => {
+  try {
+    const res = await axios.get(`${BASE_URL}/reports/${reportId}`, authHeader());
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching report details:", error);
+    throw error;
+  }
+};
+
+export const resolveReport = async (reportId, data) => {
+  try {
+    const res = await axios.put(`${BASE_URL}/reports/${reportId}/resolve`, data, authHeader());
+    return res.data;
+  } catch (error) {
+    console.error("Error resolving report:", error);
+    throw error;
+  }
+};
+
+export const dismissReport = async (reportId, data) => {
+  try {
+    const res = await axios.put(`${BASE_URL}/reports/${reportId}/dismiss`, data, authHeader());
+    return res.data;
+  } catch (error) {
+    console.error("Error dismissing report:", error);
+    throw error;
+  }
+};
+
+// Tickets
+export const getAllTickets = async (params = {}) => {
+  try {
+    const res = await axios.get(`${BASE_URL}/tickets`, {
+      ...authHeader(),
+      params,
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching tickets:", error);
+    throw error;
+  }
+};
+
+export const getTicketDetails = async (ticketId) => {
+  try {
+    const res = await axios.get(`${BASE_URL}/tickets/${ticketId}`, authHeader());
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching ticket details:", error);
+    throw error;
+  }
+};
+
+export const assignTicket = async (ticketId) => {
+  try {
+    const res = await axios.post(`${BASE_URL}/tickets/${ticketId}/assign`, {}, authHeader());
+    return res.data;
+  } catch (error) {
+    console.error("Error assigning ticket:", error);
+    throw error;
+  }
+};
+
+export const addTicketReply = async (ticketId, data) => {
+  try {
+    const res = await axios.post(`${BASE_URL}/tickets/${ticketId}/reply`, data, authHeader());
+    return res.data;
+  } catch (error) {
+    console.error("Error adding ticket reply:", error);
+    throw error;
+  }
+};
+
+export const closeTicket = async (ticketId) => {
+  try {
+    const res = await axios.put(`${BASE_URL}/tickets/${ticketId}/close`, {}, authHeader());
+    return res.data;
+  } catch (error) {
+    console.error("Error closing ticket:", error);
+    throw error;
+  }
+};
+
+export const getTicketStats = async () => {
+  try {
+    const res = await axios.get(`${BASE_URL}/tickets/stats`, authHeader());
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching ticket stats:", error);
+    throw error;
+  }
+};
+
+// ================= SUCCESS STORIES =================
+
+export const getSuccessStories = async () => {
+  try {
+    const res = await axios.get(`${BASE_URL}/success-stories`, authHeader());
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching success stories:", error);
+    throw error;
+  }
+};
+
+export const createSuccessStory = async (formData) => {
+  try {
+    const res = await axios.post(`${BASE_URL}/success-stories`, formData, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error creating success story:", error);
+    throw error;
+  }
+};
+
+export const updateSuccessStory = async (id, formData) => {
+  try {
+    const res = await axios.put(`${BASE_URL}/success-stories/${id}`, formData, {
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error updating success story:", error);
+    throw error;
+  }
+};
+
+export const deleteSuccessStory = async (id) => {
+  try {
+    const res = await axios.delete(`${BASE_URL}/success-stories/${id}`, authHeader());
+    return res.data;
+  } catch (error) {
+    console.error("Error deleting success story:", error);
+    throw error;
+  }
+};
+
+// ================= IGNORED PROFILES =================
+
+export const getIgnoredProfiles = async (params = {}) => {
+  try {
+    const res = await axios.get(`${BASE_URL}/interests/ignored`, {
+      ...authHeader(),
+      params,
+    });
+    return res.data;
+  } catch (error) {
+    console.error("Error fetching ignored profiles:", error);
+    throw error;
+  }
 };

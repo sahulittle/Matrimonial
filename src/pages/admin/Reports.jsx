@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch, FiEye, FiSlash, FiX } from "react-icons/fi";
-import { banUser, getAllUsers } from "../../api/adminApi/adminApi";
+import {
+  banUser,
+  getAllReports,
+  resolveReport,
+  dismissReport,
+} from "../../api/adminApi/adminApi";
 import toast from "react-hot-toast";
 const Reports = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -119,35 +124,110 @@ const Reports = () => {
     "Frances Simmons",
   ];
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchReports = async () => {
       try {
-        const res = await getAllUsers();
-
-        // convert users → reports format
-        const formatted = res.users.map((user, i) => ({
-          id: user._id,
+        const res = await getAllReports({ page: 1, limit: 100 });
+        // res.reports should be array of report documents
+        const formatted = res.reports.map((r) => ({
+          id: r._id,
           user: {
-            name: `${user.firstName} ${user.lastName}`,
-            username: user.email?.split("@")[0] || "user",
-            avatar: `https://i.pravatar.cc/150?u=${user._id}`,
+            name: `${r.reportedByUserId?.firstName || ""} ${r.reportedByUserId?.lastName || ""}`.trim(),
+            username:
+              r.reportedByUserId?.username ||
+              r.reportedByUserId?.email?.split("@")[0] ||
+              "user",
+            avatar:
+              r.reportedByUserId?.profilePhoto ||
+              `https://i.pravatar.cc/150?u=${r.reportedByUserId?._id}`,
           },
           profile: {
-            _id: user._id,
-            name: `${user.firstName} ${user.lastName}`,
-            username: user.email?.split("@")[0] || "user",
-            avatar: `https://i.pravatar.cc/150?u=${user._id}`,
+            _id: r.reportedUserId?._id,
+            name: `${r.reportedUserId?.firstName || ""} ${r.reportedUserId?.lastName || ""}`.trim(),
+            username:
+              r.reportedUserId?.username ||
+              r.reportedUserId?.email?.split("@")[0] ||
+              "user",
+            avatar:
+              r.reportedUserId?.profilePhoto ||
+              `https://i.pravatar.cc/150?u=${r.reportedUserId?._id}`,
           },
-          title: "User Report", // default
-          details: `Report related to ${user.firstName}`,
+          title: r.title || "User Report",
+          details: r.description || r.reason || "Reported content",
         }));
 
         setReports(formatted);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error("Error fetching reports:", error);
       }
     };
 
-    fetchUsers();
+    fetchReports();
+  }, []);
+
+  // Real-time updates via dispatched DOM events from AdminLayout
+  useEffect(() => {
+    const handleNew = (e) => {
+      const r = e.detail;
+      const formatted = {
+        id: r._id,
+        user: {
+          name: `${r.reportedBy?.firstName || ""} ${r.reportedBy?.lastName || ""}`.trim(),
+          username:
+            r.reportedBy?.username ||
+            r.reportedBy?.email?.split("@")[0] ||
+            "user",
+          avatar:
+            r.reportedBy?.profilePhoto ||
+            `https://i.pravatar.cc/150?u=${r.reportedBy?._id}`,
+        },
+        profile: {
+          _id: r.reportedUser?._id,
+          name: `${r.reportedUser?.firstName || ""} ${r.reportedUser?.lastName || ""}`.trim(),
+          username:
+            r.reportedUser?.username ||
+            r.reportedUser?.email?.split("@")[0] ||
+            "user",
+          avatar:
+            r.reportedUser?.profilePhoto ||
+            `https://i.pravatar.cc/150?u=${r.reportedUser?._id}`,
+        },
+        title: r.reason || "User Report",
+        details: r.description || r.reason || "Reported content",
+        status: r.status || "pending",
+      };
+      setReports((prev) => [formatted, ...prev]);
+      toast.success("New report received");
+    };
+
+    const handleResolved = (e) => {
+      const d = e.detail;
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === d.reportId ? { ...r, status: d.status || "resolved" } : r,
+        ),
+      );
+      toast.success("Report updated");
+    };
+
+    const handleDismissed = (e) => {
+      const d = e.detail;
+      setReports((prev) =>
+        prev.map((r) =>
+          r.id === d.reportId ? { ...r, status: "dismissed" } : r,
+        ),
+      );
+      toast("Report dismissed");
+    };
+
+    window.addEventListener("socket:report:new", handleNew);
+    window.addEventListener("socket:report:resolved", handleResolved);
+    window.addEventListener("socket:report:dismissed", handleDismissed);
+
+    return () => {
+      window.removeEventListener("socket:report:new", handleNew);
+      window.removeEventListener("socket:report:resolved", handleResolved);
+      window.removeEventListener("socket:report:dismissed", handleDismissed);
+    };
   }, []);
 
   const filteredReports = reports.filter(
@@ -298,6 +378,66 @@ const Reports = () => {
                       className="flex items-center bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600"
                     >
                       <FiSlash className="mr-1" /> Ban
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const action = window.prompt(
+                          "Action for report (ban/suspend/warning):",
+                          "warning",
+                        );
+                        if (!action) return;
+                        const notes =
+                          window.prompt("Admin notes (optional):", "") || "";
+                        try {
+                          await resolveReport(report.id, {
+                            action,
+                            adminNotes: notes,
+                          });
+                          setReports((prev) =>
+                            prev.map((r) =>
+                              r.id === report.id
+                                ? {
+                                    ...r,
+                                    status:
+                                      action === "dismiss"
+                                        ? "dismissed"
+                                        : "resolved",
+                                  }
+                                : r,
+                            ),
+                          );
+                          toast.success("Report resolved");
+                        } catch (err) {
+                          console.error(err);
+                          toast.error("Failed to resolve report");
+                        }
+                      }}
+                      className="flex items-center bg-green-600 text-white px-3 py-1 rounded-md text-sm hover:bg-green-700"
+                    >
+                      Resolve
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const notes =
+                          window.prompt("Dismiss notes (optional):", "") || "";
+                        try {
+                          await dismissReport(report.id, { adminNotes: notes });
+                          setReports((prev) =>
+                            prev.map((r) =>
+                              r.id === report.id
+                                ? { ...r, status: "dismissed" }
+                                : r,
+                            ),
+                          );
+                          toast.success("Report dismissed");
+                        } catch (err) {
+                          console.error(err);
+                          toast.error("Failed to dismiss report");
+                        }
+                      }}
+                      className="flex items-center bg-yellow-500 text-white px-3 py-1 rounded-md text-sm hover:bg-yellow-600"
+                    >
+                      Dismiss
                     </button>
                   </div>
                 </td>

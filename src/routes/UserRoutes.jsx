@@ -20,6 +20,9 @@ import UserDetailsPage from "../pages/user/UserDetailsPage";
 import Packages from "../pages/user/Package";
 import PaymentSuccess from "../pages/user/PaymentSuccess";
 import PaymentFailed from "../pages/user/PaymentFailed";
+import CreateTicket from "../pages/user/CreateTicket";
+import MyTickets from "../pages/user/MyTickets";
+import TicketDetails from "../pages/user/TicketDetails";
 
 /**
  * UserRoutes - All authenticated user route definitions
@@ -47,6 +50,9 @@ const UserRoutes = () => (
       <Route path="packages" element={<Packages />} />
       <Route path="payment-success" element={<PaymentSuccess />} />
       <Route path="payment-failed" element={<PaymentFailed />} />
+      <Route path="tickets" element={<MyTickets />} />
+      <Route path="tickets/create" element={<CreateTicket />} />
+      <Route path="tickets/:id" element={<TicketDetails />} />
 
       {/* Catch-all to redirect to dashboard */}
       <Route path="*" element={<Navigate to="dashboard" replace />} />
