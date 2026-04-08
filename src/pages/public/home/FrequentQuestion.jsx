@@ -4,32 +4,84 @@ import { FaPlus, FaMinus } from "react-icons/fa";
 const FrequentQuestion = () => {
   const faqs = [
     {
-      question:
-        "01 Why is Marathi Shubha Vivah better compared to other matrimonial websites?",
+      question: "What is MarathiShubhavivah.com for?",
       answer:
-        "Marathi Shubha Vivah stands out as a trusted matchmaking platform focused on authenticity and meaningful connections. Unlike many traditional matrimonial sites, Marathi Shubha Vivah emphasizes verified profiles, personalized matchmaking, and tools that help users find compatible partners with ease and confidence. Our commitment to safety, privacy, and genuine success stories makes the platform a preferred choice for many users.",
+        "This platform is dedicated to helping individuals from the Maharashtrian community find suitable life partners based on culture, values, and preferences. This platform enables users to create detailed profiles, define their partner preferences, and discover suitable matches based on factors like age, religion, location, and interests. Designed for individuals seeking meaningful, long-term relationships, this site emphasizes compatibility, shared values, and cultural alignment. The site offers a secure and reliable space for users to connect, communicate, and explore potential life partners, making it easier to begin their journey toward marriage.",
     },
     {
-      question:
-        "02 Is Marathi Shubha Vivah a trustworthy matchmaking platform?",
+      question: "Who can register on this website?",
       answer:
-        "Yes — Marathi Shubha Vivah follows strong verification and security practices to ensure a reliable experience. With profile verification, privacy controls, and attentive support, we prioritize user safety and authenticity. Our processes and features are designed to offer a modern, trustworthy, and personalized approach to finding a compatible life partner.",
+        "Anyone from the Maharashtrian community (Marathi-speaking or culturally connected) can register. Individuals can create profiles.",
     },
     {
-      question:
-        "03 What is the difference between free membership vs paid membership?",
+      question: "Is registration free?",
       answer:
-        "A Free Membership lets you create a profile, browse public profiles, and use basic search filters. Paid Membership unlocks more powerful features — advanced search filters, the ability to initiate and respond to messages, view contact details (depending on privacy settings), priority support, and profile boosts that increase visibility. Paid plans are tailored to help serious seekers move faster and with better results.",
+        "Yes, registration is completely free. You can create your profile and browse matches. Premium features are available through paid membership plans.",
     },
     {
-      question: "04 What additional benefits do I get as a Premium Member?",
+      question: "What about the packages?",
       answer:
-        "Premium members enjoy advanced search filters, priority customer support, profile boosts, and access (where permitted) to contact information of interested members. These benefits help you connect more easily with compatible matches and speed up the process of finding the right partner.",
+        "Marathi Shubhavivah provides a range of matrimonial packages tailored to suit different user requirements. From basic to premium options, each plan includes features such as advanced search filters, unlimited messaging, and enhanced profile visibility. These packages are designed to improve your matchmaking experience and help you find the right partner with ease.",
     },
     {
-      question: "05 How can I contact other members on Marathi Shubha Vivah?",
+      question: "What details are required to create a profile?",
       answer:
-        "With a premium membership you can chat and (where supported) use voice/video calling within the app. Depending on privacy and membership levels, you may also access contact details of interested members to take conversations forward. Always follow our safety guidelines when connecting with others.",
+        "You need to provide basic details such as: Name, Age, Gender; Religion, Caste (if applicable); Education & Profession; Location; Partner Preferences. Adding complete details improves your chances of finding the right match.",
+    },
+    {
+      question: "How will I find a partner?",
+      answer:
+        "To find a partner on Marathi Shubhavivah, begin by creating a complete and engaging profile that highlights your interests, preferences, and relationship goals. You can then browse and search profiles using filters such as age, location, and values to find suitable matches. When you come across someone you like, send an interest or message to initiate a conversation. Take time to communicate and understand each other. If both of you feel a connection, you can proceed to meet and discuss the next steps. Marathi Shubhavivah provides a safe and trusted platform to help you build genuine connections and find the right partner.",
+    },
+    {
+      question: "Can I search profiles based on caste or community?",
+      answer:
+        "Yes, you can filter profiles based on Maharashtrian castes, sub-castes, and communities as per your preferences.",
+    },
+    {
+      question: "Is my personal information safe?",
+      answer:
+        "Yes, your data is completely secure. We follow strict privacy policies, and you have full control over what information is visible to others.",
+    },
+    {
+      question: "How can I contact a match?",
+      answer:
+        "You can send an 'Interest' to a profile. Once accepted, you can connect via chat or view contact details (for premium users).",
+    },
+    {
+      question: "What are the benefits of premium membership?",
+      answer:
+        "Premium members can: View contact details; Send unlimited interests; Access advanced search filters; Get better visibility in search results.",
+    },
+    {
+      question: "Can parents create profiles for their children?",
+      answer:
+        "No, parents or guardians can create and manage profiles on behalf of their children.",
+    },
+    {
+      question: "How do I verify profiles?",
+      answer:
+        "Our admin team reviews profiles before approval. You can also check profile details and communicate before proceeding further.",
+    },
+    {
+      question: "Can I edit or update my profile later?",
+      answer:
+        "Yes, you can update your profile anytime to keep your information accurate and relevant.",
+    },
+    {
+      question: "What if I find inappropriate profiles or behavior?",
+      answer:
+        "You can report or block any profile. Our team will take immediate action to ensure a safe environment.",
+    },
+    {
+      question: "Is this platform only for Maharashtra residents?",
+      answer:
+        "No, it is for Maharashtrians across India and globally who wish to find a match within their community.",
+    },
+    {
+      question: "How do I delete my account?",
+      answer:
+        "You can request account deletion from your profile settings or contact our support team for assistance.",
     },
   ];
 

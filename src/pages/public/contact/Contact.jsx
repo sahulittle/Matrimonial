@@ -11,18 +11,18 @@ const Contact = () => {
   const contactInfo = [
     {
       icon: <FaMapMarkerAlt size={30} />,
-      title: "Office Address",
-      detail: "4517 Washington Ave. Kentucky",
+      title: "Contact Info",
+      detail: "401, Vaibhav Park, 64 Bhavani Shankar Rd, Dadar West, Mumbai -400028, Maharashtra, India",
     },
     {
       icon: <FaEnvelope size={30} />,
       title: "Email Address",
-      detail: "test@site.com",
+      detail: "jodi@marathishubhavivah.com",
     },
     {
       icon: <FaPhoneAlt size={30} />,
       title: "Contact Number",
-      detail: "+ (001) 001 001",
+      detail: "+919769107005",
     },
   ];
 

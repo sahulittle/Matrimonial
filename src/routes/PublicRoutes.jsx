@@ -4,6 +4,7 @@ import UserPublicLayout from "../layouts/UserPublicLayout";
 
 // Public Pages
 import Home from "../pages/public/Home";
+import About from "../pages/public/contact/About";
 import Login from "../pages/public/Login";
 import AdminLogin from "../pages/admin/AdminLogin";
 import Register from "../pages/public/Register";
@@ -26,6 +27,7 @@ const PublicRoutes = () => (
     {/* Public pages with user layout (navbar + preloader) */}
     <Route element={<UserPublicLayout />}>
       <Route index element={<Home />} />
+      <Route path="about" element={<About />} />
       <Route path="login" element={<Login />} />
       <Route path="register" element={<Register />} />
       <Route path="signup" element={<SignUp />} />

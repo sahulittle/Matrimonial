@@ -53,11 +53,11 @@ const Navbar = () => {
             className="flex items-center gap-2 transition-colors hover:text-pink-600"
           >
             <FaEnvelope className="text-pink-500" />
-            <span>info@xxxxxx.com</span>
+            <span>jodi@marathishubhavivah.com</span>
           </a>
           <div className="flex items-center gap-2">
             <FaPhoneAlt className="text-pink-500" />
-            <span>+91xxxxxxxxxx</span>
+            <span>+919769107005</span>
           </div>
         </div>
 
@@ -92,6 +92,11 @@ const Navbar = () => {
           <li>
             <Link to="/" className="transition hover:text-pink-600">
               Home
+            </Link>
+          </li>
+          <li>
+            <Link to="/about" className="transition hover:text-pink-600">
+              About Us
             </Link>
           </li>
           <li>
@@ -147,6 +152,15 @@ const Navbar = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Home
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/about"
+                  className="transition hover:text-pink-600"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  About Us
                 </Link>
               </li>
               <li>
