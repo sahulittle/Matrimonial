@@ -1,0 +1,9 @@
+[
+  { "country": "India", "state": "Maharashtra", "name": "Mumbai" },
+  { "country": "India", "state": "Maharashtra", "name": "Pune" },
+  { "country": "India", "state": "Karnataka", "name": "Bengaluru" },
+  { "country": "India", "state": "Tamil Nadu", "name": "Chennai" },
+  { "country": "India", "state": "Delhi", "name": "New Delhi" },
+  { "country": "India", "state": "Telangana", "name": "Hyderabad" },
+  { "country": "India", "state": "West Bengal", "name": "Kolkata" }
+]

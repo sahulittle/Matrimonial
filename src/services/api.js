@@ -314,4 +314,31 @@ export const adminTicketApi = {
   getTicketStats: () => api.get("/admin/tickets/stats"),
 };
 
+// =============== ADMIN RELIGION API ===============
+export const adminReligionApi = {
+  list: () => api.get('/admin/religions'),
+  create: (name) => api.post('/admin/religions', { name }),
+  remove: (id) => api.delete(`/admin/religions/${id}`),
+};
+
+// =============== ADMIN PAGES API ===============
+// Provides simple endpoints for dynamic page content like the About page
+export const adminPagesApi = {
+  // Expecting a GET returning { content: '...' } or similar
+  getAbout: () => api.get('/admin/pages/about'),
+  // Update about page content: { content }
+  updateAbout: (content) => api.put('/admin/pages/about', { content }),
+};
+
+// =============== USER DATA API ===============
+export const userDataApi = {
+  getReligions: () => api.get('/users/religions'),
+};
+
+// =============== ADMIN SETTINGS API ===============
+export const adminSettingsApi = {
+  list: () => api.get('/admin/settings'),
+  update: (data) => api.put('/admin/settings', data),
+};
+
 export default api;

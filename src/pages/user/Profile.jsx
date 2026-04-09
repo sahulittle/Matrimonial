@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getUserProfile } from "../../api/userApi/userApi";
+import { userDataApi } from "../../services/api";
 import { casteOptions } from "../../utils/options";
 import { useAuth } from "../../context/AuthContext";
 
@@ -91,6 +92,7 @@ export default function Profile() {
   const [isBasicEditOpen, setIsBasicEditOpen] = useState(false);
   const [formData, setFormData] = useState({});
   const [isReligionOpen, setIsReligionOpen] = useState(false);
+  const [religionsList, setReligionsList] = useState(["Hindu"]);
   const [isEducationOpen, setIsEducationOpen] = useState(false);
   const [isCareerOpen, setIsCareerOpen] = useState(false);
   const [isFamilyOpen, setIsFamilyOpen] = useState(false);
@@ -149,6 +151,27 @@ export default function Profile() {
         setUser(u);
       })
       .catch((err) => console.error(err));
+  }, []);
+
+  // fetch religions list for dropdown
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await userDataApi.getReligions();
+        if (!mounted) return;
+        const list = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res)
+            ? res
+            : res?.data || [];
+        const finalList = list && list.length ? list : ["Hindu"];
+        setReligionsList(finalList);
+      } catch (e) {
+        console.error("Failed to load religions", e);
+      }
+    })();
+    return () => (mounted = false);
   }, []);
 
   useEffect(() => {
@@ -237,8 +260,10 @@ export default function Profile() {
   };
 
   const handleReligionSave = async () => {
-    // Religion is fixed (Hindu) and should not be changed here — update only caste
-    const updatedUser = await updateProfileContext({ caste: formData.caste });
+    const updatedUser = await updateProfileContext({
+      religion: formData.religion,
+      caste: formData.caste,
+    });
     setUser(updatedUser);
     setIsReligionOpen(false);
   };
@@ -665,7 +690,21 @@ export default function Profile() {
               {/* RELIGION */}
               <Section
                 title="Religious Background"
-                onEdit={() => setIsReligionOpen(true)}
+                onEdit={() => {
+                  // When opening religion editor: if admin provided multiple religions, keep existing or default to first;
+                  // otherwise default to 'Hindu' and show no dropdown.
+                  setFormData((prev) => ({
+                    ...prev,
+                    religion:
+                      prev?.religion ||
+                      (Array.isArray(religionsList) && religionsList.length > 1
+                        ? religionsList.includes("Hindu")
+                          ? "Hindu"
+                          : religionsList[0]
+                        : "Hindu"),
+                  }));
+                  setIsReligionOpen(true);
+                }}
               >
                 <Row label="Religion" value={user?.religion} />
                 <Row label="Caste" value={user?.caste} />
@@ -800,10 +839,16 @@ export default function Profile() {
                   title="Partner Preferences"
                   onEdit={() => {
                     console.log("Opening Partner Preferences modal");
-                    // Ensure Preferred Religion defaults to Hindu when opening
+                    // Ensure Preferred Religion defaults when opening
                     setFormData((prev) => ({
                       ...prev,
-                      preferredReligion: prev?.preferredReligion || "Hindu",
+                      preferredReligion:
+                        prev?.preferredReligion ||
+                        (Array.isArray(religionsList) && religionsList.length
+                          ? religionsList.includes("Hindu")
+                            ? "Hindu"
+                            : religionsList[0]
+                          : "Hindu"),
                     }));
                     setIsPartnerPrefOpen(true);
                   }}
@@ -998,17 +1043,35 @@ export default function Profile() {
                 <label className="text-sm text-gray-600">
                   Preferred Religion
                 </label>
-                <input
-                  placeholder="Religion"
-                  value={formData.preferredReligion || ""}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      preferredReligion: e.target.value,
-                    })
-                  }
-                  className="border p-2 rounded mt-1 w-full"
-                />
+                {Array.isArray(religionsList) && religionsList.length > 1 ? (
+                  <select
+                    value={formData.preferredReligion || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        preferredReligion: e.target.value,
+                      })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  >
+                    <option value="">Any</option>
+                    {religionsList.map((r) => (
+                      <option key={r} value={r}>
+                        {r}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    readOnly
+                    value={
+                      formData.preferredReligion ||
+                      (Array.isArray(religionsList) && religionsList[0]) ||
+                      "Hindu"
+                    }
+                    className="border p-2 rounded mt-1 w-full bg-gray-50"
+                  />
+                )}
               </div>
 
               <div>
@@ -1307,15 +1370,32 @@ export default function Profile() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-sm text-gray-600">Religion</label>
-                <input
-                  type="text"
-                  placeholder="Religion"
-                  value={formData.religion || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, religion: e.target.value })
-                  }
-                  className="border p-2 rounded mt-1 w-full"
-                />
+                <div className="mt-1">
+                  {Array.isArray(religionsList) && religionsList.length > 1 ? (
+                    <select
+                      value={formData.religion || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, religion: e.target.value })
+                      }
+                      className="border p-2 rounded mt-1 w-full"
+                    >
+                      <option value="" disabled>
+                        Select Religion
+                      </option>
+                      {religionsList.map((r) => (
+                        <option key={r} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      readOnly
+                      value={formData.religion || "Hindu"}
+                      className="border p-2 rounded mt-1 w-full bg-gray-50"
+                    />
+                  )}
+                </div>
               </div>
 
               <div>

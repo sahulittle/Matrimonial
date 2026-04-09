@@ -10,7 +10,7 @@ import {
   removeFromShortlist,
   getShortlist,
 } from "../../api/userApi/userApi";
-const religions = ["Hindu"];
+import { userDataApi } from "../../services/api";
 
 const castes = [
   "96 Kuli Maratha",
@@ -250,6 +250,7 @@ const initialFilters = {
 
 const SearchPage = () => {
   const [filters, setFilters] = useState(initialFilters);
+  const [religions, setReligions] = useState(["Hindu"]);
   const [ageError, setAgeError] = useState("");
   const [minAgeInvalid, setMinAgeInvalid] = useState(false);
   const [maxAgeInvalid, setMaxAgeInvalid] = useState(false);
@@ -279,6 +280,18 @@ const SearchPage = () => {
         console.error(err);
       }
     };
+
+    // load religions dynamically from backend
+    (async () => {
+      try {
+        const res = await userDataApi.getReligions();
+        // res may be array or { success, data }
+        if (res && res.data) setReligions(res.data);
+        else if (Array.isArray(res)) setReligions(res);
+      } catch (e) {
+        console.error("Failed to load religions", e);
+      }
+    })();
 
     loadExtra();
   }, []);

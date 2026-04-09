@@ -4,43 +4,13 @@ import { publicSearchProfiles } from "../../../api/userApi/userApi";
 import { useAuth } from "../../../context/AuthContext";
 
 const Members = () => {
-  const indianStates = [
-    "Andhra Pradesh",
-    "Arunachal Pradesh",
-    "Assam",
-    "Bihar",
-    "Chhattisgarh",
-    "Goa",
-    "Gujarat",
-    "Haryana",
-    "Himachal Pradesh",
-    "Jharkhand",
-    "Karnataka",
-    "Kerala",
-    "Madhya Pradesh",
-    "Maharashtra",
-    "Manipur",
-    "Meghalaya",
-    "Mizoram",
-    "Nagaland",
-    "Odisha",
-    "Punjab",
-    "Rajasthan",
-    "Sikkim",
-    "Tamil Nadu",
-    "Telangana",
-    "Tripura",
-    "Uttar Pradesh",
-    "Uttarakhand",
-    "West Bengal",
-    "Andaman and Nicobar Islands",
-    "Chandigarh",
-    "Dadra and Nagar Haveli",
-    "Daman and Diu",
-    "Delhi",
-    "Lakshadweep",
-    "Puducherry",
-  ];
+  // Dynamic states and cities (fetched from countriesnow.space)
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [statesLoading, setStatesLoading] = useState(false);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [statesError, setStatesError] = useState(null);
+  const [citiesError, setCitiesError] = useState(null);
 
   const [height, setHeight] = useState(5); // Default height 5ft
   const [profiles, setProfiles] = useState([]);
@@ -173,6 +143,76 @@ const Members = () => {
     fetchProfiles();
   }, [locationHook.search]);
 
+  // Fetch states from countriesnow.space
+  const fetchStates = async () => {
+    setStatesLoading(true);
+    setStatesError(null);
+    try {
+      const res = await fetch(
+        "https://countriesnow.space/api/v0.1/countries/states",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ country: "India" }),
+        },
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      let list = [];
+      if (json?.data?.states)
+        list = json.data.states.map((s) => s.name).filter(Boolean);
+      else if (Array.isArray(json?.data))
+        list = json.data
+          .map((s) => (typeof s === "string" ? s : s.name))
+          .filter(Boolean);
+      setStates(list.sort((a, b) => a.localeCompare(b)));
+    } catch (err) {
+      console.error("Failed to fetch states:", err);
+      setStatesError(err?.message || "Failed to load states");
+      setStates([]);
+    } finally {
+      setStatesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStates();
+  }, []);
+
+  const fetchCitiesForState = async (stateName) => {
+    if (!stateName) return setCities([]);
+    setCitiesLoading(true);
+    setCitiesError(null);
+    try {
+      const res = await fetch(
+        "https://countriesnow.space/api/v0.1/countries/state/cities",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ country: "India", state: stateName }),
+        },
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const list = Array.isArray(json?.data) ? json.data.filter(Boolean) : [];
+      setCities(list.sort((a, b) => a.localeCompare(b)));
+    } catch (err) {
+      console.error("Failed to fetch cities:", err);
+      setCitiesError(err?.message || "Failed to load cities");
+      setCities([]);
+    } finally {
+      setCitiesLoading(false);
+    }
+  };
+
+  // When stateVal changes, reset city and fetch cities
+  useEffect(() => {
+    setCity("");
+    setCities([]);
+    setCitiesError(null);
+    if (stateVal) fetchCitiesForState(stateVal);
+  }, [stateVal]);
+
   const [currentPage, setCurrentPage] = useState(page);
   const membersPerPage = 10;
   const currentMembers = profiles;
@@ -242,23 +282,44 @@ const Members = () => {
             </div>
 
             {/* State */}
-            {/* <div>
+            <div>
               <label className="block text-sm font-semibold text-gray-600 mb-1">
                 State
               </label>
               <select
                 value={stateVal}
                 onChange={(e) => setStateVal(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none text-gray-700"
+                disabled={statesLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none text-gray-700 disabled:bg-gray-100"
               >
-                <option value="">Select State</option>
-                {indianStates.map((state, idx) => (
+                <option value="">
+                  {statesLoading
+                    ? "Loading states..."
+                    : states.length
+                      ? "Select State"
+                      : statesError
+                        ? "Failed to load states"
+                        : "No states available"}
+                </option>
+                {states.map((state, idx) => (
                   <option key={idx} value={state}>
                     {state}
                   </option>
                 ))}
               </select>
-            </div> */}
+              {statesError && (
+                <div className="mt-2 text-xs text-red-500 flex items-center justify-between">
+                  <span>Failed to load states.</span>
+                  <button
+                    type="button"
+                    onClick={() => fetchStates()}
+                    className="ml-2 text-xs text-pink-600 underline"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Profession */}
             {/* <div>
@@ -279,13 +340,41 @@ const Members = () => {
               <label className="block text-sm font-semibold text-gray-600 mb-1">
                 City
               </label>
-              <input
-                type="text"
-                placeholder="City"
+              <select
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none"
-              />
+                disabled={!stateVal || citiesLoading}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none text-gray-700 disabled:bg-gray-100"
+              >
+                <option value="">
+                  {!stateVal
+                    ? "Select State first"
+                    : citiesLoading
+                      ? "Loading cities..."
+                      : cities.length
+                        ? "Select City"
+                        : citiesError
+                          ? "Failed to load cities"
+                          : "No cities available"}
+                </option>
+                {cities.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+              {citiesError && stateVal && (
+                <div className="mt-2 text-xs text-red-500 flex items-center justify-between">
+                  <span>Failed to load cities.</span>
+                  <button
+                    type="button"
+                    onClick={() => fetchCitiesForState(stateVal)}
+                    className="ml-2 text-xs text-pink-600 underline"
+                  >
+                    Retry
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Smoking Habits */}

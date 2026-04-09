@@ -179,9 +179,10 @@ const InitiatedPayments = () => {
           <tbody className="text-gray-700">
             {currentPayments.map((payment) => {
               const initiatedTime = formatInitiated(payment.initiated);
+              const user = payment.user || payment.userId || {};
               return (
                 <tr
-                  key={payment.id}
+                  key={payment.id || payment._id}
                   className="border-b border-gray-200 hover:bg-gray-50"
                 >
                   <td className="py-3 px-4">
@@ -201,16 +202,20 @@ const InitiatedPayments = () => {
                   <td className="py-3 px-4">
                     <div className="flex items-center">
                       <img
-                        src={payment.user.avatar}
-                        alt={payment.user.name}
+                        src={user.avatar || user.profilePhoto || ""}
+                        alt={
+                          user.name || user.firstName || user.username || "user"
+                        }
                         className="w-10 h-10 rounded-full mr-4"
                       />
                       <div>
                         <p className="font-medium text-gray-800">
-                          {payment.user.name}
+                          {user.name ||
+                            `${user.firstName || ""} ${user.lastName || ""}`.trim() ||
+                            user.username}
                         </p>
                         <p className="text-sm text-gray-500">
-                          @{payment.user.username}
+                          @{user.username || user.email || ""}
                         </p>
                       </div>
                     </div>
@@ -278,12 +283,14 @@ const InitiatedPayments = () => {
               </button>
             </div>
             <div className="space-y-3">
-              {Object.entries(selectedPayment.details).map(([key, value]) => (
-                <div key={key} className="flex justify-between border-b py-2">
-                  <p className="font-semibold text-gray-600">{key}</p>
-                  <p className="text-gray-800 text-right">{value}</p>
-                </div>
-              ))}
+              {Object.entries(selectedPayment.details || {}).map(
+                ([key, value]) => (
+                  <div key={key} className="flex justify-between border-b py-2">
+                    <p className="font-semibold text-gray-600">{key}</p>
+                    <p className="text-gray-800 text-right">{String(value)}</p>
+                  </div>
+                ),
+              )}
             </div>
             <div className="mt-6 flex justify-end">
               <button

@@ -393,7 +393,7 @@ const UserDetailsPage = () => {
                 Detailed Profile
               </button>
 
-              {/* <button
+              <button
                 onClick={() => setActiveTab("preferences")}
                 className={`px-5 py-3 font-semibold ${
                   activeTab === "preferences"
@@ -402,7 +402,7 @@ const UserDetailsPage = () => {
                 }`}
               >
                 Partner Preferences
-              </button> */}
+              </button>
             </div>
 
             <div className="p-5">
@@ -582,7 +582,9 @@ const UserDetailsPage = () => {
                 </div>
               )}
 
-              {activeTab === "preferences" && <ModernPreferences user={user} />}
+              {activeTab === "preferences" && (
+                <ModernPreferences user={user} currentUser={currentUser} />
+              )}
             </div>
           </div>
         </div>
@@ -687,71 +689,153 @@ const TimelineBlock = ({ icon, title, children }) => (
     </div>
   </div>
 );
-const ModernPreferences = ({ user }) => {
-  const data = [
+const ModernPreferences = ({ user, currentUser }) => {
+  // Build preference entries and compute match against currentUser
+  const prefs = [
     {
+      key: "age",
       label: "Age",
       value:
         user?.preferredMinAge && user?.preferredMaxAge
           ? `${user.preferredMinAge} to ${user.preferredMaxAge}`
-          : "Not specified",
+          : null,
+      matches: () => {
+        if (!currentUser || !currentUser.dateOfBirth) return false;
+        if (!user?.preferredMinAge && !user?.preferredMaxAge) return false;
+        const curAge = Math.floor(
+          (new Date() - new Date(currentUser.dateOfBirth)) /
+            (1000 * 60 * 60 * 24 * 365.25),
+        );
+        const min = user.preferredMinAge || 0;
+        const max = user.preferredMaxAge || 200;
+        return curAge >= min && curAge <= max;
+      },
     },
     {
+      key: "height",
       label: "Height",
-      value: user?.preferredHeight || "Not specified",
+      value: user?.preferredHeight || null,
+      matches: () => {
+        if (!currentUser || !currentUser.height || !user?.preferredHeight)
+          return false;
+        return (
+          String(currentUser.height).trim() ===
+          String(user.preferredHeight).trim()
+        );
+      },
     },
     {
+      key: "maritalStatus",
       label: "Marital Status",
-      value: user?.preferredMaritalStatus || "Not specified",
+      value: user?.preferredMaritalStatus || null,
+      matches: () => {
+        if (!currentUser || !user?.preferredMaritalStatus) return false;
+        return (
+          String(currentUser.maritalStatus || "").toLowerCase() ===
+          String(user.preferredMaritalStatus).toLowerCase()
+        );
+      },
     },
     {
+      key: "religion",
       label: "Religion",
-      value: user?.preferredReligion || "Not specified",
+      value: user?.preferredReligion || null,
+      matches: () => {
+        if (!currentUser || !user?.preferredReligion) return false;
+        return (
+          String(currentUser.religion || "").toLowerCase() ===
+          String(user.preferredReligion).toLowerCase()
+        );
+      },
     },
     {
+      key: "caste",
       label: "Caste",
-      value: user?.preferredCaste || "Not specified",
+      value: user?.preferredCaste || null,
+      matches: () => {
+        if (!currentUser || !user?.preferredCaste) return false;
+        return (
+          String(currentUser.caste || "").toLowerCase() ===
+          String(user.preferredCaste).toLowerCase()
+        );
+      },
     },
     {
+      key: "education",
       label: "Education",
-      value: user?.preferredEducation || "Not specified",
+      value: user?.preferredEducation || null,
+      matches: () => {
+        if (!currentUser || !user?.preferredEducation) return false;
+        return String(currentUser.education || "")
+          .toLowerCase()
+          .includes(String(user.preferredEducation).toLowerCase());
+      },
     },
   ];
 
+  const specified = prefs.filter((p) => p.value !== null);
+  const matchedCount = specified.filter((p) => {
+    try {
+      return p.matches();
+    } catch (e) {
+      return false;
+    }
+  }).length;
+  const total = specified.length || 0;
+  const percent = total ? Math.round((matchedCount / total) * 100) : 0;
+
   return (
-    <>
-      {/* <div>
-        <h3 className="text-lg font-bold text-gray-800 mb-4">
-          What {user?.firstName}'s Partner Preferences
-        </h3>
+    <div>
+      <h3 className="text-lg font-bold text-gray-800 mb-4">
+        What {user?.firstName}'s Partner Preferences
+      </h3>
 
-        <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-pink-50 to-rose-50 border border-pink-100">
-          <p className="text-sm text-gray-600">
-            You match <span className="font-semibold text-pink-600">7/8</span>
-          </p>
+      <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-pink-50 to-rose-50 border border-pink-100">
+        <p className="text-sm text-gray-600">
+          You match{" "}
+          <span className="font-semibold text-pink-600">
+            {percent}% ({matchedCount}/{total || 0})
+          </span>
+        </p>
 
-          <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
-            <div className="h-full w-[85%] bg-gradient-to-r from-pink-500 to-rose-500 rounded-full"></div>
-          </div>
+        <div className="w-full h-2 bg-gray-200 rounded-full mt-2">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-pink-500 to-rose-500"
+            style={{ width: `${percent}%` }}
+          />
         </div>
+      </div>
 
-        <div className="grid sm:grid-cols-2 gap-4">
-          {data.map((item, i) => (
+      <div className="grid sm:grid-cols-2 gap-4">
+        {prefs.map((item, i) => {
+          const isSpecified = item.value !== null;
+          const isMatched = isSpecified && item.matches();
+          return (
             <div
-              key={i}
-              className="p-4 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition"
+              key={item.key}
+              className={`p-4 rounded-xl border ${isMatched ? "border-emerald-200 bg-emerald-50" : "border-gray-100 bg-white"} shadow-sm hover:shadow-md transition`}
             >
               <p className="text-xs text-gray-500">{item.label}</p>
 
               <div className="flex justify-between items-center mt-1">
-                <p className="font-semibold text-gray-800">{item.value}</p>
+                <p className="font-semibold text-gray-800">
+                  {isSpecified ? item.value : "Not specified"}
+                </p>
 
-                <span className="text-green-500 text-sm">✔</span>
+                {isSpecified ? (
+                  <span
+                    className={`${isMatched ? "text-emerald-600" : "text-gray-400"} text-sm`}
+                  >
+                    {isMatched ? "✔" : "✕"}
+                  </span>
+                ) : (
+                  <span className="text-gray-300 text-sm">—</span>
+                )}
               </div>
             </div>
-          ))}
-        </div>
-      </div> */}
-    </>
+          );
+        })}
+      </div>
+    </div>
   );
 };

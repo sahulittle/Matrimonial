@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaChevronDown } from "react-icons/fa";
 import toast from "react-hot-toast";
 import { registerUser } from "../../api/userApi/userApi";
+import { userDataApi } from "../../services/api";
 import { casteOptions } from "../../utils/options";
 
 const Register = () => {
@@ -13,6 +14,10 @@ const Register = () => {
     maritalStatus: "single",
   });
   const [degree, setDegree] = useState("");
+  const [customFieldOfStudy, setCustomFieldOfStudy] = useState("");
+  const [fieldOfStudySelect, setFieldOfStudySelect] = useState("");
+  const [religions, setReligions] = useState(["Hindu"]);
+  const [religionsLoading, setReligionsLoading] = useState(false);
 
   // Options for dropdowns
   const complexionOptions = ["Fair", "Light", "Medium", "Dark"];
@@ -55,180 +60,21 @@ const Register = () => {
     "10+",
   ];
 
-  const indianStates = [
-    "Andhra Pradesh",
-    "Arunachal Pradesh",
-    "Assam",
-    "Bihar",
-    "Chhattisgarh",
-    "Goa",
-    "Gujarat",
-    "Haryana",
-    "Himachal Pradesh",
-    "Jharkhand",
-    "Karnataka",
-    "Kerala",
-    "Madhya Pradesh",
-    "Maharashtra",
-    "Manipur",
-    "Meghalaya",
-    "Mizoram",
-    "Nagaland",
-    "Odisha",
-    "Punjab",
-    "Rajasthan",
-    "Sikkim",
-    "Tamil Nadu",
-    "Telangana",
-    "Tripura",
-    "Uttar Pradesh",
-    "Uttarakhand",
-    "West Bengal",
-    "Andaman and Nicobar Islands",
-    "Chandigarh",
-    "Dadra and Nagar Haveli and Daman and Diu",
-    "Delhi",
-    "Jammu and Kashmir",
-    "Ladakh",
-    "Lakshadweep",
-    "Puducherry",
-  ];
+  // Dynamic states and cities (fetched from countriesnow.space)
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [statesLoading, setStatesLoading] = useState(false);
+  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [statesError, setStatesError] = useState(null);
+  const [citiesError, setCitiesError] = useState(null);
   const religionOptions = ["Hindu"];
   const [dobError, setDobError] = useState("");
+  const [passwordScore, setPasswordScore] = useState(0);
+  const [policy, setPolicy] = useState("professional"); // 'professional' or 'industrial'
+  const [policyErrors, setPolicyErrors] = useState([]);
+  const [passwordError, setPasswordError] = useState("");
 
-  // Cities in Maharashtra (used when state/jobLocation is Maharashtra)
-  const maharashtraCities = [
-    "Mumbai",
-    "Navi Mumbai",
-    "Thane",
-    "Kalyan",
-    "Dombivli",
-    "Bhiwandi",
-    "Ulhasnagar",
-    "Mira-Bhayandar",
-    "Vasai",
-    "Virar",
-    "Palghar",
-    "Dahanu",
-    "Boisar",
-    "Pune",
-    "Pimpri-Chinchwad",
-    "Baramati",
-    "Talegaon",
-    "Shirur",
-    "Satara",
-    "Karad",
-    "Wai",
-    "Mahabaleshwar",
-    "Sangli",
-    "Miraj",
-    "Tasgaon",
-    "Islampur",
-    "Kolhapur",
-    "Ichalkaranji",
-    "Gadhinglaj",
-    "Kurundwad",
-    "Solapur",
-    "Pandharpur",
-    "Akkalkot",
-    "Barshi",
-    "Nashik",
-    "Malegaon",
-    "Sinnar",
-    "Igatpuri",
-    "Manmad",
-    "Ahmednagar",
-    "Shirdi",
-    "Kopargaon",
-    "Sangamner",
-    "Shrirampur",
-    "Dhule",
-    "Shirpur",
-    "Sakri",
-    "Jalgaon",
-    "Bhusawal",
-    "Amalner",
-    "Chalisgaon",
-    "Pachora",
-    "Nandurbar",
-    "Shahada",
-    "Taloda",
-    "Chhatrapati Sambhajinagar",
-    "Aurangabad",
-    "Kannad",
-    "Paithan",
-    "Jalna",
-    "Ambad",
-    "Partur",
-    "Beed",
-    "Georai",
-    "Ambajogai",
-    "Osmanabad",
-    "Tuljapur",
-    "Omerga",
-    "Latur",
-    "Udgir",
-    "Ausa",
-    "Nanded",
-    "Deglur",
-    "Mukhed",
-    "Parbhani",
-    "Gangakhed",
-    "Pathri",
-    "Hingoli",
-    "Kalamnuri",
-    "Basmat",
-    "Amravati",
-    "Achalpur",
-    "Chandur",
-    "Akola",
-    "Akot",
-    "Balapur",
-    "Buldhana",
-    "Khamgaon",
-    "Shegaon",
-    "Malkapur",
-    "Yavatmal",
-    "Wani",
-    "Pusad",
-    "Darwha",
-    "Washim",
-    "Karanja",
-    "Mangrulpir",
-    "Nagpur",
-    "Kamptee",
-    "Hingna",
-    "Wardha",
-    "Hinganghat",
-    "Pulgaon",
-    "Chandrapur",
-    "Ballarpur",
-    "Warora",
-    "Gadchiroli",
-    "Desaiganj",
-    "Aheri",
-    "Bhandara",
-    "Tumsar",
-    "Pauni",
-    "Gondia",
-    "Tirora",
-    "Amgaon",
-    "Raigad",
-    "Alibaug",
-    "Panvel",
-    "Uran",
-    "Khopoli",
-    "Karjat",
-    "Ratnagiri",
-    "Chiplun",
-    "Dapoli",
-    "Khed",
-    "Sindhudurg",
-    "Kankavli",
-    "Malvan",
-    "Sawantwadi",
-    "Vengurla",
-  ];
+  // removed hardcoded city lists
 
   // Generate height options from 4ft 5in to 7ft
   const heightOptions = [];
@@ -309,6 +155,111 @@ const Register = () => {
 
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  // Fetch religions on mount and apply default selection rules
+  React.useEffect(() => {
+    let mounted = true;
+    const fetchReligions = async () => {
+      setReligionsLoading(true);
+      try {
+        const res = await userDataApi.getReligions();
+        const list = Array.isArray(res?.data) ? res.data : res?.data || [];
+        // If backend returns empty list, keep default Hindu
+        const finalList = list.length ? list : ["Hindu"];
+        if (!mounted) return;
+        setReligions(finalList);
+
+        // Default selection: prefer Hindu if present, else first item
+        const defaultSel = finalList.includes("Hindu") ? "Hindu" : finalList[0];
+        setFormData((prev) => ({ ...prev, religion: defaultSel }));
+      } catch (err) {
+        console.error("Failed to load religions", err);
+        if (!mounted) return;
+        setReligions(["Hindu"]);
+        setFormData((prev) => ({ ...prev, religion: "Hindu" }));
+      } finally {
+        if (mounted) setReligionsLoading(false);
+      }
+    };
+
+    fetchReligions();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Fetch Indian states from countriesnow.space
+  const fetchStates = async () => {
+    setStatesLoading(true);
+    setStatesError(null);
+    try {
+      const res = await fetch(
+        "https://countriesnow.space/api/v0.1/countries/states",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ country: "India" }),
+        },
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      let list = [];
+      if (json?.data?.states)
+        list = json.data.states.map((s) => s.name).filter(Boolean);
+      else if (Array.isArray(json?.data))
+        list = json.data
+          .map((s) => (typeof s === "string" ? s : s.name))
+          .filter(Boolean);
+      setStates(list.sort((a, b) => a.localeCompare(b)));
+    } catch (err) {
+      console.error("Failed to fetch states:", err);
+      setStatesError(err?.message || "Failed to load states");
+      setStates([]);
+    } finally {
+      setStatesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStates();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const fetchCitiesForState = async (stateName) => {
+    if (!stateName) return setCities([]);
+    setCitiesLoading(true);
+    setCitiesError(null);
+    try {
+      const res = await fetch(
+        "https://countriesnow.space/api/v0.1/countries/state/cities",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ country: "India", state: stateName }),
+        },
+      );
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const list = Array.isArray(json?.data) ? json.data.filter(Boolean) : [];
+      setCities(list.sort((a, b) => a.localeCompare(b)));
+    } catch (err) {
+      console.error("Failed to fetch cities:", err);
+      setCitiesError(err?.message || "Failed to load cities");
+      setCities([]);
+    } finally {
+      setCitiesLoading(false);
+    }
+  };
+
+  // When jobLocation (state) changes, reset city and fetch cities
+  useEffect(() => {
+    setFormData((prev) => ({ ...prev, city: "" }));
+    setCities([]);
+    setCitiesError(null);
+    if (formData.jobLocation) fetchCitiesForState(formData.jobLocation);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.jobLocation]);
   const handleImageChange = (e) => {
     const file = e.target.files[0];
 
@@ -344,8 +295,105 @@ const Register = () => {
     return age;
   };
 
+  // ---------------- Password helpers ----------------
+  const hasLower = (s) => /[a-z]/.test(s);
+  const hasUpper = (s) => /[A-Z]/.test(s);
+  const hasDigit = (s) => /\d/.test(s);
+  const hasSymbol = (s) => /[!@#$%^&*()_\-+=[\]{};:'",.<>/?\\|`~]/.test(s);
+  const lengthScore = (len) => Math.min(30, Math.max(0, (len - 6) * 3));
+
+  const computePasswordScore = (pw = "") => {
+    const len = pw.length;
+    let score = 0;
+    const reasons = [];
+    const ls = lengthScore(len);
+    score += ls;
+    if (ls < 18) reasons.push("Consider increasing length");
+    const lower = hasLower(pw);
+    const upper = hasUpper(pw);
+    const digit = hasDigit(pw);
+    const symbol = hasSymbol(pw);
+    const variety = [lower, upper, digit, symbol].filter(Boolean).length;
+    score += variety * 15;
+    if (!lower) reasons.push("Add lowercase letters");
+    if (!upper) reasons.push("Add uppercase letters");
+    if (!digit) reasons.push("Add numbers");
+    if (!symbol) reasons.push("Add special characters");
+    const lowers = pw.toLowerCase();
+    const weakPatterns = ["password", "1234", "qwerty", "admin", "letmein"];
+    const usesWeak = weakPatterns.some((p) => lowers.includes(p));
+    if (usesWeak) {
+      score = Math.max(0, score - 30);
+      reasons.push("Avoid common words or sequences");
+    }
+    if (/^(.)\1+$/.test(pw)) {
+      score = Math.max(0, score - 25);
+      reasons.push("Avoid repeated characters");
+    }
+    score = Math.max(0, Math.min(100, score));
+    return {
+      score,
+      reasons,
+      details: { len, lower, upper, digit, symbol, variety },
+    };
+  };
+
+  // textual classification removed to avoid floating label in UI
+
+  const validateByPolicy = (pw = "", pol = "professional") => {
+    const errors = [];
+    if (pol === "professional") {
+      if (pw.length < 12) errors.push("At least 12 characters recommended");
+      const classes = [
+        hasLower(pw),
+        hasUpper(pw),
+        hasDigit(pw),
+        hasSymbol(pw),
+      ].filter(Boolean).length;
+      if (classes < 3)
+        errors.push("Include at least 3 of: lower, upper, number, symbol");
+      const { score } = computePasswordScore(pw);
+      if (score < 60)
+        errors.push("Password strength is low; consider making it stronger");
+    } else {
+      if (pw.length < 16) errors.push("Minimum 16 characters required");
+      if (!hasLower(pw)) errors.push("Include lowercase letters");
+      if (!hasUpper(pw)) errors.push("Include uppercase letters");
+      if (!hasDigit(pw)) errors.push("Include numbers");
+      if (!hasSymbol(pw)) errors.push("Include special characters");
+      const lowers = pw.toLowerCase();
+      const weakPatterns = [
+        "password",
+        "1234",
+        "qwerty",
+        "admin",
+        "letmein",
+        "company",
+        "work",
+      ];
+      if (weakPatterns.some((p) => lowers.includes(p)))
+        errors.push("Avoid dictionary or corporate words");
+      if (/^(.)\1+$/.test(pw)) errors.push("Avoid repeated characters");
+      const { score } = computePasswordScore(pw);
+      if (score < 80)
+        errors.push("Password must be strong for industrial policy");
+    }
+    return { ok: errors.length === 0, errors };
+  };
+
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
+
+    // final safety checks for password policy
+    if (!formData.password || String(formData.password).length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+    const polCheckFinal = validateByPolicy(formData.password, policy);
+    if (!polCheckFinal.ok) {
+      polCheckFinal.errors.forEach((err) => toast.error(err));
+      return;
+    }
 
     try {
       const formDataToSend = new FormData();
@@ -447,6 +495,19 @@ const Register = () => {
                 }
 
                 setDobError("");
+                // Validate password and policy before proceeding
+                if (
+                  !formData.password ||
+                  String(formData.password).length < 6
+                ) {
+                  setPasswordError("Password must be at least 6 characters");
+                  return;
+                }
+                const polCheck = validateByPolicy(formData.password, policy);
+                if (!polCheck.ok) {
+                  setPolicyErrors(polCheck.errors);
+                  return;
+                }
                 setStep(2);
               }}
             >
@@ -544,11 +605,31 @@ const Register = () => {
                     name="password"
                     type="password"
                     required
-                    onChange={handleChange}
+                    onChange={(e) => {
+                      handleChange(e);
+                      const v = e.target.value;
+                      const r = computePasswordScore(v);
+                      setPasswordScore(r.score);
+                      const pol = validateByPolicy(v, policy);
+                      setPolicyErrors(pol.errors);
+                      if (passwordError) setPasswordError("");
+                    }}
                     value={formData.password || ""}
                     className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                     placeholder="Password"
                   />
+                  {passwordError && (
+                    <p className="text-sm text-red-600 mt-1">{passwordError}</p>
+                  )}
+
+                  {/* show policy validation messages live (keep bullets) */}
+                  {policyErrors && policyErrors.length > 0 && (
+                    <div className="mt-2 text-xs text-red-600">
+                      {policyErrors.map((err, i) => (
+                        <div key={i}>• {err}</div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Gender */}
@@ -640,17 +721,52 @@ const Register = () => {
                     Religion
                   </label>
                   <div className="mt-1 relative">
-                    <input
-                      type="hidden"
-                      name="religion"
-                      value={formData.religion}
-                    />
-                    <input
-                      type="text"
-                      readOnly
-                      value={formData.religion}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-700"
-                    />
+                    {/* If backend provided more than one religion, show a select. Otherwise show read-only single value (default Hindu). */}
+                    {religionsLoading ? (
+                      <input
+                        type="text"
+                        readOnly
+                        value={"Loading..."}
+                        className="appearance-none block w-full px-3 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-700"
+                      />
+                    ) : religions && religions.length > 1 ? (
+                      <>
+                        <select
+                          id="religion"
+                          name="religion"
+                          required
+                          onChange={handleChange}
+                          value={formData.religion || ""}
+                          className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                        >
+                          <option value="" disabled>
+                            Select Religion
+                          </option>
+                          {religions.map((r) => (
+                            <option key={r} value={r}>
+                              {r}
+                            </option>
+                          ))}
+                        </select>
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                          <FaChevronDown className="h-4 w-4" />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <input
+                          type="hidden"
+                          name="religion"
+                          value={formData.religion}
+                        />
+                        <input
+                          type="text"
+                          readOnly
+                          value={formData.religion}
+                          className="appearance-none block w-full px-3 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-700"
+                        />
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -739,9 +855,12 @@ const Register = () => {
                       onChange={(e) => {
                         handleChange(e);
                         setDegree(e.target.value);
+                        // reset previous field of study selection
                         handleChange({
                           target: { name: "fieldOfStudy", value: "" },
                         });
+                        setFieldOfStudySelect("");
+                        setCustomFieldOfStudy("");
                       }}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
@@ -777,8 +896,24 @@ const Register = () => {
                         id="field-of-study"
                         name="fieldOfStudy"
                         required
-                        onChange={handleChange}
-                        value={formData.fieldOfStudy || ""}
+                        value={fieldOfStudySelect || ""}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setFieldOfStudySelect(v);
+                          if (v === "Other") {
+                            // show custom input and clear stored value until user types
+                            setCustomFieldOfStudy("");
+                            handleChange({
+                              target: { name: "fieldOfStudy", value: "" },
+                            });
+                          } else {
+                            // set the chosen predefined field
+                            handleChange({
+                              target: { name: "fieldOfStudy", value: v },
+                            });
+                            setCustomFieldOfStudy("");
+                          }
+                        }}
                         className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                       >
                         <option value="" disabled>
@@ -789,12 +924,34 @@ const Register = () => {
                             {f}
                           </option>
                         ))}
+                        <option value="Other">Other</option>
                       </select>
 
                       <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                         <FaChevronDown className="h-4 w-4" />
                       </div>
                     </div>
+
+                    {/* Custom field when 'Other' selected */}
+                    {fieldOfStudySelect === "Other" && (
+                      <div className="mt-2">
+                        <input
+                          type="text"
+                          name="fieldOfStudyCustom"
+                          value={customFieldOfStudy}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            setCustomFieldOfStudy(v);
+                            // store the custom value into formData.fieldOfStudy
+                            handleChange({
+                              target: { name: "fieldOfStudy", value: v },
+                            });
+                          }}
+                          className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                          placeholder="Enter your field of study"
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -864,16 +1021,22 @@ const Register = () => {
                       required
                       onChange={(e) => {
                         handleChange(e);
-                        // clear city when state changes so user can reselect
-                        setFormData((prev) => ({ ...prev, city: "" }));
+                        // clearing city handled in effect
                       }}
                       value={formData.jobLocation || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                      disabled={statesLoading}
+                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8 disabled:bg-gray-100"
                     >
-                      <option value="" disabled>
-                        Select State
+                      <option value="">
+                        {statesLoading
+                          ? "Loading states..."
+                          : states.length
+                            ? "Select State"
+                            : statesError
+                              ? "Failed to load states"
+                              : "No states available"}
                       </option>
-                      {indianStates.map((state) => (
+                      {states.map((state) => (
                         <option key={state} value={state}>
                           {state}
                         </option>
@@ -882,6 +1045,18 @@ const Register = () => {
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <FaChevronDown className="h-4 w-4" />
                     </div>
+                    {statesError && (
+                      <div className="mt-2 text-xs text-red-500 flex items-center justify-between">
+                        <span>Failed to load states.</span>
+                        <button
+                          type="button"
+                          onClick={() => fetchStates()}
+                          className="ml-2 text-xs text-pink-600 underline"
+                        >
+                          Retry
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -894,39 +1069,50 @@ const Register = () => {
                     City
                   </label>
                   <div className="mt-1 relative">
-                    {formData.jobLocation === "Maharashtra" ? (
-                      <>
-                        <select
-                          id="city"
-                          name="city"
-                          onChange={handleChange}
-                          value={formData.city || ""}
-                          className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
-                        >
-                          <option value="" disabled>
-                            Select City
-                          </option>
-                          {maharashtraCities.map((c) => (
-                            <option key={c} value={c}>
-                              {c}
-                            </option>
-                          ))}
-                        </select>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                          <FaChevronDown className="h-4 w-4" />
-                        </div>
-                      </>
-                    ) : (
-                      <input
+                    <>
+                      <select
                         id="city"
                         name="city"
-                        type="text"
                         onChange={handleChange}
                         value={formData.city || ""}
-                        className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                        placeholder="City"
-                      />
-                    )}
+                        disabled={!formData.jobLocation || citiesLoading}
+                        className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8 disabled:bg-gray-100"
+                      >
+                        <option value="">
+                          {!formData.jobLocation
+                            ? "Select State first"
+                            : citiesLoading
+                              ? "Loading cities..."
+                              : cities.length
+                                ? "Select City"
+                                : citiesError
+                                  ? "Failed to load cities"
+                                  : "No cities available"}
+                        </option>
+                        {cities.map((c) => (
+                          <option key={c} value={c}>
+                            {c}
+                          </option>
+                        ))}
+                      </select>
+                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                        <FaChevronDown className="h-4 w-4" />
+                      </div>
+                      {citiesError && formData.jobLocation && (
+                        <div className="mt-2 text-xs text-red-500 flex items-center justify-between">
+                          <span>Failed to load cities.</span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              fetchCitiesForState(formData.jobLocation)
+                            }
+                            className="ml-2 text-xs text-pink-600 underline"
+                          >
+                            Retry
+                          </button>
+                        </div>
+                      )}
+                    </>
                   </div>
                 </div>
 

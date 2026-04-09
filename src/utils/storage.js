@@ -78,7 +78,7 @@ export function getInterests() {
   try {
     const data = localStorage.getItem('interests')
     if (data) return JSON.parse(data)
-  } catch {}
+  } catch { }
   return {}
 }
 
@@ -94,7 +94,7 @@ export function sendInterest(interest) {
 
   // Add to sender's 'sent' list
   if (!allInterests[senderId]) allInterests[senderId] = { sent: [], received: [] };
-  
+
   // Avoid duplicate interests
   if (allInterests[senderId].sent.some(i => String(i.receiverId) === String(receiverId))) {
     return; // Already sent
@@ -151,7 +151,7 @@ export function getMessages() {
   try {
     const data = localStorage.getItem('messages')
     if (data) return JSON.parse(data)
-  } catch {}
+  } catch { }
   return []
 }
 
@@ -209,7 +209,7 @@ export function getUserMessages(userId) {
 export function getConversation(userId, otherUserId) {
   return getMessages().filter(
     m => (m.senderId === userId && m.receiverId === otherUserId) ||
-         (m.senderId === otherUserId && m.receiverId === userId)
+      (m.senderId === otherUserId && m.receiverId === userId)
   ).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
 }
 
@@ -240,7 +240,7 @@ export function getNotifications() {
   try {
     const data = localStorage.getItem('notifications')
     if (data) return JSON.parse(data)
-  } catch {}
+  } catch { }
   return {}
 }
 
@@ -299,7 +299,7 @@ export function getVisitors() {
   try {
     const data = localStorage.getItem('visitors')
     if (data) return JSON.parse(data)
-  } catch {}
+  } catch { }
   return {}
 }
 
@@ -310,25 +310,25 @@ export function getVisitorsForUser(userId) {
 
 export function addVisitor(ownerId, visitorProfile) {
   const visitors = getVisitors()
-  
+
   if (!visitors[ownerId]) {
     visitors[ownerId] = []
   }
-  
+
   // Check if already visited
   const exists = visitors[ownerId].some(v => v.id === visitorProfile.id)
-  
+
   if (!exists) {
     visitors[ownerId].unshift({
       ...visitorProfile,
       viewedAt: new Date().toISOString()
     })
-    
+
     // Keep only last 20 visitors
     if (visitors[ownerId].length > 20) {
       visitors[ownerId] = visitors[ownerId].slice(0, 20)
     }
-    
+
     localStorage.setItem("visitors", JSON.stringify(visitors))
   }
 }
@@ -370,4 +370,34 @@ export function getVisibleUsers(currentUserId) {
 export function getUserById(userId) {
   const users = getUsers()
   return users.find(u => u.id === userId)
+}
+
+/* ---------- RELIGIONS (admin configurable) ---------- */
+export function getReligions() {
+  try {
+    const raw = localStorage.getItem('religions')
+    if (!raw) return ['Hindu']
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) && parsed.length ? parsed : ['Hindu']
+  } catch (e) {
+    return ['Hindu']
+  }
+}
+
+export function saveReligions(list) {
+  localStorage.setItem('religions', JSON.stringify(list))
+}
+
+export function addReligion(name) {
+  if (!name) return
+  const list = getReligions()
+  if (!list.includes(name)) {
+    list.push(name)
+    saveReligions(list)
+  }
+}
+
+export function removeReligion(name) {
+  const list = getReligions().filter((r) => r !== name)
+  saveReligions(list)
 }
