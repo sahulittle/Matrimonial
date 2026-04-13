@@ -5,23 +5,87 @@ import toast from "react-hot-toast";
 import { registerUser } from "../../api/userApi/userApi";
 import { userDataApi } from "../../services/api";
 import { casteOptions } from "../../utils/options";
+import ImageUploader from "../../components/ImageUploader";
 
 const Register = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
+
   const [formData, setFormData] = useState({
+    // Personal
+    firstName: "",
+    lastName: "",
+    email: "",
+    password: "",
+    gender: "",
+    dateOfBirth: "",
+    height: "",
+    rashi: "",
+    weight: "",
+    motherTongue: "",
+    bodyType: "",
+    languagesKnown: "",
+    images: [],
+    imagePreviews: [],
+
+    // Religion / caste
     religion: "Hindu",
-    maritalStatus: "single",
+    caste: "",
+
+    // Personal location
+    country: "India",
+    citizenship: "Indian",
+    countryOther: "",
+    state: "",
+    city: "",
+    nativePlace: "",
+
+    // Education
+    educationCategory: "",
+    educationDetails: "",
+    college: "",
+
+    // Career
+    employedIn: "",
+    occupationDetails: "",
+
+    // Job location
+    jobCountry: "India",
+    jobCountryOther: "",
+    jobState: "",
+    jobCity: "",
+    jobLocationDetails: "",
+
+    // Income
+    annualIncome: "",
+
+    // Family
+    familyValues: "",
+    familyType: "",
+    familyStatus: "",
+    ancestralOrigin: "",
+    fatherName: "",
+    fatherJob: "",
+    motherName: "",
+    motherJob: "",
+    siblings: "",
+    brothers: "",
+    brothersMarried: "",
+    sisters: "",
+    sistersMarried: "",
+    paternalUncleName: "",
+    paternalUncleJob: "",
+    maternalUncleName: "",
+    maternalUncleJob: "",
   });
-  const [degree, setDegree] = useState("");
-  const [customFieldOfStudy, setCustomFieldOfStudy] = useState("");
-  const [fieldOfStudySelect, setFieldOfStudySelect] = useState("");
+
   const [religions, setReligions] = useState(["Hindu"]);
   const [religionsLoading, setReligionsLoading] = useState(false);
-
-  // Options for dropdowns
-  const complexionOptions = ["Fair", "Light", "Medium", "Dark"];
-  const bloodGroupOptions = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+  const [dobError, setDobError] = useState("");
+  const [passwordScore, setPasswordScore] = useState(0);
+  const [policy, setPolicy] = useState("professional");
+  const [policyErrors, setPolicyErrors] = useState([]);
+  const [passwordError, setPasswordError] = useState("");
 
   const jobOptions = [
     "Private Company",
@@ -30,6 +94,7 @@ const Register = () => {
     "Business/Self Employed",
     "Not Working",
   ];
+
   const incomeOptions = [
     "Upto 1 Lakh",
     "1 to 2 Lakhs",
@@ -46,6 +111,7 @@ const Register = () => {
     "75 Lakhs to 1 Crore",
     "1 Crore & above",
   ];
+
   const siblingOptions = [
     "0",
     "1",
@@ -60,116 +126,61 @@ const Register = () => {
     "10+",
   ];
 
-  // Dynamic states and cities (fetched from countriesnow.space)
+  const educationOptions = [
+    "High School",
+    "Trade/Technical/Vocational Training",
+    "Diploma",
+    "Associate Degree",
+    "Bachelors Degree",
+    "Masters Degree",
+    "Doctorate or higher",
+    "Professional Degree (MBBS/BE/B.Tech/CA etc)",
+    "Other",
+  ];
+
+  // Dynamic states and cities
   const [states, setStates] = useState([]);
-  const [cities, setCities] = useState([]);
+  const [personalCities, setPersonalCities] = useState([]);
+  const [jobCities, setJobCities] = useState([]);
   const [statesLoading, setStatesLoading] = useState(false);
-  const [citiesLoading, setCitiesLoading] = useState(false);
+  const [personalCitiesLoading, setPersonalCitiesLoading] = useState(false);
+  const [jobCitiesLoading, setJobCitiesLoading] = useState(false);
   const [statesError, setStatesError] = useState(null);
-  const [citiesError, setCitiesError] = useState(null);
-  const religionOptions = ["Hindu"];
-  const [dobError, setDobError] = useState("");
-  const [passwordScore, setPasswordScore] = useState(0);
-  const [policy, setPolicy] = useState("professional"); // 'professional' or 'industrial'
-  const [policyErrors, setPolicyErrors] = useState([]);
-  const [passwordError, setPasswordError] = useState("");
+  const [personalCitiesError, setPersonalCitiesError] = useState(null);
+  const [jobCitiesError, setJobCitiesError] = useState(null);
 
-  // removed hardcoded city lists
-
-  // Generate height options from 4ft 5in to 7ft
+  // Generate height options
   const heightOptions = [];
   for (let feet = 4; feet <= 7; feet++) {
     for (let inches = 0; inches < 12; inches++) {
-      if (feet === 4 && inches < 5) continue; // Start from 4ft 5in
-      if (feet === 7 && inches > 0) break; // Stop at 7ft 0in
+      if (feet === 4 && inches < 5) continue;
+      if (feet === 7 && inches > 0) break;
       const cm = Math.round(feet * 30.48 + inches * 2.54);
       heightOptions.push(`${feet}ft ${inches}in / ${cm}cm`);
     }
   }
 
-  const fieldOfStudyOptions = {
-    // 🎓 Undergraduate
-    "B.Tech": ["Computer Science", "Mechanical", "Civil", "Electrical"],
-    "B.E": ["Computer Science", "Mechanical", "Civil", "Electrical"],
-    "B.Sc": ["Physics", "Chemistry", "Mathematics", "Biology"],
-    "B.A": ["English", "History", "Political Science", "Economics"],
-    "B.Com": ["Accounting", "Finance", "Banking"],
-    BBA: ["Marketing", "Finance", "HR"],
-    BCA: ["Computer Applications", "Software Development"],
-    "B.Arch": ["Architecture"],
-    "B.Pharm": ["Pharmacy"],
-    "B.Ed": ["Education"],
-    BDS: ["Dental Surgery"],
-    MBBS: ["General Medicine"],
-
-    // 🎓 Postgraduate
-    "M.Tech": ["Computer Science", "Data Science", "AI"],
-    "M.E": ["Engineering"],
-    "M.Sc": ["Physics", "Chemistry", "Mathematics"],
-    "M.A": ["English", "History", "Political Science"],
-    "M.Com": ["Accounting", "Finance"],
-    MBA: ["Marketing", "Finance", "HR"],
-    MCA: ["Computer Applications"],
-    "M.Arch": ["Architecture"],
-    "M.Pharm": ["Pharmacy"],
-    "M.Ed": ["Education"],
-    MD: ["Medicine"],
-    MS: ["Surgery"],
-
-    // 🎓 Doctorate
-    PhD: ["All Subjects"],
-    Doctorate: ["All Subjects"],
-
-    // 🎓 Diploma
-    Diploma: ["Engineering", "Management"],
-    Polytechnic: ["Engineering"],
-    ITI: ["Technical Trades"],
-
-    // 🎓 Professional
-    CA: ["Chartered Accountant"],
-    CS: ["Company Secretary"],
-    ICWA: ["Cost Accountant"],
-
-    // 🎓 Law
-    LLB: ["Law"],
-    LLM: ["Advanced Law"],
-
-    // 🎓 Others
-    "High School": ["General"],
-    Intermediate: ["Science", "Commerce", "Arts"],
-    Other: ["Other"],
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     if (name === "dateOfBirth") {
       const age = getAge(value);
-
-      if (age < 18) {
-        setDobError("You must be at least 18 years old");
-      } else {
-        setDobError("");
-      }
+      if (age < 18) setDobError("You must be at least 18 years old");
+      else setDobError("");
     }
-
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Fetch religions on mount and apply default selection rules
-  React.useEffect(() => {
+  // Fetch religions on mount
+  useEffect(() => {
     let mounted = true;
     const fetchReligions = async () => {
       setReligionsLoading(true);
       try {
         const res = await userDataApi.getReligions();
         const list = Array.isArray(res?.data) ? res.data : res?.data || [];
-        // If backend returns empty list, keep default Hindu
         const finalList = list.length ? list : ["Hindu"];
         if (!mounted) return;
         setReligions(finalList);
-
-        // Default selection: prefer Hindu if present, else first item
         const defaultSel = finalList.includes("Hindu") ? "Hindu" : finalList[0];
         setFormData((prev) => ({ ...prev, religion: defaultSel }));
       } catch (err) {
@@ -181,15 +192,11 @@ const Register = () => {
         if (mounted) setReligionsLoading(false);
       }
     };
-
     fetchReligions();
-
-    return () => {
-      mounted = false;
-    };
+    return () => (mounted = false);
   }, []);
 
-  // Fetch Indian states from countriesnow.space
+  // Fetch Indian states
   const fetchStates = async () => {
     setStatesLoading(true);
     setStatesError(null);
@@ -223,13 +230,22 @@ const Register = () => {
 
   useEffect(() => {
     fetchStates();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const fetchCitiesForState = async (stateName) => {
-    if (!stateName) return setCities([]);
-    setCitiesLoading(true);
-    setCitiesError(null);
+  // Fetch cities and store separately for personal/job
+  const fetchCitiesForState = async (stateName, target = "personal") => {
+    if (!stateName) {
+      if (target === "personal") setPersonalCities([]);
+      else setJobCities([]);
+      return;
+    }
+    if (target === "personal") {
+      setPersonalCitiesLoading(true);
+      setPersonalCitiesError(null);
+    } else {
+      setJobCitiesLoading(true);
+      setJobCitiesError(null);
+    }
     try {
       const res = await fetch(
         "https://countriesnow.space/api/v0.1/countries/state/cities",
@@ -242,45 +258,25 @@ const Register = () => {
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       const list = Array.isArray(json?.data) ? json.data.filter(Boolean) : [];
-      setCities(list.sort((a, b) => a.localeCompare(b)));
+      if (target === "personal")
+        setPersonalCities(list.sort((a, b) => a.localeCompare(b)));
+      else setJobCities(list.sort((a, b) => a.localeCompare(b)));
     } catch (err) {
       console.error("Failed to fetch cities:", err);
-      setCitiesError(err?.message || "Failed to load cities");
-      setCities([]);
+      if (target === "personal") {
+        setPersonalCitiesError(err?.message || "Failed to load cities");
+        setPersonalCities([]);
+      } else {
+        setJobCitiesError(err?.message || "Failed to load cities");
+        setJobCities([]);
+      }
     } finally {
-      setCitiesLoading(false);
+      if (target === "personal") setPersonalCitiesLoading(false);
+      else setJobCitiesLoading(false);
     }
   };
 
-  // When jobLocation (state) changes, reset city and fetch cities
-  useEffect(() => {
-    setFormData((prev) => ({ ...prev, city: "" }));
-    setCities([]);
-    setCitiesError(null);
-    if (formData.jobLocation) fetchCitiesForState(formData.jobLocation);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formData.jobLocation]);
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        toast.error("Only image files allowed");
-        return;
-      }
-
-      if (file.size > 2 * 1024 * 1024) {
-        toast.error("Image must be less than 2MB");
-        return;
-      }
-
-      setFormData((prev) => ({
-        ...prev,
-        image: file,
-        imagePreview: URL.createObjectURL(file),
-      }));
-    }
-  };
+  // Image handling is provided by ImageUploader component
   const getAge = (dob) => {
     const birthDate = new Date(dob);
     const today = new Date();
@@ -397,17 +393,16 @@ const Register = () => {
 
     try {
       const formDataToSend = new FormData();
-
       Object.keys(formData).forEach((key) => {
-        if (key === "image") {
-          formDataToSend.append("image", formData.image);
-        } else if (key !== "imagePreview") {
+        if (key === "images") {
+          (formData.images || []).forEach((img) =>
+            formDataToSend.append("images", img),
+          );
+        } else if (key !== "imagePreviews") {
           formDataToSend.append(key, formData[key]);
         }
       });
-
       const res = await registerUser(formDataToSend);
-
       toast.success(res.message || "Registration successful");
       navigate("/login");
     } catch (error) {
@@ -514,24 +509,19 @@ const Register = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Profile Image */}
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Profile Image
-                  </label>
-                  <div className="mt-1 flex items-center gap-4">
-                    {formData.imagePreview && (
-                      <img
-                        src={formData.imagePreview}
-                        alt="Preview"
-                        className="h-16 w-16 rounded-full object-cover border-2 border-pink-100"
-                      />
-                    )}
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100"
-                    />
-                  </div>
+                  <ImageUploader
+                    images={formData.images}
+                    previews={formData.imagePreviews}
+                    maxFiles={10}
+                    maxSizeMB={5}
+                    onChange={(imgs, previews) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        images: imgs,
+                        imagePreviews: previews,
+                      }))
+                    }
+                  />
                 </div>
 
                 {/* First Name */}
@@ -714,7 +704,80 @@ const Register = () => {
                     </div>
                   </div>
                 </div>
+                {/* Rashi / Zodiac Sign */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Rashi / Zodiac Sign
+                  </label>
+                  <input
+                    type="text"
+                    name="rashi"
+                    onChange={handleChange}
+                    value={formData.rashi || ""}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    placeholder="Enter Rashi"
+                  />
+                </div>
 
+                {/* Weight */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    name="weight"
+                    onChange={handleChange}
+                    value={formData.weight || ""}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  />
+                </div>
+
+                {/* Mother Tongue */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Mother Tongue
+                  </label>
+                  <input
+                    type="text"
+                    name="motherTongue"
+                    onChange={handleChange}
+                    value={formData.motherTongue || ""}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  />
+                </div>
+
+                {/* Body Type */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Body Type
+                  </label>
+                  <select
+                    name="bodyType"
+                    onChange={handleChange}
+                    value={formData.bodyType || ""}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Select</option>
+                    <option>Slim</option>
+                    <option>Average</option>
+                    <option>Athletic</option>
+                    <option>Heavy</option>
+                  </select>
+                </div>
+                {/* Languages Known */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Languages Known
+                  </label>
+                  <input
+                    name="languagesKnown"
+                    onChange={handleChange}
+                    value={formData.languagesKnown || ""}
+                    placeholder="Hindi, English"
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  />
+                </div>
                 {/* Religion (read-only) */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
@@ -794,6 +857,118 @@ const Register = () => {
                     </select>
                   </div>
                 </div>
+                <h4 className="md:col-span-2 font-bold">Location</h4>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Country
+                  </label>
+                  <select
+                    name="country"
+                    value={formData.country || ""}
+                    onChange={(e) => {
+                      handleChange(e);
+                      if (e.target.value === "India") {
+                        setFormData((prev) => ({
+                          ...prev,
+                          citizenship: "Indian",
+                        }));
+                      } else {
+                        setFormData((prev) => ({ ...prev, citizenship: "" }));
+                      }
+                    }}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Select</option>
+                    <option value="India">India</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  {formData.country === "Other" && (
+                    <input
+                      type="text"
+                      name="countryOther"
+                      value={formData.countryOther || ""}
+                      placeholder="Enter Country"
+                      onChange={handleChange}
+                      className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    />
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Citizenship
+                  </label>
+                  {formData.country === "India" ? (
+                    <input
+                      value="Indian"
+                      readOnly
+                      className="mt-1 block w-full px-3 py-3 border border-gray-200 rounded-md bg-gray-50 text-gray-700"
+                    />
+                  ) : (
+                    <input
+                      name="citizenship"
+                      value={formData.citizenship || ""}
+                      placeholder="Enter Citizenship"
+                      onChange={handleChange}
+                      className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    />
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    State
+                  </label>
+                  <select
+                    name="state"
+                    value={formData.state || ""}
+                    onChange={(e) => {
+                      handleChange(e);
+                      setFormData((prev) => ({ ...prev, city: "" }));
+                      fetchCitiesForState(e.target.value, "personal");
+                    }}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Select State</option>
+                    {states.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    City
+                  </label>
+                  <select
+                    name="city"
+                    value={formData.city || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Select City</option>
+                    {personalCities.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Native Place
+                  </label>
+                  <input
+                    name="nativePlace"
+                    value={formData.nativePlace || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  />
+                </div>
               </div>
 
               <div className="pt-6">
@@ -837,158 +1012,76 @@ const Register = () => {
               }}
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Education */}
+                {/* Job */}
+                {/* Education Category */}
                 <div>
-                  <label
-                    htmlFor="education"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Education
+                  <label className="block text-sm font-medium text-gray-700">
+                    Education Category
                   </label>
-
                   <div className="mt-1 relative">
                     <select
-                      id="education"
-                      name="education"
-                      required
-                      value={formData.education || ""}
-                      onChange={(e) => {
-                        handleChange(e);
-                        setDegree(e.target.value);
-                        // reset previous field of study selection
-                        handleChange({
-                          target: { name: "fieldOfStudy", value: "" },
-                        });
-                        setFieldOfStudySelect("");
-                        setCustomFieldOfStudy("");
-                      }}
+                      name="educationCategory"
+                      value={formData.educationCategory || ""}
+                      onChange={handleChange}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
                       <option value="" disabled>
-                        Select Education
+                        Select Education Category
                       </option>
-
-                      {Object.keys(fieldOfStudyOptions).map((deg, index) => (
-                        <option key={index} value={deg}>
-                          {deg}
+                      {educationOptions.map((edu) => (
+                        <option key={edu} value={edu}>
+                          {edu}
                         </option>
                       ))}
                     </select>
-
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <FaChevronDown className="h-4 w-4" />
                     </div>
                   </div>
                 </div>
 
-                {/* Field of Study */}
-                {degree && fieldOfStudyOptions[degree] && (
-                  <div>
-                    <label
-                      htmlFor="field-of-study"
-                      className="block text-sm font-medium text-gray-700"
-                    >
-                      Field of Study
-                    </label>
-
-                    <div className="mt-1 relative">
-                      <select
-                        id="field-of-study"
-                        name="fieldOfStudy"
-                        required
-                        value={fieldOfStudySelect || ""}
-                        onChange={(e) => {
-                          const v = e.target.value;
-                          setFieldOfStudySelect(v);
-                          if (v === "Other") {
-                            // show custom input and clear stored value until user types
-                            setCustomFieldOfStudy("");
-                            handleChange({
-                              target: { name: "fieldOfStudy", value: "" },
-                            });
-                          } else {
-                            // set the chosen predefined field
-                            handleChange({
-                              target: { name: "fieldOfStudy", value: v },
-                            });
-                            setCustomFieldOfStudy("");
-                          }
-                        }}
-                        className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
-                      >
-                        <option value="" disabled>
-                          Select Field of Study
-                        </option>
-                        {fieldOfStudyOptions[degree].map((f, idx) => (
-                          <option key={idx} value={f}>
-                            {f}
-                          </option>
-                        ))}
-                        <option value="Other">Other</option>
-                      </select>
-
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <FaChevronDown className="h-4 w-4" />
-                      </div>
-                    </div>
-
-                    {/* Custom field when 'Other' selected */}
-                    {fieldOfStudySelect === "Other" && (
-                      <div className="mt-2">
-                        <input
-                          type="text"
-                          name="fieldOfStudyCustom"
-                          value={customFieldOfStudy}
-                          onChange={(e) => {
-                            const v = e.target.value;
-                            setCustomFieldOfStudy(v);
-                            // store the custom value into formData.fieldOfStudy
-                            handleChange({
-                              target: { name: "fieldOfStudy", value: v },
-                            });
-                          }}
-                          className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                          placeholder="Enter your field of study"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Languages */}
+                {/* Education in Detail */}
                 <div>
-                  <label
-                    htmlFor="languages"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Languages (comma separated)
+                  <label className="block text-sm font-medium text-gray-700">
+                    Education in Detail
                   </label>
                   <input
-                    id="languages"
-                    name="languages"
-                    type="text"
+                    name="educationDetails"
+                    value={formData.educationDetails || ""}
                     onChange={handleChange}
-                    value={formData.languages || ""}
-                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                    placeholder="e.g. Marathi, Hindi, English"
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
 
-                {/* Job */}
+                {/* College / Institute */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    College / Institute
+                  </label>
+                  <input
+                    name="college"
+                    value={formData.college || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  />
+                </div>
+
+                {/* Job Location */}
+                <h4 className="md:col-span-2 font-bold">Job Location</h4>
                 <div className="md:col-span-2">
                   <label
-                    htmlFor="job"
+                    htmlFor="employedIn"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Job
+                    Employed In
                   </label>
                   <div className="mt-1 relative">
                     <select
-                      id="job"
-                      name="job"
+                      id="employedIn"
+                      name="employedIn"
                       required
                       onChange={handleChange}
-                      value={formData.job || ""}
+                      value={formData.employedIn || ""}
                       className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
                     >
                       <option value="" disabled>
@@ -1006,114 +1099,95 @@ const Register = () => {
                   </div>
                 </div>
 
-                {/* Job Location */}
-                <div className="md:col-span-2">
-                  <label
-                    htmlFor="jobLocation"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Job Location
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Occupation In Details
                   </label>
-                  <div className="mt-1 relative">
-                    <select
-                      id="jobLocation"
-                      name="jobLocation"
-                      required
-                      onChange={(e) => {
-                        handleChange(e);
-                        // clearing city handled in effect
-                      }}
-                      value={formData.jobLocation || ""}
-                      disabled={statesLoading}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8 disabled:bg-gray-100"
-                    >
-                      <option value="">
-                        {statesLoading
-                          ? "Loading states..."
-                          : states.length
-                            ? "Select State"
-                            : statesError
-                              ? "Failed to load states"
-                              : "No states available"}
-                      </option>
-                      {states.map((state) => (
-                        <option key={state} value={state}>
-                          {state}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                      <FaChevronDown className="h-4 w-4" />
-                    </div>
-                    {statesError && (
-                      <div className="mt-2 text-xs text-red-500 flex items-center justify-between">
-                        <span>Failed to load states.</span>
-                        <button
-                          type="button"
-                          onClick={() => fetchStates()}
-                          className="ml-2 text-xs text-pink-600 underline"
-                        >
-                          Retry
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <input
+                    name="occupationDetails"
+                    value={formData.occupationDetails || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Country
+                  </label>
+                  <select
+                    name="jobCountry"
+                    value={formData.jobCountry || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  >
+                    <option value="India">India</option>
+                    <option value="Other">Other</option>
+                  </select>
+
+                  {formData.jobCountry === "Other" && (
+                    <input
+                      type="text"
+                      name="jobCountryOther"
+                      value={formData.jobCountryOther || ""}
+                      placeholder="Enter Country"
+                      onChange={handleChange}
+                      className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    />
+                  )}
                 </div>
 
-                {/* City - show dropdown for Maharashtra, otherwise text input */}
-                <div className="md:col-span-2">
-                  <label
-                    htmlFor="city"
-                    className="block text-sm font-medium text-gray-700"
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    State
+                  </label>
+                  <select
+                    name="jobState"
+                    value={formData.jobState || ""}
+                    onChange={(e) => {
+                      handleChange(e);
+                      setFormData((prev) => ({ ...prev, jobCity: "" }));
+                      fetchCitiesForState(e.target.value, "job");
+                    }}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   >
+                    <option value="">Select State</option>
+                    {states.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
                     City
                   </label>
-                  <div className="mt-1 relative">
-                    <>
-                      <select
-                        id="city"
-                        name="city"
-                        onChange={handleChange}
-                        value={formData.city || ""}
-                        disabled={!formData.jobLocation || citiesLoading}
-                        className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8 disabled:bg-gray-100"
-                      >
-                        <option value="">
-                          {!formData.jobLocation
-                            ? "Select State first"
-                            : citiesLoading
-                              ? "Loading cities..."
-                              : cities.length
-                                ? "Select City"
-                                : citiesError
-                                  ? "Failed to load cities"
-                                  : "No cities available"}
-                        </option>
-                        {cities.map((c) => (
-                          <option key={c} value={c}>
-                            {c}
-                          </option>
-                        ))}
-                      </select>
-                      <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                        <FaChevronDown className="h-4 w-4" />
-                      </div>
-                      {citiesError && formData.jobLocation && (
-                        <div className="mt-2 text-xs text-red-500 flex items-center justify-between">
-                          <span>Failed to load cities.</span>
-                          <button
-                            type="button"
-                            onClick={() =>
-                              fetchCitiesForState(formData.jobLocation)
-                            }
-                            className="ml-2 text-xs text-pink-600 underline"
-                          >
-                            Retry
-                          </button>
-                        </div>
-                      )}
-                    </>
-                  </div>
+                  <select
+                    name="jobCity"
+                    value={formData.jobCity || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  >
+                    <option value="">Select City</option>
+                    {jobCities.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Location In Detail
+                  </label>
+                  <input
+                    name="jobLocationDetails"
+                    value={formData.jobLocationDetails || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                  />
                 </div>
 
                 {/* Annual Income */}
@@ -1180,6 +1254,53 @@ const Register = () => {
               </p>
             </div>
             <form className="mt-8 space-y-6" onSubmit={handleFinalSubmit}>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Family Values
+                </label>
+                <input
+                  name="familyValues"
+                  value={formData.familyValues || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Family Type
+                </label>
+                <input
+                  name="familyType"
+                  value={formData.familyType || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Family Status
+                </label>
+                <input
+                  name="familyStatus"
+                  value={formData.familyStatus || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Ancestral Origin
+                </label>
+                <input
+                  name="ancestralOrigin"
+                  value={formData.ancestralOrigin || ""}
+                  onChange={handleChange}
+                  className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                />
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Father's Name */}
                 <div>
@@ -1290,7 +1411,61 @@ const Register = () => {
                     </div>
                   </div>
                 </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Brother(s)
+                  </label>
+                  <input
+                    type="number"
+                    name="brothers"
+                    value={formData.brothers || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    min={0}
+                  />
+                </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Brother(s) Married
+                  </label>
+                  <input
+                    type="number"
+                    name="brothersMarried"
+                    value={formData.brothersMarried || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    min={0}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Sister(s)
+                  </label>
+                  <input
+                    type="number"
+                    name="sisters"
+                    value={formData.sisters || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    min={0}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Sister(s) Married
+                  </label>
+                  <input
+                    type="number"
+                    name="sistersMarried"
+                    value={formData.sistersMarried || ""}
+                    onChange={handleChange}
+                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    min={0}
+                  />
+                </div>
                 {/* Paternal Uncle */}
                 <div>
                   <label
