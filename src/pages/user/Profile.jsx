@@ -3,6 +3,7 @@ import { getUserProfile } from "../../api/userApi/userApi";
 import { userDataApi } from "../../services/api";
 import { casteOptions } from "../../utils/options";
 import { useAuth } from "../../context/AuthContext";
+import PhotoManager from "../../components/PhotoManager";
 
 const Section = ({ title, children, onEdit }) => (
   <div className="border-t last:border-b border-gray-200 py-4">
@@ -639,6 +640,10 @@ export default function Profile() {
           <aside>
             <div className="border rounded-lg p-4">
               <ProfilePhotoBlock />
+              <div className="mt-4">
+                <h4 className="text-sm font-semibold mb-2">Manage Photos</h4>
+                <PhotoManager />
+              </div>
             </div>
           </aside>
 

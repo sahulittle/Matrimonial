@@ -26,7 +26,10 @@ export const getDashboardStats = async () => {
 // Get graph data
 export const getGraphData = async () => {
   try {
-    const res = await axios.get(`${BASE_URL}/dashboard/graph-data`, authHeader());
+    const res = await axios.get(
+      `${BASE_URL}/dashboard/graph-data`,
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error fetching graph data:", error);
@@ -35,7 +38,11 @@ export const getGraphData = async () => {
 };
 export const createPackage = async (data) => {
   try {
-    const res = await axios.post(`${BASE_URL}/payments/packages`, data, authHeader());
+    const res = await axios.post(
+      `${BASE_URL}/payments/packages`,
+      data,
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error creating package:", error);
@@ -55,7 +62,10 @@ export const getAllPackages = async () => {
 
 export const deletePackage = async (id) => {
   try {
-    const res = await axios.delete(`${BASE_URL}/payments/packages/${id}`, authHeader());
+    const res = await axios.delete(
+      `${BASE_URL}/payments/packages/${id}`,
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error deleting package:", error);
@@ -69,7 +79,7 @@ export const togglePackageStatus = async (id) => {
     const res = await axios.post(
       `${BASE_URL}/packages/${id}/toggle`,
       {},
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -79,7 +89,10 @@ export const togglePackageStatus = async (id) => {
 };
 export const getActivePackages = async () => {
   try {
-    const res = await axios.get(`${BASE_URL}/payments/packages/active`, authHeader());
+    const res = await axios.get(
+      `${BASE_URL}/payments/packages/active`,
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error fetching active packages:", error);
@@ -119,7 +132,7 @@ export const getAllUsers = async (params = {}) => {
 export const getUserDetails = async (userId) => {
   const res = await axios.get(
     `${BASE_URL}/users-admin/${userId}`,
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -128,7 +141,7 @@ export const updateUserDetails = async (userId, data) => {
     const res = await axios.put(
       `${BASE_URL}/users-admin/${userId}`,
       data,
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -142,7 +155,7 @@ export const toggleVerification = async (userId, data) => {
     const res = await axios.patch(
       `${BASE_URL}/users-admin/${userId}/toggle`,
       data,
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -155,7 +168,7 @@ export const banUser = async (userId, reason) => {
   const res = await axios.post(
     `${BASE_URL}/users-admin/${userId}/ban`,
     { reason },
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -165,7 +178,7 @@ export const unbanUser = async (userId) => {
   const res = await axios.post(
     `${BASE_URL}/users-admin/${userId}/unban`,
     {},
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -175,7 +188,7 @@ export const activateUser = async (userId) => {
   const res = await axios.post(
     `${BASE_URL}/users-admin/${userId}/activate`,
     {},
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -185,7 +198,7 @@ export const deactivateUser = async (userId) => {
   const res = await axios.post(
     `${BASE_URL}/users-admin/${userId}/deactivate`,
     {},
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -195,7 +208,7 @@ export const verifyEmail = async (userId) => {
   const res = await axios.post(
     `${BASE_URL}/users-admin/${userId}/verify-email`,
     {},
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -205,7 +218,7 @@ export const verifyPhone = async (userId) => {
   const res = await axios.post(
     `${BASE_URL}/users-admin/${userId}/verify-phone`,
     {},
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -215,7 +228,7 @@ export const verifyKYC = async (userId) => {
   const res = await axios.post(
     `${BASE_URL}/users-admin/${userId}/verify-kyc`,
     {},
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -225,7 +238,7 @@ export const addNotes = async (userId, notes) => {
   const res = await axios.put(
     `${BASE_URL}/users-admin/${userId}/notes`,
     { notes },
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -234,24 +247,20 @@ export const addNotes = async (userId, notes) => {
 export const deleteUser = async (userId) => {
   const res = await axios.delete(
     `${BASE_URL}/users-admin/${userId}`,
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
-
 
 // ================= PAYMENTS APIs =================
 
 // Get all payments
 export const getAllPayments = async (params = {}) => {
   try {
-    const res = await axios.get(
-      `${BASE_URL}/payments/payments`,
-      {
-        ...authHeader(),
-        params,
-      }
-    );
+    const res = await axios.get(`${BASE_URL}/payments/payments`, {
+      ...authHeader(),
+      params,
+    });
     return res.data;
   } catch (error) {
     console.error("Error fetching payments:", error);
@@ -263,7 +272,7 @@ export const getAllPayments = async (params = {}) => {
 export const getPaymentDetails = async (paymentId) => {
   const res = await axios.get(
     `${BASE_URL}/payments/payments/${paymentId}`,
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -273,7 +282,7 @@ export const completePayment = async (paymentId) => {
   const res = await axios.post(
     `${BASE_URL}/payments/payments/${paymentId}/complete`,
     {},
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -283,7 +292,7 @@ export const refundPayment = async (paymentId) => {
   const res = await axios.post(
     `${BASE_URL}/payments/payments/${paymentId}/refund`,
     {},
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -292,21 +301,18 @@ export const refundPayment = async (paymentId) => {
 export const getPaymentStats = async () => {
   const res = await axios.get(
     `${BASE_URL}/payments/payments/stats`,
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
-//  RENEWAL APIs 
+//  RENEWAL APIs
 
 export const getRenewals = async (params = {}) => {
   try {
-    const res = await axios.get(
-      `${BASE_URL}/payments/packages/renewals`,
-      {
-        ...authHeader(),
-        params,
-      }
-    );
+    const res = await axios.get(`${BASE_URL}/payments/packages/renewals`, {
+      ...authHeader(),
+      params,
+    });
     return res.data;
   } catch (error) {
     console.error("Error fetching renewals:", error);
@@ -318,19 +324,16 @@ export const sendNotificationAPI = async (data) => {
   const res = await axios.post(
     `${BASE_URL}/notifications/send`,
     data,
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
 // get all intrests
 export const getAllInterests = async (params = {}) => {
-  const res = await axios.get(
-    `${BASE_URL}/interests`,
-    {
-      ...authHeader(),
-      params,
-    }
-  );
+  const res = await axios.get(`${BASE_URL}/interests`, {
+    ...authHeader(),
+    params,
+  });
   return res.data;
 };
 
@@ -351,7 +354,10 @@ export const getAllReports = async (params = {}) => {
 
 export const getReportDetails = async (reportId) => {
   try {
-    const res = await axios.get(`${BASE_URL}/reports/${reportId}`, authHeader());
+    const res = await axios.get(
+      `${BASE_URL}/reports/${reportId}`,
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error fetching report details:", error);
@@ -361,7 +367,11 @@ export const getReportDetails = async (reportId) => {
 
 export const resolveReport = async (reportId, data) => {
   try {
-    const res = await axios.put(`${BASE_URL}/reports/${reportId}/resolve`, data, authHeader());
+    const res = await axios.put(
+      `${BASE_URL}/reports/${reportId}/resolve`,
+      data,
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error resolving report:", error);
@@ -371,7 +381,11 @@ export const resolveReport = async (reportId, data) => {
 
 export const dismissReport = async (reportId, data) => {
   try {
-    const res = await axios.put(`${BASE_URL}/reports/${reportId}/dismiss`, data, authHeader());
+    const res = await axios.put(
+      `${BASE_URL}/reports/${reportId}/dismiss`,
+      data,
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error dismissing report:", error);
@@ -395,7 +409,10 @@ export const getAllTickets = async (params = {}) => {
 
 export const getTicketDetails = async (ticketId) => {
   try {
-    const res = await axios.get(`${BASE_URL}/tickets/${ticketId}`, authHeader());
+    const res = await axios.get(
+      `${BASE_URL}/tickets/${ticketId}`,
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error fetching ticket details:", error);
@@ -405,7 +422,11 @@ export const getTicketDetails = async (ticketId) => {
 
 export const assignTicket = async (ticketId) => {
   try {
-    const res = await axios.post(`${BASE_URL}/tickets/${ticketId}/assign`, {}, authHeader());
+    const res = await axios.post(
+      `${BASE_URL}/tickets/${ticketId}/assign`,
+      {},
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error assigning ticket:", error);
@@ -415,7 +436,11 @@ export const assignTicket = async (ticketId) => {
 
 export const addTicketReply = async (ticketId, data) => {
   try {
-    const res = await axios.post(`${BASE_URL}/tickets/${ticketId}/reply`, data, authHeader());
+    const res = await axios.post(
+      `${BASE_URL}/tickets/${ticketId}/reply`,
+      data,
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error adding ticket reply:", error);
@@ -425,7 +450,11 @@ export const addTicketReply = async (ticketId, data) => {
 
 export const closeTicket = async (ticketId) => {
   try {
-    const res = await axios.put(`${BASE_URL}/tickets/${ticketId}/close`, {}, authHeader());
+    const res = await axios.put(
+      `${BASE_URL}/tickets/${ticketId}/close`,
+      {},
+      authHeader(),
+    );
     return res.data;
   } catch (error) {
     console.error("Error closing ticket:", error);
@@ -445,16 +474,20 @@ export const getTicketStats = async () => {
 
 // ================= SUCCESS STORIES =================
 
+// GET ALL
 export const getSuccessStories = async () => {
   try {
     const res = await axios.get(`${BASE_URL}/success-stories`, authHeader());
-    return res.data;
+
+    // ✅ Ensure always return array
+    return Array.isArray(res.data) ? res.data : res.data?.stories || [];
   } catch (error) {
     console.error("Error fetching success stories:", error);
-    throw error;
+    return []; // ✅ prevent crash
   }
 };
 
+// CREATE
 export const createSuccessStory = async (formData) => {
   try {
     const res = await axios.post(`${BASE_URL}/success-stories`, formData, {
@@ -463,13 +496,15 @@ export const createSuccessStory = async (formData) => {
         "Content-Type": "multipart/form-data",
       },
     });
+
     return res.data;
   } catch (error) {
     console.error("Error creating success story:", error);
-    throw error;
+    throw error.response?.data || { message: "Create failed" };
   }
 };
 
+// UPDATE
 export const updateSuccessStory = async (id, formData) => {
   try {
     const res = await axios.put(`${BASE_URL}/success-stories/${id}`, formData, {
@@ -478,20 +513,26 @@ export const updateSuccessStory = async (id, formData) => {
         "Content-Type": "multipart/form-data",
       },
     });
+
     return res.data;
   } catch (error) {
     console.error("Error updating success story:", error);
-    throw error;
+    throw error.response?.data || { message: "Update failed" };
   }
 };
 
+// DELETE
 export const deleteSuccessStory = async (id) => {
   try {
-    const res = await axios.delete(`${BASE_URL}/success-stories/${id}`, authHeader());
+    const res = await axios.delete(
+      `${BASE_URL}/success-stories/${id}`,
+      authHeader(),
+    );
+
     return res.data;
   } catch (error) {
     console.error("Error deleting success story:", error);
-    throw error;
+    throw error.response?.data || { message: "Delete failed" };
   }
 };
 

@@ -56,7 +56,12 @@ const SuccessStories = () => {
 
   const openEditModal = (story) => {
     setEditingStory(story);
-    setFormData({ ...story });
+    setFormData({
+      brideName: story.brideName,
+      groomName: story.groomName,
+      description: story.description,
+      imageFile: null,
+    });
     setIsModalOpen(true);
   };
 
@@ -67,10 +72,17 @@ const SuccessStories = () => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
     if (files && files[0]) {
-      setFormData((prev) => ({ ...prev, imageFile: files[0] }));
+      setFormData((prev) => ({
+        ...prev,
+        imageFile: files[0],
+      }));
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
     }
   };
 
@@ -173,12 +185,12 @@ const SuccessStories = () => {
             {filteredStories.length > 0 ? (
               filteredStories.map((story) => (
                 <tr
-                  key={story.id}
+                  key={story._id}
                   className="hover:bg-gray-50 transition-colors"
                 >
                   <td className="py-4 px-6">
                     <img
-                      src={story.img}
+                      src={story.image}
                       alt={story.brideName}
                       className="w-20 h-14 object-cover rounded-lg shadow-sm border border-gray-100"
                     />
@@ -206,7 +218,7 @@ const SuccessStories = () => {
                         <FiEdit size={18} />
                       </button>
                       <button
-                        onClick={() => handleDelete(story.id)}
+                        onClick={() => handleDelete(story._id)}
                         className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
                         title="Delete Story"
                       >
@@ -284,7 +296,6 @@ const SuccessStories = () => {
                   <input
                     type="file"
                     name="img"
-                    value={formData.img}
                     onChange={handleChange}
                     required
                     placeholder="https://images.unsplash.com/..."

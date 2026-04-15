@@ -127,14 +127,73 @@ const Register = () => {
   ];
 
   const educationOptions = [
-    "High School",
+    // Basic Education
+    "No Formal Education",
+    "Primary School",
+    "Middle School",
+    "High School (10th)",
+    "Higher Secondary (12th)",
+
+    // Skill / Training
     "Trade/Technical/Vocational Training",
+    "ITI (Industrial Training Institute)",
+    "Certification Course",
+    "Online Certification (Coursera/Udemy etc)",
+
+    // Diploma Level
     "Diploma",
+    "Polytechnic Diploma",
+    "Advanced Diploma",
+    "Post Diploma",
+
+    // Associate
     "Associate Degree",
-    "Bachelors Degree",
-    "Masters Degree",
-    "Doctorate or higher",
-    "Professional Degree (MBBS/BE/B.Tech/CA etc)",
+
+    // Bachelor's Degrees
+    "Bachelor's Degree (BA/BSc/BCom etc)",
+    "Bachelor of Engineering (BE)",
+    "Bachelor of Technology (B.Tech)",
+    "Bachelor of Medicine (MBBS)",
+    "Bachelor of Dental Surgery (BDS)",
+    "Bachelor of Pharmacy (B.Pharm)",
+    "Bachelor of Nursing (BSc Nursing)",
+    "Bachelor of Law (LLB)",
+    "Bachelor of Architecture (B.Arch)",
+    "Bachelor of Design (B.Des)",
+    "Bachelor of Business Administration (BBA)",
+    "Bachelor of Computer Applications (BCA)",
+    "Bachelor of Science in IT (BSc IT)",
+    "Bachelor of Hotel Management (BHM)",
+    "Bachelor of Education (B.Ed)",
+
+    // Master's Degrees
+    "Master's Degree (MA/MSc/MCom etc)",
+    "Master of Technology (M.Tech)",
+    "Master of Engineering (ME)",
+    "Master of Business Administration (MBA)",
+    "Master of Computer Applications (MCA)",
+    "Master of Science (MSc)",
+    "Master of Arts (MA)",
+    "Master of Commerce (MCom)",
+    "Master of Pharmacy (M.Pharm)",
+    "Master of Law (LLM)",
+    "Master of Education (M.Ed)",
+    "Master of Design (M.Des)",
+
+    // Doctorate
+    "Doctorate (PhD)",
+    "Doctor of Medicine (MD)",
+    "Doctor of Surgery (MS)",
+    "Post Doctorate",
+
+    // Professional / Certifications
+    "Professional Degree (CA/CS/CFA/ICWA etc)",
+    "Chartered Accountant (CA)",
+    "Company Secretary (CS)",
+    "Cost and Management Accountant (CMA)",
+    "Certified Financial Analyst (CFA)",
+
+    // Others
     "Other",
   ];
 
@@ -509,19 +568,46 @@ const Register = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Profile Image */}
                 <div className="md:col-span-2">
-                  <ImageUploader
-                    images={formData.images}
-                    previews={formData.imagePreviews}
-                    maxFiles={10}
-                    maxSizeMB={5}
-                    onChange={(imgs, previews) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        images: imgs,
-                        imagePreviews: previews,
-                      }))
-                    }
-                  />
+                  <div className="bg-white border rounded-xl p-4 shadow-sm">
+                    {/* Header */}
+                    <div className="flex justify-between items-center mb-3">
+                      <div>
+                        <h3 className="text-base font-semibold text-gray-800">
+                          Profile Photos
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          Upload up to 10 photos (Max 5MB each)
+                        </p>
+                      </div>
+
+                      {/* Count Badge */}
+                      <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-1 rounded">
+                        {formData.images?.length || 0}/10
+                      </span>
+                    </div>
+
+                    {/* Upload Box */}
+                    <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-indigo-400 transition">
+                      <ImageUploader
+                        images={formData.images}
+                        previews={formData.imagePreviews}
+                        maxFiles={10}
+                        maxSizeMB={5}
+                        onChange={(imgs, previews) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            images: imgs,
+                            imagePreviews: previews,
+                          }))
+                        }
+                      />
+                    </div>
+
+                    {/* Info Footer */}
+                    <p className="text-[11px] text-gray-400 mt-2">
+                      Tip: Add clear face photos for better matches
+                    </p>
+                  </div>
                 </div>
 
                 {/* First Name */}
@@ -667,6 +753,7 @@ const Register = () => {
                     onChange={handleChange}
                     value={formData.dateOfBirth || ""}
                     className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
+                    placeholder="Date of Birth"
                   />
                   {dobError && (
                     <p className="text-red-500 text-sm mt-1">{dobError}</p>
@@ -729,6 +816,7 @@ const Register = () => {
                     name="weight"
                     onChange={handleChange}
                     value={formData.weight || ""}
+                    placeholder="Weight (kg)"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -743,6 +831,7 @@ const Register = () => {
                     name="motherTongue"
                     onChange={handleChange}
                     value={formData.motherTongue || ""}
+                    placeholder="Mother Tongue"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -966,6 +1055,7 @@ const Register = () => {
                     name="nativePlace"
                     value={formData.nativePlace || ""}
                     onChange={handleChange}
+                    placeholder="Native Place"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1049,6 +1139,7 @@ const Register = () => {
                     name="educationDetails"
                     value={formData.educationDetails || ""}
                     onChange={handleChange}
+                    placeholder="Education details (e.g. B.Sc, Year)"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1062,6 +1153,7 @@ const Register = () => {
                     name="college"
                     value={formData.college || ""}
                     onChange={handleChange}
+                    placeholder="College / Institute"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1107,6 +1199,7 @@ const Register = () => {
                     name="occupationDetails"
                     value={formData.occupationDetails || ""}
                     onChange={handleChange}
+                    placeholder="Occupation / Job title"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1186,6 +1279,7 @@ const Register = () => {
                     name="jobLocationDetails"
                     value={formData.jobLocationDetails || ""}
                     onChange={handleChange}
+                    placeholder="Location details (office/local area)"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1262,6 +1356,7 @@ const Register = () => {
                   name="familyValues"
                   value={formData.familyValues || ""}
                   onChange={handleChange}
+                  placeholder="e.g. Traditional, Moderate"
                   className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                 />
               </div>
@@ -1274,6 +1369,7 @@ const Register = () => {
                   name="familyType"
                   value={formData.familyType || ""}
                   onChange={handleChange}
+                  placeholder="e.g. Joint, Nuclear"
                   className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                 />
               </div>
@@ -1286,6 +1382,7 @@ const Register = () => {
                   name="familyStatus"
                   value={formData.familyStatus || ""}
                   onChange={handleChange}
+                  placeholder="e.g. Upper Middle Class"
                   className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                 />
               </div>
@@ -1298,6 +1395,7 @@ const Register = () => {
                   name="ancestralOrigin"
                   value={formData.ancestralOrigin || ""}
                   onChange={handleChange}
+                  placeholder="Ancestral origin / hometown"
                   className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                 />
               </div>
@@ -1430,12 +1528,12 @@ const Register = () => {
                     Brother(s) Married
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     name="brothersMarried"
                     value={formData.brothersMarried || ""}
                     onChange={handleChange}
+                    placeholder="e.g. 1 or Yes or No"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
-                    min={0}
                   />
                 </div>
 
@@ -1452,18 +1550,17 @@ const Register = () => {
                     min={0}
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
                     Sister(s) Married
                   </label>
                   <input
-                    type="number"
+                    type="text"
                     name="sistersMarried"
                     value={formData.sistersMarried || ""}
                     onChange={handleChange}
+                    placeholder="e.g. 1 or Yes or No"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
-                    min={0}
                   />
                 </div>
                 {/* Paternal Uncle */}

@@ -82,7 +82,7 @@ export const viewProfile = async (profileId) => {
   try {
     const res = await axios.get(
       `${BASE_URL}/profile/${profileId}`,
-      authHeader()
+      authHeader(),
     );
     return res.data.profile;
   } catch (error) {
@@ -108,7 +108,7 @@ export const blockUser = async (blockedUserId) => {
     const res = await axios.post(
       `${BASE_URL}/block`,
       { blockedUserId },
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -122,7 +122,7 @@ export const unblockUser = async (blockedUserId) => {
     const res = await axios.post(
       `${BASE_URL}/unblock`,
       { blockedUserId },
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -133,15 +133,14 @@ export const unblockUser = async (blockedUserId) => {
 // GET BLOCKED USERS
 export const getBlockedUsers = async () => {
   try {
-    const res = await axios.get(
-      `${BASE_URL}/blocked-users`,
-      authHeader()
-    );
+    const res = await axios.get(`${BASE_URL}/blocked-users`, authHeader());
     return res.data.blockedUsers;
   } catch (error) {
-    throw error.response?.data || {
-      message: "Failed to fetch blocked users",
-    };
+    throw (
+      error.response?.data || {
+        message: "Failed to fetch blocked users",
+      }
+    );
   }
 };
 
@@ -153,8 +152,8 @@ const DASHBOARD = `${BASE_URL}/dashboard`;
 export const getUserProfile = async () => {
   try {
     const res = await axios.get(
-      `${BASE_URL}/profile`,   // ✅ correct endpoint
-      authHeader()
+      `${BASE_URL}/profile`, // ✅ correct endpoint
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -164,9 +163,9 @@ export const getUserProfile = async () => {
 export const updateUserProfile = async (data) => {
   try {
     const res = await axios.put(
-      `${BASE_URL}/profile`,   // ✅ correct
+      `${BASE_URL}/profile`, // ✅ correct
       data,
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -204,10 +203,7 @@ export const getActiveUsers = async () => {
   return Array.isArray(res?.data) ? res.data : [];
 };
 export const getUserById = async (id) => {
-  const res = await axios.get(
-    `${BASE_URL}/profile/${id}`,
-    authHeader()
-  );
+  const res = await axios.get(`${BASE_URL}/profile/${id}`, authHeader());
   // normalize response: controller may return { profile } or { user }
   return res.data.profile || res.data.user || res.data;
 };
@@ -229,7 +225,7 @@ export const trackVisit = async (profileId) => {
     const res = await axios.post(
       `${BASE_URL}/dashboard/visit/${profileId}`,
       {},
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -240,7 +236,7 @@ export const toggleLike = async (profileId) => {
   return axios.post(
     `${BASE_URL}/dashboard/like/${profileId}`,
     {},
-    authHeader()
+    authHeader(),
   );
 };
 // ================= SETTINGS =================
@@ -264,7 +260,7 @@ export const changePassword = async (data) => {
   const res = await axios.put(
     `${SETTINGS}/change-password`,
     data,
-    authHeader()
+    authHeader(),
   );
   return res.data;
 };
@@ -276,7 +272,7 @@ export const sendInterest = async (data) => {
     const res = await axios.post(
       `${BASE_URL}/interests/send`,
       data,
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -293,17 +289,15 @@ export const getSentInterests = async () => {
   }
 };
 
-
 // GET RECEIVED
 export const getReceivedInterests = async () => {
   try {
-    const res = await axios.get(
-      `${BASE_URL}/interests/received`,
-      authHeader()
-    );
+    const res = await axios.get(`${BASE_URL}/interests/received`, authHeader());
     return res.data.interests || [];
   } catch (error) {
-    throw error.response?.data || { message: "Failed to fetch received interests" };
+    throw (
+      error.response?.data || { message: "Failed to fetch received interests" }
+    );
   }
 };
 
@@ -313,7 +307,7 @@ export const acceptInterest = async (interestId) => {
     const res = await axios.put(
       `${BASE_URL}/interests/${interestId}/accept`,
       {},
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -327,7 +321,7 @@ export const rejectInterest = async (interestId) => {
     const res = await axios.put(
       `${BASE_URL}/interests/${interestId}/reject`,
       {},
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -340,7 +334,7 @@ export const cancelInterest = async (interestId) => {
   try {
     const res = await axios.delete(
       `${BASE_URL}/interests/${interestId}`,
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -355,7 +349,7 @@ export const addToShortlist = async (profileId) => {
     const res = await axios.post(
       `${BASE_URL}/shortlist/add`,
       { profileId },
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -369,7 +363,7 @@ export const removeFromShortlist = async (profileId) => {
     const res = await axios.post(
       `${BASE_URL}/shortlist/remove`,
       { profileId },
-      authHeader()
+      authHeader(),
     );
     return res.data;
   } catch (error) {
@@ -380,10 +374,7 @@ export const removeFromShortlist = async (profileId) => {
 // GET SHORTLIST
 export const getShortlist = async () => {
   try {
-    const res = await axios.get(
-      `${BASE_URL}/shortlist`,
-      authHeader()
-    );
+    const res = await axios.get(`${BASE_URL}/shortlist`, authHeader());
     return res.data.shortlist || [];
   } catch (error) {
     throw error.response?.data || { message: "Failed to fetch shortlist" };
@@ -397,19 +388,11 @@ export const getPackages = async () => {
 };
 
 export const createPaymentIntent = async (data) => {
-  return axios.post(
-    `${BASE_URL}/payments/create-intent`,
-    data,
-    authHeader()
-  );
+  return axios.post(`${BASE_URL}/payments/create-intent`, data, authHeader());
 };
 
 export const confirmPayment = async (data) => {
-  return axios.post(
-    `${BASE_URL}/payments/confirm`,
-    data,
-    authHeader()
-  );
+  return axios.post(`${BASE_URL}/payments/confirm`, data, authHeader());
 };
 
 // PUBLIC SEARCH (no auth)
@@ -440,5 +423,98 @@ export const publicSearchProfiles = async (filters = {}) => {
     return res.data;
   } catch (error) {
     throw error.response?.data || { message: "Search failed" };
+  }
+};
+
+// ================= PHOTOS =================
+
+const PHOTOS = `${BASE_URL}/photos`;
+
+// UPLOAD PHOTOS
+export const uploadPhotos = async (files, onUploadProgress) => {
+  try {
+    const form = new FormData();
+    files.forEach((file) => form.append("photos", file));
+
+    const res = await axios.post(`${PHOTOS}/upload`, form, {
+      ...authHeader(),
+      onUploadProgress,
+    });
+
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Photo upload failed" };
+  }
+};
+
+// GET ALL PHOTOS
+export const getPhotos = async () => {
+  try {
+    const res = await axios.get(PHOTOS, authHeader());
+    return res.data.photos || [];
+  } catch (error) {
+    throw error.response?.data || { message: "Failed to fetch photos" };
+  }
+};
+
+// SET PROFILE PHOTO
+export const setProfilePhoto = async (photoId) => {
+  try {
+    const res = await axios.put(
+      `${PHOTOS}/${photoId}/profile`,
+      {},
+      authHeader(),
+    );
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Failed to set profile photo" };
+  }
+};
+
+// UPDATE PRIVACY
+export const updatePhotoPrivacy = async (photoId, privacy) => {
+  try {
+    const res = await axios.put(
+      `${PHOTOS}/${photoId}/privacy`,
+      { privacy },
+      authHeader(),
+    );
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Failed to update privacy" };
+  }
+};
+
+// DELETE PHOTO
+export const deletePhoto = async (photoId) => {
+  try {
+    const res = await axios.delete(`${PHOTOS}/${photoId}`, authHeader());
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Failed to delete photo" };
+  }
+};
+
+// REORDER PHOTOS
+export const reorderPhotos = async (order) => {
+  try {
+    const res = await axios.put(`${PHOTOS}/reorder`, { order }, authHeader());
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Failed to reorder photos" };
+  }
+};
+
+// ================= PUBLIC SUCCESS STORIES =================
+export const getPublicSuccessStories = async () => {
+  try {
+    const res = await axios.get(
+      `${import.meta.env.VITE_API_URL}/success-stories`,
+    );
+
+    return Array.isArray(res?.data) ? res.data : [];
+  } catch (error) {
+    console.error("Failed to fetch public success stories:", error);
+    return [];
   }
 };
