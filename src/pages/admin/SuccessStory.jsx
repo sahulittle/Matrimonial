@@ -204,8 +204,10 @@ const SuccessStories = () => {
                     </div>
                   </td>
                   <td className="py-4 px-6 max-w-md">
-                    <p className="line-clamp-2 text-sm text-gray-600 leading-relaxed">
-                      {story.description}
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {story.description?.length > 15
+                        ? story.description.substring(0, 15) + "..."
+                        : story.description}
                     </p>
                   </td>
                   <td className="py-4 px-6">

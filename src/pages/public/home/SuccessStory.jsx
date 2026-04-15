@@ -3,7 +3,7 @@ import { getPublicSuccessStories } from "../../../api/userApi/userApi";
 
 // 🔹 Loading Placeholder
 const PlaceholderCard = () => (
-  <div className="animate-pulse rounded-2xl h-64 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800" />
+  <div className="animate-pulse rounded-2xl h-64 bg-gradient-to-r from-pink-100 via-white to-pink-100" />
 );
 
 // 🔹 Modal
@@ -86,14 +86,14 @@ const SuccessStory = () => {
   }, []);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-black via-gray-900 to-black">
+    <section className="py-20 bg-gradient-to-b from-pink-50 via-white to-gray-50">
       <div className="container mx-auto px-6 text-center">
         {/* Header */}
-        <h3 className="text-4xl md:text-5xl font-bold text-white mb-4">
+        <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
           Success Stories
         </h3>
 
-        <p className="text-gray-300 max-w-2xl mx-auto mb-12">
+        <p className="text-gray-700 max-w-2xl mx-auto mb-12">
           Real couples. Real stories. Moments that became unforgettable.
         </p>
 
