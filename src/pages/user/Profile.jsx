@@ -95,6 +95,60 @@ export default function Profile() {
   const [isReligionOpen, setIsReligionOpen] = useState(false);
   const [religionsList, setReligionsList] = useState(["Hindu"]);
   const [isEducationOpen, setIsEducationOpen] = useState(false);
+  // Education options (same as register page)
+  const educationOptions = [
+    "No Formal Education",
+    "Primary School",
+    "Middle School",
+    "High School (10th)",
+    "Higher Secondary (12th)",
+    "Trade/Technical/Vocational Training",
+    "ITI (Industrial Training Institute)",
+    "Certification Course",
+    "Online Certification (Coursera/Udemy etc)",
+    "Diploma",
+    "Polytechnic Diploma",
+    "Advanced Diploma",
+    "Post Diploma",
+    "Associate Degree",
+    "Bachelor's Degree (BA/BSc/BCom etc)",
+    "Bachelor of Engineering (BE)",
+    "Bachelor of Technology (B.Tech)",
+    "Bachelor of Medicine (MBBS)",
+    "Bachelor of Dental Surgery (BDS)",
+    "Bachelor of Pharmacy (B.Pharm)",
+    "Bachelor of Nursing (BSc Nursing)",
+    "Bachelor of Law (LLB)",
+    "Bachelor of Architecture (B.Arch)",
+    "Bachelor of Design (B.Des)",
+    "Bachelor of Business Administration (BBA)",
+    "Bachelor of Computer Applications (BCA)",
+    "Bachelor of Science in IT (BSc IT)",
+    "Bachelor of Hotel Management (BHM)",
+    "Bachelor of Education (B.Ed)",
+    "Master's Degree (MA/MSc/MCom etc)",
+    "Master of Technology (M.Tech)",
+    "Master of Engineering (ME)",
+    "Master of Business Administration (MBA)",
+    "Master of Computer Applications (MCA)",
+    "Master of Science (MSc)",
+    "Master of Arts (MA)",
+    "Master of Commerce (MCom)",
+    "Master of Pharmacy (M.Pharm)",
+    "Master of Law (LLM)",
+    "Master of Education (M.Ed)",
+    "Master of Design (M.Des)",
+    "Doctorate (PhD)",
+    "Doctor of Medicine (MD)",
+    "Doctor of Surgery (MS)",
+    "Post Doctorate",
+    "Professional Degree (CA/CS/CFA/ICWA etc)",
+    "Chartered Accountant (CA)",
+    "Company Secretary (CS)",
+    "Cost and Management Accountant (CMA)",
+    "Certified Financial Analyst (CFA)",
+    "Other",
+  ];
   const [isCareerOpen, setIsCareerOpen] = useState(false);
   const [isFamilyOpen, setIsFamilyOpen] = useState(false);
   const [isExtendedOpen, setIsExtendedOpen] = useState(false);
@@ -193,6 +247,16 @@ export default function Profile() {
         complexion: user.complexion || "",
         bloodGroup: user.bloodGroup || "",
 
+        // newly added personal fields
+        motherTongue: user.motherTongue || "",
+        bodyType: user.bodyType || "",
+        weight: user.weight || "",
+        rashi: user.rashi || "",
+        nativePlace: user.nativePlace || "",
+        country: user.country || "",
+        citizenship: user.citizenship || "",
+        countryOther: user.countryOther || "",
+
         // RELIGION
         religion: user.religion || "Hindu",
         caste: user.caste || "",
@@ -200,18 +264,36 @@ export default function Profile() {
         // EDUCATION
         education: user.education || "",
         fieldOfStudy: user.fieldOfStudy || "",
+        educationCategory: user.educationCategory || "",
+        educationDetails: user.educationDetails || "",
+        college: user.college || "",
 
         // CAREER
         job: user.job || "",
         jobLocation: user.jobLocation || "",
+        employedIn: user.employedIn || "",
+        occupationDetails: user.occupationDetails || "",
+        jobCountry: user.jobCountry || "India",
+        jobCountryOther: user.jobCountryOther || "",
+        jobState: user.jobState || "",
+        jobCity: user.jobCity || "",
+        jobLocationDetails: user.jobLocationDetails || "",
         annualIncome: user.annualIncome || "",
 
         // FAMILY
+        familyValues: user.familyValues || "",
+        familyType: user.familyType || "",
+        familyStatus: user.familyStatus || "",
+        ancestralOrigin: user.ancestralOrigin || "",
         fatherName: user.fatherName || "",
         fatherJob: user.fatherJob || "",
         motherName: user.motherName || "",
         motherJob: user.motherJob || "",
         siblings: user.siblings || "",
+        brothers: user.brothers ?? "",
+        brothersMarried: user.brothersMarried || "",
+        sisters: user.sisters ?? "",
+        sistersMarried: user.sistersMarried || "",
 
         // EXTENDED
         paternalUncleName: user.paternalUncleName || "",
@@ -225,6 +307,12 @@ export default function Profile() {
           : user.hobbies
             ? [user.hobbies]
             : [],
+        // new categorized interests
+        music: user.music || "",
+        reading: user.reading || "",
+        moviesAndTVShows: user.moviesAndTVShows || "",
+        sportsAndFitness: user.sportsAndFitness || "",
+        food: user.food || "",
         lifestyle: user.lifestyle || "",
         contactDisplay: user.contactDisplay || "",
         phone: user.phone || "",
@@ -252,7 +340,31 @@ export default function Profile() {
   // ✅ HERE (correct place)
   const handleBasicSave = async () => {
     try {
-      const updatedUser = await updateProfileContext(formData);
+      // send only basic/lifestyle related fields to update
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        gender: formData.gender,
+        dateOfBirth: formData.dateOfBirth,
+        birthTime: formData.birthTime,
+        birthName: formData.birthName,
+        height: formData.height,
+        complexion: formData.complexion,
+        bloodGroup: formData.bloodGroup,
+        motherTongue: formData.motherTongue,
+        bodyType: formData.bodyType,
+        weight: formData.weight,
+        rashi: formData.rashi,
+        nativePlace: formData.nativePlace,
+        country: formData.country,
+        citizenship: formData.citizenship,
+        countryOther: formData.countryOther,
+        state: formData.state,
+        city: formData.city,
+        presentAddress: formData.presentAddress,
+      };
+      const updatedUser = await updateProfileContext(payload);
       setUser(updatedUser);
       setIsBasicEditOpen(false);
     } catch (err) {
@@ -270,10 +382,13 @@ export default function Profile() {
   };
 
   const handleEducationSave = async () => {
-    const updatedUser = await updateProfileContext({
-      education: formData.education,
+    const payload = {
       fieldOfStudy: formData.fieldOfStudy,
-    });
+      educationCategory: formData.educationCategory,
+      educationDetails: formData.educationDetails,
+      college: formData.college,
+    };
+    const updatedUser = await updateProfileContext(payload);
     setUser(updatedUser);
     setIsEducationOpen(false);
   };
@@ -282,6 +397,13 @@ export default function Profile() {
     const updatedUser = await updateProfileContext({
       job: formData.job,
       jobLocation: formData.jobLocation,
+      employedIn: formData.employedIn,
+      occupationDetails: formData.occupationDetails,
+      jobCountry: formData.jobCountry,
+      jobCountryOther: formData.jobCountryOther,
+      jobState: formData.jobState,
+      jobCity: formData.jobCity,
+      jobLocationDetails: formData.jobLocationDetails,
       annualIncome: formData.annualIncome,
     });
     setUser(updatedUser);
@@ -290,11 +412,19 @@ export default function Profile() {
 
   const handleFamilySave = async () => {
     const updatedUser = await updateProfileContext({
+      familyValues: formData.familyValues,
+      familyType: formData.familyType,
+      familyStatus: formData.familyStatus,
+      ancestralOrigin: formData.ancestralOrigin,
       fatherName: formData.fatherName,
       fatherJob: formData.fatherJob,
       motherName: formData.motherName,
       motherJob: formData.motherJob,
       siblings: formData.siblings,
+      brothers: formData.brothers,
+      brothersMarried: formData.brothersMarried,
+      sisters: formData.sisters,
+      sistersMarried: formData.sistersMarried,
     });
     setUser(updatedUser);
     setIsFamilyOpen(false);
@@ -316,7 +446,15 @@ export default function Profile() {
       const hobbiesArr = Array.isArray(formData.hobbies)
         ? formData.hobbies.map((h) => String(h).trim()).filter(Boolean)
         : [];
-      const updatedUser = await updateProfileContext({ hobbies: hobbiesArr });
+      const payload = {
+        hobbies: hobbiesArr,
+        music: formData.music || "",
+        reading: formData.reading || "",
+        moviesAndTVShows: formData.moviesAndTVShows || "",
+        sportsAndFitness: formData.sportsAndFitness || "",
+        food: formData.food || "",
+      };
+      const updatedUser = await updateProfileContext(payload);
       setUser(updatedUser);
       setIsHobbiesOpen(false);
       setNewHobby("");
@@ -683,11 +821,16 @@ export default function Profile() {
                 />
                 <Row label="Email" value={user?.email} />
                 <Row label="Gender" value={user?.gender} />
+                <Row label="Mother Tongue" value={user?.motherTongue} />
+                <Row label="Body Type" value={user?.bodyType} />
                 <Row label="Age" value={calculateAge(user?.dateOfBirth)} />
                 <Row label="DOB" value={formatDobDisplay(user?.dateOfBirth)} />
                 <Row label="Birth Time" value={user?.birthTime} />
                 <Row label="Birth Name" value={user?.birthName} />
                 <Row label="Height" value={user?.height} />
+                <Row label="Weight" value={user?.weight} />
+                <Row label="Rashi" value={user?.rashi} />
+                <Row label="Native Place" value={user?.nativePlace} />
                 <Row label="Complexion" value={user?.complexion} />
                 <Row label="Blood Group" value={user?.bloodGroup} />
               </Section>
@@ -720,7 +863,9 @@ export default function Profile() {
                 title="Education Details"
                 onEdit={() => setIsEducationOpen(true)}
               >
-                <Row label="Education" value={user?.education} />
+                <Row label="Education Category" value={user?.educationCategory} />
+                <Row label="Education Details" value={user?.educationDetails} />
+                <Row label="College" value={user?.college} />
                 <Row label="Field of Study" value={user?.fieldOfStudy} />
               </Section>
 
@@ -729,8 +874,14 @@ export default function Profile() {
                 title="Career Details"
                 onEdit={() => setIsCareerOpen(true)}
               >
+                <Row label="Employed In" value={user?.employedIn} />
+                <Row label="Occupation Details" value={user?.occupationDetails} />
                 <Row label="Job" value={user?.job} />
                 <Row label="Job Location" value={user?.jobLocation} />
+                <Row label="Job Country" value={user?.jobCountry === 'Other' ? user?.jobCountryOther || 'Other' : user?.jobCountry} />
+                <Row label="Job State" value={user?.jobState} />
+                <Row label="Job City" value={user?.jobCity} />
+                <Row label="Job Location Details" value={user?.jobLocationDetails} />
                 <Row label="Annual Income" value={user?.annualIncome} />
               </Section>
 
@@ -739,11 +890,19 @@ export default function Profile() {
                 title="Family Details"
                 onEdit={() => setIsFamilyOpen(true)}
               >
+                <Row label="Family Values" value={user?.familyValues} />
+                <Row label="Family Type" value={user?.familyType} />
+                <Row label="Family Status" value={user?.familyStatus} />
+                <Row label="Ancestral Origin" value={user?.ancestralOrigin} />
                 <Row label="Father Name" value={user?.fatherName} />
                 <Row label="Father Job" value={user?.fatherJob} />
                 <Row label="Mother Name" value={user?.motherName} />
                 <Row label="Mother Job" value={user?.motherJob} />
                 <Row label="Siblings" value={user?.siblings} />
+                <Row label="Brothers" value={user?.brothers} />
+                <Row label="Brothers Married" value={user?.brothersMarried} />
+                <Row label="Sisters" value={user?.sisters} />
+                <Row label="Sisters Married" value={user?.sistersMarried} />
               </Section>
 
               {/* EXTENDED FAMILY */}
@@ -771,10 +930,10 @@ export default function Profile() {
 
               {/* HOBBIES & INTERESTS */}
               <Section
-                title="Hobbies and Interests"
+                title="Hobbies & Interests"
                 onEdit={() => setIsHobbiesOpen(true)}
               >
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap mb-3">
                   {(user?.hobbies || []).length > 0 ? (
                     user.hobbies.map((h) => (
                       <span
@@ -787,6 +946,24 @@ export default function Profile() {
                   ) : (
                     <div className="text-gray-500">No hobbies added</div>
                   )}
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-sm text-gray-700">
+                  <div>
+                    <strong>Music:</strong> {user?.music || "-"}
+                  </div>
+                  <div>
+                    <strong>Reading:</strong> {user?.reading || "-"}
+                  </div>
+                  <div>
+                    <strong>Movies & TV Shows:</strong> {user?.moviesAndTVShows || "-"}
+                  </div>
+                  <div>
+                    <strong>Sports & Fitness:</strong> {user?.sportsAndFitness || "-"}
+                  </div>
+                  <div className="col-span-2">
+                    <strong>Food:</strong> {user?.food || "-"}
+                  </div>
                 </div>
               </Section>
 
@@ -1283,6 +1460,129 @@ export default function Profile() {
                 />
               </div>
 
+              {/* MOTHER TONGUE */}
+              <div>
+                <label className="text-sm text-gray-600">Mother Tongue</label>
+                <input
+                  type="text"
+                  placeholder="Mother Tongue"
+                  value={formData.motherTongue || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, motherTongue: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* BODY TYPE */}
+              <div>
+                <label className="text-sm text-gray-600">Body Type</label>
+                <select
+                  value={formData.bodyType || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, bodyType: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                >
+                  <option value="">Select</option>
+                  <option value="Slim">Slim</option>
+                  <option value="Average">Average</option>
+                  <option value="Athletic">Athletic</option>
+                  <option value="Heavy">Heavy</option>
+                </select>
+              </div>
+
+              {/* WEIGHT */}
+              <div>
+                <label className="text-sm text-gray-600">Weight (kg)</label>
+                <input
+                  type="number"
+                  placeholder="Weight"
+                  value={formData.weight || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, weight: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* RASHI */}
+              <div>
+                <label className="text-sm text-gray-600">Rashi</label>
+                <input
+                  type="text"
+                  placeholder="Rashi"
+                  value={formData.rashi || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, rashi: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* NATIVE PLACE */}
+              <div>
+                <label className="text-sm text-gray-600">Native Place</label>
+                <input
+                  placeholder="Native Place"
+                  value={formData.nativePlace || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, nativePlace: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              {/* COUNTRY & CITIZENSHIP */}
+              <div>
+                <label className="text-sm text-gray-600">Country</label>
+                <select
+                  value={formData.country || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, country: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                >
+                  <option value="">Select</option>
+                  <option value="India">India</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Citizenship</label>
+                {formData.country === "India" ? (
+                  <input
+                    value="Indian"
+                    readOnly
+                    className="border p-2 rounded mt-1 w-full bg-gray-50"
+                  />
+                ) : (
+                  <input
+                    placeholder="Citizenship"
+                    value={formData.citizenship || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, citizenship: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                )}
+              </div>
+
+              {formData.country === "Other" && (
+                <div className="col-span-2">
+                  <label className="text-sm text-gray-600">Country (Other)</label>
+                  <input
+                    placeholder="Enter Country"
+                    value={formData.countryOther || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, countryOther: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                </div>
+              )}
+
               {/* HEIGHT */}
               <div>
                 <label className="text-sm text-gray-600">Height</label>
@@ -1473,18 +1773,48 @@ export default function Profile() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm text-gray-600">Education</label>
-                <input
-                  placeholder="Education"
-                  value={formData.education || ""}
+                <label className="text-sm text-gray-600">Education Category</label>
+                <select
+                  value={formData.educationCategory || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, education: e.target.value })
+                    setFormData({ ...formData, educationCategory: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                >
+                  <option value="">Select Education Category</option>
+                  {educationOptions.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Education Details</label>
+                <input
+                  placeholder="Education details (e.g. B.Sc, Year)"
+                  value={formData.educationDetails || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, educationDetails: e.target.value })
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />
               </div>
 
-              <div>
+              <div className="col-span-2">
+                <label className="text-sm text-gray-600">College / Institute</label>
+                <input
+                  placeholder="College / Institute"
+                  value={formData.college || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, college: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div className="col-span-2">
                 <label className="text-sm text-gray-600">Field of Study</label>
                 <textarea
                   rows={3}
@@ -1578,6 +1908,68 @@ export default function Profile() {
                 >
                   Add
                 </button>
+              </div>
+
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-sm text-gray-600">Music</label>
+                  <input
+                    placeholder="Favorite music / genres"
+                    value={formData.music || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, music: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-600">Reading</label>
+                  <input
+                    placeholder="Books / authors / genres"
+                    value={formData.reading || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, reading: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="text-sm text-gray-600">Movies and TV Shows</label>
+                  <input
+                    placeholder="Favorite movies or shows"
+                    value={formData.moviesAndTVShows || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, moviesAndTVShows: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm text-gray-600">Sports and Fitness</label>
+                  <input
+                    placeholder="Sports / fitness activities"
+                    value={formData.sportsAndFitness || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sportsAndFitness: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                </div>
+
+                <div className="col-span-2">
+                  <label className="text-sm text-gray-600">Food</label>
+                  <input
+                    placeholder="Favorite cuisines / dishes"
+                    value={formData.food || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, food: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                </div>
               </div>
 
               <div className="mt-3 flex gap-2 flex-wrap">
@@ -1858,6 +2250,100 @@ export default function Profile() {
                 />
               </div>
 
+              <div>
+                <label className="text-sm text-gray-600">Employed In</label>
+                <select
+                  value={formData.employedIn || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, employedIn: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                >
+                  <option value="">Select</option>
+                  <option>Private Company</option>
+                  <option>Government/Public Sector</option>
+                  <option>Defence/Civil Service</option>
+                  <option>Business/Self Employed</option>
+                  <option>Not Working</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Occupation Details</label>
+                <input
+                  placeholder="Occupation / Job title"
+                  value={formData.occupationDetails || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, occupationDetails: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Job Country</label>
+                <select
+                  value={formData.jobCountry || "India"}
+                  onChange={(e) =>
+                    setFormData({ ...formData, jobCountry: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                >
+                  <option value="India">India</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              {formData.jobCountry === "Other" && (
+                <div>
+                  <label className="text-sm text-gray-600">Job Country (Other)</label>
+                  <input
+                    placeholder="Enter Country"
+                    value={formData.jobCountryOther || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, jobCountryOther: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="text-sm text-gray-600">Job State</label>
+                <input
+                  placeholder="Job State"
+                  value={formData.jobState || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, jobState: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Job City</label>
+                <input
+                  placeholder="Job City"
+                  value={formData.jobCity || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, jobCity: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="text-sm text-gray-600">Job Location Details</label>
+                <input
+                  placeholder="Location details (office/local area)"
+                  value={formData.jobLocationDetails || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, jobLocationDetails: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
               <div className="col-span-2">
                 <label className="text-sm text-gray-600">Annual Income</label>
                 <input
@@ -1972,6 +2458,106 @@ export default function Profile() {
                   value={formData.siblings || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, siblings: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Brothers</label>
+                <input
+                  placeholder="Number of brothers"
+                  type="number"
+                  min={0}
+                  value={formData.brothers || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, brothers: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Brothers Married</label>
+                <input
+                  placeholder="e.g. 1 or Yes or No"
+                  value={formData.brothersMarried || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, brothersMarried: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Sisters</label>
+                <input
+                  placeholder="Number of sisters"
+                  type="number"
+                  min={0}
+                  value={formData.sisters || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, sisters: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Sisters Married</label>
+                <input
+                  placeholder="e.g. 1 or Yes or No"
+                  value={formData.sistersMarried || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, sistersMarried: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="text-sm text-gray-600">Family Values</label>
+                <input
+                  placeholder="e.g. Traditional, Moderate"
+                  value={formData.familyValues || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, familyValues: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Family Type</label>
+                <input
+                  placeholder="e.g. Joint, Nuclear"
+                  value={formData.familyType || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, familyType: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm text-gray-600">Family Status</label>
+                <input
+                  placeholder="e.g. Upper Middle Class"
+                  value={formData.familyStatus || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, familyStatus: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                />
+              </div>
+
+              <div className="col-span-2">
+                <label className="text-sm text-gray-600">Ancestral Origin</label>
+                <input
+                  placeholder="Ancestral origin / hometown"
+                  value={formData.ancestralOrigin || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, ancestralOrigin: e.target.value })
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />

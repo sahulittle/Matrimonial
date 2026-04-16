@@ -457,7 +457,11 @@ const Register = () => {
           (formData.images || []).forEach((img) =>
             formDataToSend.append("images", img),
           );
+        } else if (key === "languagesKnown") {
+          // backend expects `languages` as field name; keep comma-separated string
+          formDataToSend.append("languages", formData.languagesKnown || "");
         } else if (key !== "imagePreviews") {
+          // append other scalar/array fields (FormData will stringify arrays)
           formDataToSend.append(key, formData[key]);
         }
       });
