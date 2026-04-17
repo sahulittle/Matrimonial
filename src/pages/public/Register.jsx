@@ -6,6 +6,7 @@ import { registerUser } from "../../api/userApi/userApi";
 import { userDataApi } from "../../services/api";
 import { casteOptions } from "../../utils/options";
 import ImageUploader from "../../components/ImageUploader";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Register = () => {
   const [step, setStep] = useState(1);
@@ -13,8 +14,7 @@ const Register = () => {
 
   const [formData, setFormData] = useState({
     // Personal
-    firstName: "",
-    lastName: "",
+    fullName: "",
     email: "",
     password: "",
     gender: "",
@@ -86,7 +86,11 @@ const Register = () => {
   const [policy, setPolicy] = useState("professional");
   const [policyErrors, setPolicyErrors] = useState([]);
   const [passwordError, setPasswordError] = useState("");
-
+  const [errors, setErrors] = useState({}); // ✅ ADD THIS
+  const [showPassword, setShowPassword] = useState(false);
+  const [dobDay, setDobDay] = useState("");
+  const [dobMonth, setDobMonth] = useState("");
+  const [dobYear, setDobYear] = useState("");
   const jobOptions = [
     "Private Company",
     "Government/Public Sector",
@@ -350,6 +354,16 @@ const Register = () => {
     return age;
   };
 
+  const handleDobChange = (day, month, year) => {
+    if (day && month && year) {
+      const formatted = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+      setFormData((prev) => ({ ...prev, dateOfBirth: formatted }));
+
+      const age = getAge(formatted);
+      if (age < 18) setDobError("You must be at least 18 years old");
+      else setDobError("");
+    }
+  };
   // ---------------- Password helpers ----------------
   const hasLower = (s) => /[a-z]/.test(s);
   const hasUpper = (s) => /[A-Z]/.test(s);
@@ -398,7 +412,7 @@ const Register = () => {
   const validateByPolicy = (pw = "", pol = "professional") => {
     const errors = [];
     if (pol === "professional") {
-      if (pw.length < 12) errors.push("At least 12 characters recommended");
+      if (pw.length < 6) errors.push("At least 6 characters required");
       const classes = [
         hasLower(pw),
         hasUpper(pw),
@@ -435,15 +449,54 @@ const Register = () => {
     }
     return { ok: errors.length === 0, errors };
   };
+  // ✅ Step 1 validation
+  const validateStep1 = () => {
+    const newErrors = {};
+
+    if (!formData.fullName) newErrors.fullName = true;
+    if (!formData.email) newErrors.email = true;
+    if (!formData.password) newErrors.password = true;
+    if (!formData.gender) newErrors.gender = true;
+    if (!formData.dateOfBirth) newErrors.dateOfBirth = true;
+    if (!formData.height) newErrors.height = true;
+    if (!formData.motherTongue) newErrors.motherTongue = true;
+    if (!formData.caste) newErrors.caste = true;
+    if (!formData.state) newErrors.state = true;
+    if (!formData.city) newErrors.city = true;
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // ✅ Step 2 validation
+  const validateStep2 = () => {
+    const newErrors = {};
+
+    if (!formData.educationCategory) newErrors.educationCategory = true;
+    if (!formData.employedIn) newErrors.employedIn = true;
+    if (!formData.annualIncome) newErrors.annualIncome = true;
+
+    setErrors((prev) => ({ ...prev, ...newErrors }));
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
-
-    // final safety checks for password policy
+    if (
+      !formData.fatherName ||
+      !formData.fatherJob ||
+      !formData.motherName ||
+      !formData.motherJob ||
+      !formData.siblings
+    ) {
+      toast.error("Please fill all required family details");
+      return;
+    }
     if (!formData.password || String(formData.password).length < 6) {
       toast.error("Password must be at least 6 characters");
       return;
     }
+
     const polCheckFinal = validateByPolicy(formData.password, policy);
     if (!polCheckFinal.ok) {
       polCheckFinal.errors.forEach((err) => toast.error(err));
@@ -452,20 +505,34 @@ const Register = () => {
 
     try {
       const formDataToSend = new FormData();
+
       Object.keys(formData).forEach((key) => {
+        // ✅ Images upload
         if (key === "images") {
           (formData.images || []).forEach((img) =>
             formDataToSend.append("images", img),
           );
-        } else if (key === "languagesKnown") {
-          // backend expects `languages` as field name; keep comma-separated string
-          formDataToSend.append("languages", formData.languagesKnown || "");
-        } else if (key !== "imagePreviews") {
-          // append other scalar/array fields (FormData will stringify arrays)
+        }
+
+        // ✅ Convert languagesKnown → languages (ARRAY)
+        else if (key === "languagesKnown") {
+          const langs = formData.languagesKnown
+            ? formData.languagesKnown.split(",").map((l) => l.trim())
+            : [];
+
+          langs.forEach((lang) => formDataToSend.append("languages", lang));
+        }
+
+        // ❌ Skip preview only
+        else if (key !== "imagePreviews") {
+          // ✅ Send all other fields as-is
+          // (includes employedIn & jobLocationDetails)
           formDataToSend.append(key, formData[key]);
         }
       });
+
       const res = await registerUser(formDataToSend);
+
       toast.success(res.message || "Registration successful");
       navigate("/login");
     } catch (error) {
@@ -566,6 +633,10 @@ const Register = () => {
                   setPolicyErrors(polCheck.errors);
                   return;
                 }
+                if (!validateStep1()) {
+                  toast.error("Please fill all required fields");
+                  return;
+                }
                 setStep(2);
               }}
             >
@@ -614,42 +685,20 @@ const Register = () => {
                   </div>
                 </div>
 
-                {/* First Name */}
-                <div>
-                  <label
-                    htmlFor="first-name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    First Name
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700">
+                    Full Name <span className="text-red-500">*</span>
                   </label>
                   <input
-                    id="first-name"
-                    name="firstName"
                     type="text"
+                    name="fullName"
                     required
                     onChange={handleChange}
-                    value={formData.firstName || ""}
-                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                    placeholder="First Name"
-                  />
-                </div>
-                {/* Last Name */}
-                <div>
-                  <label
-                    htmlFor="last-name"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Last Name
-                  </label>
-                  <input
-                    id="last-name"
-                    name="lastName"
-                    type="text"
-                    required
-                    onChange={handleChange}
-                    value={formData.lastName || ""}
-                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                    placeholder="Last Name"
+                    value={formData.fullName || ""}
+                    placeholder="Enter Full Name"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.fullName ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
                 </div>
 
@@ -659,7 +708,7 @@ const Register = () => {
                     htmlFor="email"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Email Address
+                    Email Address <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="email"
@@ -668,22 +717,25 @@ const Register = () => {
                     required
                     onChange={handleChange}
                     value={formData.email || ""}
-                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                     placeholder="Email Address"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.email ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
                 </div>
                 {/* Password */}
-                <div>
+                <div className="relative">
                   <label
                     htmlFor="password"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Password
+                    Password <span className="text-red-500">*</span>
                   </label>
+
                   <input
                     id="password"
                     name="password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     required
                     onChange={(e) => {
                       handleChange(e);
@@ -695,14 +747,29 @@ const Register = () => {
                       if (passwordError) setPasswordError("");
                     }}
                     value={formData.password || ""}
-                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
                     placeholder="Password"
+                    className={`mt-1 block w-full px-3 py-3 pr-12 border rounded-md ${
+                      errors.password ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+
+                  {/* 👁 Icon centered */}
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-[47px] transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? (
+                      <FaEyeSlash size={18} />
+                    ) : (
+                      <FaEye size={18} />
+                    )}
+                  </button>
+
                   {passwordError && (
                     <p className="text-sm text-red-600 mt-1">{passwordError}</p>
                   )}
 
-                  {/* show policy validation messages live (keep bullets) */}
                   {policyErrors && policyErrors.length > 0 && (
                     <div className="mt-2 text-xs text-red-600">
                       {policyErrors.map((err, i) => (
@@ -718,7 +785,7 @@ const Register = () => {
                     htmlFor="gender"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Gender
+                    Gender <span className="text-red-500">*</span>
                   </label>
                   <div className="mt-1 relative">
                     <select
@@ -727,7 +794,9 @@ const Register = () => {
                       required
                       onChange={handleChange}
                       value={formData.gender || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                      className={`appearance-none mt-1 block w-full px-3 py-3 border rounded-md ${
+                        errors.gender ? "border-red-500" : "border-gray-300"
+                      }`}
                     >
                       <option value="" disabled>
                         Select Gender
@@ -743,22 +812,77 @@ const Register = () => {
 
                 {/* Date of Birth */}
                 <div>
-                  <label
-                    htmlFor="dob"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Date of Birth
+                  <label className="block text-sm font-medium text-gray-700">
+                    Date of Birth <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    id="dob"
-                    name="dateOfBirth"
-                    type="date"
-                    required
-                    onChange={handleChange}
-                    value={formData.dateOfBirth || ""}
-                    className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
-                    placeholder="Date of Birth"
-                  />
+
+                  <div className="grid grid-cols-3 gap-3 mt-1">
+                    {/* Day */}
+                    <select
+                      value={dobDay}
+                      onChange={(e) => {
+                        setDobDay(e.target.value);
+                        handleDobChange(e.target.value, dobMonth, dobYear);
+                      }}
+                      className="appearance-none px-3 py-3 border rounded-md"
+                    >
+                      <option value="">DD</option>
+                      {[...Array(31)].map((_, i) => (
+                        <option key={i + 1} value={String(i + 1)}>
+                          {i + 1}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Month */}
+                    <select
+                      value={dobMonth}
+                      onChange={(e) => {
+                        setDobMonth(e.target.value);
+                        handleDobChange(dobDay, e.target.value, dobYear);
+                      }}
+                      className="appearance-none px-3 py-3 border rounded-md"
+                    >
+                      <option value="">MM</option>
+                      {[...Array(12)].map((_, i) => (
+                        <option key={i + 1} value={String(i + 1)}>
+                          {i + 1}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Year */}
+                    <select
+                      value={dobYear}
+                      onChange={(e) => {
+                        setDobYear(e.target.value);
+                        handleDobChange(dobDay, dobMonth, e.target.value);
+                      }}
+                      className="appearance-none px-3 py-3 border rounded-md"
+                    >
+                      <option value="">YYYY</option>
+                      {Array.from({ length: 60 }, (_, i) => {
+                        const year = new Date().getFullYear() - i;
+                        return (
+                          <option key={year} value={String(year)}>
+                            {year}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </div>
+
+                  {/* 🎂 Age */}
+                  {formData.dateOfBirth && (
+                    <p className="text-xs text-gray-600 mt-1">
+                      Age:{" "}
+                      <span className="font-semibold">
+                        {getAge(formData.dateOfBirth)} years
+                      </span>
+                    </p>
+                  )}
+
+                  {/* ❌ Error */}
                   {dobError && (
                     <p className="text-red-500 text-sm mt-1">{dobError}</p>
                   )}
@@ -770,7 +894,7 @@ const Register = () => {
                     htmlFor="height"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Height
+                    Height <span className="text-red-500">*</span>
                   </label>
                   <div className="mt-1 relative">
                     <select
@@ -779,7 +903,9 @@ const Register = () => {
                       required
                       onChange={handleChange}
                       value={formData.height || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                      className={`appearance-none mt-1 block w-full px-3 py-3 border rounded-md ${
+                        errors.height ? "border-red-500" : "border-gray-300"
+                      }`}
                     >
                       <option value="" disabled>
                         Select Height
@@ -828,15 +954,16 @@ const Register = () => {
                 {/* Mother Tongue */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Mother Tongue
+                    Mother Tongue <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="text"
                     name="motherTongue"
                     onChange={handleChange}
                     value={formData.motherTongue || ""}
                     placeholder="Mother Tongue"
-                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.motherTongue ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
                 </div>
 
@@ -929,7 +1056,7 @@ const Register = () => {
                 {/* Caste */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Caste
+                    Caste <span className="text-red-500">*</span>
                   </label>
                   <div className="mt-1 relative">
                     <select
@@ -937,7 +1064,9 @@ const Register = () => {
                       required
                       onChange={handleChange}
                       value={formData.caste || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md"
+                      className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                        errors.caste ? "border-red-500" : "border-gray-300"
+                      }`}
                     >
                       <option value="" disabled>
                         Select Caste
@@ -1021,7 +1150,9 @@ const Register = () => {
                       setFormData((prev) => ({ ...prev, city: "" }));
                       fetchCitiesForState(e.target.value, "personal");
                     }}
-                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.state ? "border-red-500" : "border-gray-300"
+                    }`}
                   >
                     <option value="">Select State</option>
                     {states.map((s) => (
@@ -1040,7 +1171,9 @@ const Register = () => {
                     name="city"
                     value={formData.city || ""}
                     onChange={handleChange}
-                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.city ? "border-red-500" : "border-gray-300"
+                    }`}
                   >
                     <option value="">Select City</option>
                     {personalCities.map((c) => (
@@ -1102,6 +1235,12 @@ const Register = () => {
               className="mt-8 space-y-6"
               onSubmit={(e) => {
                 e.preventDefault();
+
+                if (!validateStep2()) {
+                  toast.error("Please fill all required fields");
+                  return;
+                }
+
                 setStep(3);
               }}
             >
@@ -1110,14 +1249,18 @@ const Register = () => {
                 {/* Education Category */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Education Category
+                    Education Category <span className="text-red-500">*</span>
                   </label>
                   <div className="mt-1 relative">
                     <select
                       name="educationCategory"
                       value={formData.educationCategory || ""}
                       onChange={handleChange}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                      className={`appearance-none mt-1 block w-full px-3 py-3 border rounded-md ${
+                        errors.educationCategory
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
                     >
                       <option value="" disabled>
                         Select Education Category
@@ -1169,16 +1312,16 @@ const Register = () => {
                     htmlFor="employedIn"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Employed In
+                    Employed In <span className="text-red-500">*</span>
                   </label>
                   <div className="mt-1 relative">
                     <select
-                      id="employedIn"
                       name="employedIn"
-                      required
-                      onChange={handleChange}
                       value={formData.employedIn || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                      onChange={handleChange}
+                      className={`appearance-none mt-1 block w-full px-3 py-3 border rounded-md ${
+                        errors.employedIn ? "border-red-500" : "border-gray-300"
+                      }`}
                     >
                       <option value="" disabled>
                         Select Job
@@ -1235,7 +1378,7 @@ const Register = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    State
+                    State <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="jobState"
@@ -1258,7 +1401,7 @@ const Register = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    City
+                    City <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="jobCity"
@@ -1294,16 +1437,18 @@ const Register = () => {
                     htmlFor="annual-income"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Annual Income
+                    Annual Income <span className="text-red-500">*</span>
                   </label>
                   <div className="mt-1 relative">
                     <select
-                      id="annual-income"
                       name="annualIncome"
-                      required
-                      onChange={handleChange}
                       value={formData.annualIncome || ""}
-                      className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"
+                      onChange={handleChange}
+                      className={`appearance-none mt-1 block w-full px-3 py-3 border rounded-md ${
+                        errors.annualIncome
+                          ? "border-red-500"
+                          : "border-gray-300"
+                      }`}
                     >
                       <option value="" disabled>
                         Select Annual Income
@@ -1410,7 +1555,7 @@ const Register = () => {
                     htmlFor="father-name"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Father's Name
+                    Father's Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="father-name"
@@ -1429,7 +1574,7 @@ const Register = () => {
                     htmlFor="father-job"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Father's Job
+                    Father's Job <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="father-job"
@@ -1449,7 +1594,7 @@ const Register = () => {
                     htmlFor="mother-name"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Mother's Name
+                    Mother's Name <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="mother-name"
@@ -1468,7 +1613,7 @@ const Register = () => {
                     htmlFor="mother-job"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Mother's Job
+                    Mother's Job <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="mother-job"
@@ -1488,7 +1633,7 @@ const Register = () => {
                     htmlFor="siblings"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Siblings
+                    Siblings <span className="text-red-500">*</span>
                   </label>
                   <div className="mt-1 relative">
                     <select
@@ -1536,7 +1681,19 @@ const Register = () => {
                     name="brothersMarried"
                     value={formData.brothersMarried || ""}
                     onChange={handleChange}
-                    placeholder="e.g. 1 or Yes or No"
+                    onBlur={(e) => {
+                      const value = e.target.value.toLowerCase().trim();
+
+                      if (
+                        value &&
+                        !/^\d+$/.test(value) &&
+                        value !== "yes" &&
+                        value !== "no"
+                      ) {
+                        toast.error("Enter only number or Yes/No");
+                      }
+                    }}
+                    placeholder="e.g. 0 / 1 / Yes / No"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1563,7 +1720,19 @@ const Register = () => {
                     name="sistersMarried"
                     value={formData.sistersMarried || ""}
                     onChange={handleChange}
-                    placeholder="e.g. 1 or Yes or No"
+                    onBlur={(e) => {
+                      const value = e.target.value.toLowerCase().trim();
+
+                      if (
+                        value &&
+                        !/^\d+$/.test(value) &&
+                        value !== "yes" &&
+                        value !== "no"
+                      ) {
+                        toast.error("Enter only number or Yes/No");
+                      }
+                    }}
+                    placeholder="e.g. 0 / 1 / Yes / No"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
