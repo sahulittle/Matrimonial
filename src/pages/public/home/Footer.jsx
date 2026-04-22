@@ -105,7 +105,7 @@ const Footer = () => {
             <ul className="space-y-4 text-gray-400">
               <li className="flex items-center gap-3">
                 <FaPhoneAlt className="text-pink-500" />
-                <span>+919769107005</span>
+                <span>+917400472151</span>
               </li>
               <li className="flex items-center gap-3">
                 <FaEnvelope className="text-pink-500" />

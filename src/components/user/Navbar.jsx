@@ -57,7 +57,7 @@ const Navbar = () => {
           </a>
           <div className="flex items-center gap-2">
             <FaPhoneAlt className="text-pink-500" />
-            <span>+919769107005</span>
+            <span>+917400472151</span>
           </div>
         </div>
 

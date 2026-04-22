@@ -22,7 +22,7 @@ const Contact = () => {
     {
       icon: <FaPhoneAlt size={30} />,
       title: "Contact Number",
-      detail: "+919769107005",
+      detail: "+917400472151",
     },
   ];
 
