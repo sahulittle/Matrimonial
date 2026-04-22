@@ -1132,7 +1132,7 @@ const Register = () => {
                         <option key={c} value={c}>
                           {c}
                         </option>
-                      ))}
+                      ))} 
                     </select>
                     {errors.caste && (
                       <p className="text-red-500 text-sm mt-1">

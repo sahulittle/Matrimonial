@@ -7,6 +7,8 @@ import Home from "../pages/public/Home";
 import About from "../pages/public/contact/About";
 import Packages from "../pages/public/packages/Packages";
 import Login from "../pages/public/Login";
+import ForgotPassword from "../pages/public/ForgotPassword";
+import ResetPassword from "../pages/public/ResetPassword";
 import AdminLogin from "../pages/admin/AdminLogin";
 import Register from "../pages/public/Register";
 import SignUp from "../pages/public/SignUp";
@@ -31,6 +33,8 @@ const PublicRoutes = () => (
       <Route path="about" element={<About />} />
       <Route path="packages" element={<Packages />} />
       <Route path="login" element={<Login />} />
+      <Route path="forgot-password" element={<ForgotPassword />} />
+      <Route path="reset-password/:token" element={<ResetPassword />} />
       <Route path="register" element={<Register />} />
       <Route path="signup" element={<SignUp />} />
       {/* <Route path="packages" element={<Packages />} /> */}

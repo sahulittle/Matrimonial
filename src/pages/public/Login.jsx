@@ -368,6 +368,12 @@ const Login = () => {
           </button>
         </form>
 
+        <p className="text-center text-sm mt-3">
+          <Link to="/forgot-password" className="text-pink-600 hover:text-pink-500">
+            Forgot password?
+          </Link>
+        </p>
+
         <p className="text-center text-sm text-gray-600">
           Don't have an account?{" "}
           <Link to="/register" className="text-pink-600 hover:text-pink-500">

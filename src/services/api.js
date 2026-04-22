@@ -69,6 +69,8 @@ export const userAuthApi = {
     // Return SVG text directly (not JSON)
     return await response.text();
   },
+  forgotPassword: (email) => api.post("/users/auth/forgot-password", { email }),
+  resetPassword: (token, password) => api.post("/users/auth/reset-password", { token, password }),
 };
 
 // =============== USER PROFILE API ===============
