@@ -176,6 +176,7 @@ const Register = () => {
     "Master of Engineering (ME)",
     "Master of Business Administration (MBA)",
     "Master of Computer Applications (MCA)",
+    "Master of Architecture (M.Arch)",
     "Master of Science (MSc)",
     "Master of Arts (MA)",
     "Master of Commerce (MCom)",
