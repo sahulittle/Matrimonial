@@ -71,7 +71,7 @@ const Row = ({ label, value }) => (
 const calculateAge = (dob) => {
   if (!dob) return "-";
   const diff = Date.now() - new Date(dob).getTime();
-  return Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+  return Math.floor(diff / (1000 * 60 * 60 * 24 * 365.25));
 };
 
 // Format DOB for display: YYYY-MM-D (month padded to 2, day without leading zero)
@@ -233,8 +233,8 @@ export default function Profile() {
     if (user) {
       setFormData({
         // BASIC
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
+        fullName: user.fullName || "",
+
         email: user.email || "",
         gender: user.gender || "",
         // provide YYYY-MM-DD (no time) so <input type="date"> displays correctly
@@ -342,8 +342,8 @@ export default function Profile() {
     try {
       // send only basic/lifestyle related fields to update
       const payload = {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+        fullName: formData.fullName,
+
         email: formData.email,
         gender: formData.gender,
         dateOfBirth: formData.dateOfBirth,
@@ -726,9 +726,7 @@ export default function Profile() {
           </div>
 
           <div>
-            <h2 className="text-lg font-semibold">
-              {user?.firstName} {user?.lastName}
-            </h2>
+            <h2 className="text-lg font-semibold">{user?.fullName}</h2>
 
             {/* <p className="text-sm text-gray-500">
               {user?._id ? `SH${user._id.toString().slice(-6)}` : ""}
@@ -815,10 +813,7 @@ export default function Profile() {
                 title="Basics & Lifestyle"
                 onEdit={() => setIsBasicEditOpen(true)}
               >
-                <Row
-                  label="Name"
-                  value={`${user?.firstName || ""} ${user?.lastName || ""}`}
-                />
+                <Row label="Name" value={user?.fullName || "-"} />
                 <Row label="Email" value={user?.email} />
                 <Row label="Gender" value={user?.gender} />
                 <Row label="Mother Tongue" value={user?.motherTongue} />
@@ -863,7 +858,10 @@ export default function Profile() {
                 title="Education Details"
                 onEdit={() => setIsEducationOpen(true)}
               >
-                <Row label="Education Category" value={user?.educationCategory} />
+                <Row
+                  label="Education Category"
+                  value={user?.educationCategory}
+                />
                 <Row label="Education Details" value={user?.educationDetails} />
                 <Row label="College" value={user?.college} />
                 <Row label="Field of Study" value={user?.fieldOfStudy} />
@@ -875,13 +873,26 @@ export default function Profile() {
                 onEdit={() => setIsCareerOpen(true)}
               >
                 <Row label="Employed In" value={user?.employedIn} />
-                <Row label="Occupation Details" value={user?.occupationDetails} />
+                <Row
+                  label="Occupation Details"
+                  value={user?.occupationDetails}
+                />
                 <Row label="Job" value={user?.job} />
                 <Row label="Job Location" value={user?.jobLocation} />
-                <Row label="Job Country" value={user?.jobCountry === 'Other' ? user?.jobCountryOther || 'Other' : user?.jobCountry} />
+                <Row
+                  label="Job Country"
+                  value={
+                    user?.jobCountry === "Other"
+                      ? user?.jobCountryOther || "Other"
+                      : user?.jobCountry
+                  }
+                />
                 <Row label="Job State" value={user?.jobState} />
                 <Row label="Job City" value={user?.jobCity} />
-                <Row label="Job Location Details" value={user?.jobLocationDetails} />
+                <Row
+                  label="Job Location Details"
+                  value={user?.jobLocationDetails}
+                />
                 <Row label="Annual Income" value={user?.annualIncome} />
               </Section>
 
@@ -956,10 +967,12 @@ export default function Profile() {
                     <strong>Reading:</strong> {user?.reading || "-"}
                   </div>
                   <div>
-                    <strong>Movies & TV Shows:</strong> {user?.moviesAndTVShows || "-"}
+                    <strong>Movies & TV Shows:</strong>{" "}
+                    {user?.moviesAndTVShows || "-"}
                   </div>
                   <div>
-                    <strong>Sports & Fitness:</strong> {user?.sportsAndFitness || "-"}
+                    <strong>Sports & Fitness:</strong>{" "}
+                    {user?.sportsAndFitness || "-"}
                   </div>
                   <div className="col-span-2">
                     <strong>Food:</strong> {user?.food || "-"}
@@ -1341,26 +1354,14 @@ export default function Profile() {
             <div className="grid grid-cols-2 gap-3">
               {/* NAME */}
               <div>
-                <label className="text-sm text-gray-600">First Name</label>
-                <input
-                  type="text"
-                  placeholder="First Name"
-                  value={formData.firstName}
-                  onChange={(e) =>
-                    setFormData({ ...formData, firstName: e.target.value })
-                  }
-                  className="border p-2 rounded mt-1 w-full"
-                />
-              </div>
+                <label className="text-sm text-gray-600">Full Name</label>
 
-              <div>
-                <label className="text-sm text-gray-600">Last Name</label>
                 <input
                   type="text"
-                  placeholder="Last Name"
-                  value={formData.lastName}
+                  placeholder="Full Name"
+                  value={formData.fullName}
                   onChange={(e) =>
-                    setFormData({ ...formData, lastName: e.target.value })
+                    setFormData({ ...formData, fullName: e.target.value })
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />
@@ -1571,7 +1572,9 @@ export default function Profile() {
 
               {formData.country === "Other" && (
                 <div className="col-span-2">
-                  <label className="text-sm text-gray-600">Country (Other)</label>
+                  <label className="text-sm text-gray-600">
+                    Country (Other)
+                  </label>
                   <input
                     placeholder="Enter Country"
                     value={formData.countryOther || ""}
@@ -1773,11 +1776,16 @@ export default function Profile() {
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-sm text-gray-600">Education Category</label>
+                <label className="text-sm text-gray-600">
+                  Education Category
+                </label>
                 <select
                   value={formData.educationCategory || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, educationCategory: e.target.value })
+                    setFormData({
+                      ...formData,
+                      educationCategory: e.target.value,
+                    })
                   }
                   className="border p-2 rounded mt-1 w-full"
                 >
@@ -1791,19 +1799,26 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">Education Details</label>
+                <label className="text-sm text-gray-600">
+                  Education Details
+                </label>
                 <input
                   placeholder="Education details (e.g. B.Sc, Year)"
                   value={formData.educationDetails || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, educationDetails: e.target.value })
+                    setFormData({
+                      ...formData,
+                      educationDetails: e.target.value,
+                    })
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />
               </div>
 
               <div className="col-span-2">
-                <label className="text-sm text-gray-600">College / Institute</label>
+                <label className="text-sm text-gray-600">
+                  College / Institute
+                </label>
                 <input
                   placeholder="College / Institute"
                   value={formData.college || ""}
@@ -1936,24 +1951,34 @@ export default function Profile() {
                 </div>
 
                 <div className="col-span-2">
-                  <label className="text-sm text-gray-600">Movies and TV Shows</label>
+                  <label className="text-sm text-gray-600">
+                    Movies and TV Shows
+                  </label>
                   <input
                     placeholder="Favorite movies or shows"
                     value={formData.moviesAndTVShows || ""}
                     onChange={(e) =>
-                      setFormData({ ...formData, moviesAndTVShows: e.target.value })
+                      setFormData({
+                        ...formData,
+                        moviesAndTVShows: e.target.value,
+                      })
                     }
                     className="border p-2 rounded mt-1 w-full"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm text-gray-600">Sports and Fitness</label>
+                  <label className="text-sm text-gray-600">
+                    Sports and Fitness
+                  </label>
                   <input
                     placeholder="Sports / fitness activities"
                     value={formData.sportsAndFitness || ""}
                     onChange={(e) =>
-                      setFormData({ ...formData, sportsAndFitness: e.target.value })
+                      setFormData({
+                        ...formData,
+                        sportsAndFitness: e.target.value,
+                      })
                     }
                     className="border p-2 rounded mt-1 w-full"
                   />
@@ -2224,7 +2249,30 @@ export default function Profile() {
                 </svg>
               </button>
             </div>
+            <div>
+              <label className="text-sm text-gray-600">Employed In</label>
 
+              <select
+                value={formData.employedIn || ""}
+                onChange={(e) =>
+                  setFormData({ ...formData, employedIn: e.target.value })
+                }
+                className="border p-2 rounded mt-1 w-full"
+              >
+                <option value="">Select</option>
+                <option value="Private Company">Private Company</option>
+                <option value="Government/Public Sector">
+                  Government/Public Sector
+                </option>
+                <option value="Defence/Civil Service">
+                  Defence/Civil Service
+                </option>
+                <option value="Business/Self Employed">
+                  Business/Self Employed
+                </option>
+                <option value="Not Working">Not Working</option>
+              </select>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-sm text-gray-600">Job</label>
@@ -2269,12 +2317,17 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">Occupation Details</label>
+                <label className="text-sm text-gray-600">
+                  Occupation Details
+                </label>
                 <input
                   placeholder="Occupation / Job title"
                   value={formData.occupationDetails || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, occupationDetails: e.target.value })
+                    setFormData({
+                      ...formData,
+                      occupationDetails: e.target.value,
+                    })
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />
@@ -2296,12 +2349,17 @@ export default function Profile() {
 
               {formData.jobCountry === "Other" && (
                 <div>
-                  <label className="text-sm text-gray-600">Job Country (Other)</label>
+                  <label className="text-sm text-gray-600">
+                    Job Country (Other)
+                  </label>
                   <input
                     placeholder="Enter Country"
                     value={formData.jobCountryOther || ""}
                     onChange={(e) =>
-                      setFormData({ ...formData, jobCountryOther: e.target.value })
+                      setFormData({
+                        ...formData,
+                        jobCountryOther: e.target.value,
+                      })
                     }
                     className="border p-2 rounded mt-1 w-full"
                   />
@@ -2333,12 +2391,17 @@ export default function Profile() {
               </div>
 
               <div className="col-span-2">
-                <label className="text-sm text-gray-600">Job Location Details</label>
+                <label className="text-sm text-gray-600">
+                  Job Location Details
+                </label>
                 <input
                   placeholder="Location details (office/local area)"
                   value={formData.jobLocationDetails || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, jobLocationDetails: e.target.value })
+                    setFormData({
+                      ...formData,
+                      jobLocationDetails: e.target.value,
+                    })
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />
@@ -2478,12 +2541,17 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">Brothers Married</label>
+                <label className="text-sm text-gray-600">
+                  Brothers Married
+                </label>
                 <input
                   placeholder="e.g. 1 or Yes or No"
                   value={formData.brothersMarried || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, brothersMarried: e.target.value })
+                    setFormData({
+                      ...formData,
+                      brothersMarried: e.target.value,
+                    })
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />
@@ -2552,12 +2620,17 @@ export default function Profile() {
               </div>
 
               <div className="col-span-2">
-                <label className="text-sm text-gray-600">Ancestral Origin</label>
+                <label className="text-sm text-gray-600">
+                  Ancestral Origin
+                </label>
                 <input
                   placeholder="Ancestral origin / hometown"
                   value={formData.ancestralOrigin || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, ancestralOrigin: e.target.value })
+                    setFormData({
+                      ...formData,
+                      ancestralOrigin: e.target.value,
+                    })
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />

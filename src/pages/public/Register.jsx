@@ -225,12 +225,17 @@ const Register = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     if (name === "dateOfBirth") {
       const age = getAge(value);
       if (age < 18) setDobError("You must be at least 18 years old");
       else setDobError("");
     }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // ✅ ADD THIS LINE (VERY IMPORTANT)
+    setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   // Fetch religions on mount
@@ -453,17 +458,25 @@ const Register = () => {
   const validateStep1 = () => {
     const newErrors = {};
 
-    if (!formData.fullName) newErrors.fullName = true;
-    if (!formData.email) newErrors.email = true;
-    if (!formData.password) newErrors.password = true;
-    if (!formData.gender) newErrors.gender = true;
-    if (!formData.dateOfBirth) newErrors.dateOfBirth = true;
-    if (!formData.height) newErrors.height = true;
-    if (!formData.motherTongue) newErrors.motherTongue = true;
-    if (!formData.caste) newErrors.caste = true;
-    if (!formData.state) newErrors.state = true;
-    if (!formData.city) newErrors.city = true;
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Minimum 6 characters required";
+    } else if (formData.password.length > 25) {
+      newErrors.password = "Maximum 25 characters allowed";
+    }
 
+    if (!formData.state) newErrors.state = "State is required";
+    if (!formData.city) newErrors.city = "City is required";
+    if (!formData.rashi) newErrors.rashi = "Rashi is required";
+    // if (formData.religion === "Hindu" && !formData.caste) {
+    //   newErrors.caste = "Caste is required";
+    // }
+    if (!formData.caste) newErrors.caste = "Caste is required";
+    if (!formData.weight) newErrors.weight = "Weight is required";
+    if (!formData.motherTongue)
+      newErrors.motherTongue = "Mother tongue is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -472,9 +485,19 @@ const Register = () => {
   const validateStep2 = () => {
     const newErrors = {};
 
-    if (!formData.educationCategory) newErrors.educationCategory = true;
-    if (!formData.employedIn) newErrors.employedIn = true;
-    if (!formData.annualIncome) newErrors.annualIncome = true;
+    if (!formData.educationDetails)
+      newErrors.educationDetails = "Education details required";
+
+    if (!formData.college) newErrors.college = "College is required";
+
+    if (!formData.occupationDetails)
+      newErrors.occupationDetails = "Occupation is required";
+    if (!formData.educationCategory)
+      newErrors.educationCategory = "Education category required";
+
+    if (!formData.employedIn) newErrors.employedIn = "Employment is required";
+
+    if (!formData.annualIncome) newErrors.annualIncome = "Income is required";
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
     return Object.keys(newErrors).length === 0;
@@ -492,8 +515,16 @@ const Register = () => {
       toast.error("Please fill all required family details");
       return;
     }
-    if (!formData.password || String(formData.password).length < 6) {
-      toast.error("Password must be at least 6 characters");
+    if (!formData.password) {
+      toast.error("Password is required");
+      return;
+    }
+    if (formData.password.length < 6) {
+      toast.error("Minimum 6 characters required");
+      return;
+    }
+    if (formData.password.length > 25) {
+      toast.error("Maximum 25 characters allowed");
       return;
     }
 
@@ -621,11 +652,16 @@ const Register = () => {
 
                 setDobError("");
                 // Validate password and policy before proceeding
-                if (
-                  !formData.password ||
-                  String(formData.password).length < 6
-                ) {
-                  setPasswordError("Password must be at least 6 characters");
+                if (!formData.password) {
+                  setPasswordError("Password is required");
+                  return;
+                }
+                if (formData.password.length < 6) {
+                  setPasswordError("Minimum 6 characters required");
+                  return;
+                }
+                if (formData.password.length > 25) {
+                  setPasswordError("Maximum 25 characters allowed");
                   return;
                 }
                 const polCheck = validateByPolicy(formData.password, policy);
@@ -692,7 +728,6 @@ const Register = () => {
                   <input
                     type="text"
                     name="fullName"
-                    required
                     onChange={handleChange}
                     value={formData.fullName || ""}
                     placeholder="Enter Full Name"
@@ -722,6 +757,9 @@ const Register = () => {
                       errors.email ? "border-red-500" : "border-gray-300"
                     }`}
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                  )}
                 </div>
                 {/* Password */}
                 <div className="relative">
@@ -736,6 +774,7 @@ const Register = () => {
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
+                    maxLength={25}
                     required
                     onChange={(e) => {
                       handleChange(e);
@@ -752,6 +791,12 @@ const Register = () => {
                       errors.password ? "border-red-500" : "border-gray-300"
                     }`}
                   />
+
+                  {errors.password && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.password}
+                    </p>
+                  )}
 
                   {/* 👁 Icon centered */}
                   <button
@@ -791,7 +836,6 @@ const Register = () => {
                     <select
                       id="gender"
                       name="gender"
-                      required
                       onChange={handleChange}
                       value={formData.gender || ""}
                       className={`appearance-none mt-1 block w-full px-3 py-3 border rounded-md ${
@@ -900,7 +944,6 @@ const Register = () => {
                     <select
                       id="height"
                       name="height"
-                      required
                       onChange={handleChange}
                       value={formData.height || ""}
                       className={`appearance-none mt-1 block w-full px-3 py-3 border rounded-md ${
@@ -924,22 +967,27 @@ const Register = () => {
                 {/* Rashi / Zodiac Sign */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Rashi / Zodiac Sign
+                    Rashi / Zodiac Sign <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     name="rashi"
                     onChange={handleChange}
                     value={formData.rashi || ""}
-                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.rashi ? "border-red-500" : "border-gray-300"
+                    }`}
                     placeholder="Enter Rashi"
                   />
+                  {errors.rashi && (
+                    <p className="text-red-500 text-sm mt-1">{errors.rashi}</p>
+                  )}
                 </div>
 
                 {/* Weight */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Weight (kg)
+                    Weight (kg) <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="number"
@@ -947,8 +995,13 @@ const Register = () => {
                     onChange={handleChange}
                     value={formData.weight || ""}
                     placeholder="Weight (kg)"
-                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.weight ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+                  {errors.weight && (
+                    <p className="text-red-500 text-sm mt-1">{errors.weight}</p>
+                  )}
                 </div>
 
                 {/* Mother Tongue */}
@@ -965,6 +1018,11 @@ const Register = () => {
                       errors.motherTongue ? "border-red-500" : "border-gray-300"
                     }`}
                   />
+                  {errors.motherTongue && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.motherTongue}
+                    </p>
+                  )}
                 </div>
 
                 {/* Body Type */}
@@ -1061,7 +1119,6 @@ const Register = () => {
                   <div className="mt-1 relative">
                     <select
                       name="caste"
-                      required
                       onChange={handleChange}
                       value={formData.caste || ""}
                       className={`mt-1 block w-full px-3 py-3 border rounded-md ${
@@ -1077,6 +1134,11 @@ const Register = () => {
                         </option>
                       ))}
                     </select>
+                    {errors.caste && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.caste}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <h4 className="md:col-span-2 font-bold">Location</h4>
@@ -1140,7 +1202,7 @@ const Register = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    State
+                    State <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="state"
@@ -1161,11 +1223,15 @@ const Register = () => {
                       </option>
                     ))}
                   </select>
+                  {/* ✅ CORRECT PLACE */}
+                  {errors.state && (
+                    <p className="text-red-500 text-sm mt-1">{errors.state}</p>
+                  )}
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    City
+                    City <span className="text-red-500">*</span>
                   </label>
                   <select
                     name="city"
@@ -1182,6 +1248,9 @@ const Register = () => {
                       </option>
                     ))}
                   </select>
+                  {errors.city && (
+                    <p className="text-red-500 text-sm mt-1">{errors.city}</p>
+                  )}
                 </div>
 
                 <div>
@@ -1271,6 +1340,11 @@ const Register = () => {
                         </option>
                       ))}
                     </select>
+                    {errors.educationCategory && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.educationCategory}
+                      </p>
+                    )}
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <FaChevronDown className="h-4 w-4" />
                     </div>
@@ -1280,29 +1354,46 @@ const Register = () => {
                 {/* Education in Detail */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Education in Detail
+                    Education in Detail <span className="text-red-500">*</span>
                   </label>
                   <input
                     name="educationDetails"
                     value={formData.educationDetails || ""}
                     onChange={handleChange}
                     placeholder="Education details (e.g. B.Sc, Year)"
-                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.educationDetails
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                   />
+
+                  {errors.educationDetails && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.educationDetails}
+                    </p>
+                  )}
                 </div>
 
                 {/* College / Institute */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    College / Institute
+                    College / Institute <span className="text-red-500">*</span>
                   </label>
                   <input
                     name="college"
                     value={formData.college || ""}
                     onChange={handleChange}
                     placeholder="College / Institute"
-                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.college ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+                  {errors.college && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.college}
+                    </p>
+                  )}
                 </div>
 
                 {/* Job Location */}
@@ -1332,6 +1423,11 @@ const Register = () => {
                         </option>
                       ))}
                     </select>
+                    {errors.employedIn && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.employedIn}
+                      </p>
+                    )}
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <FaChevronDown className="h-4 w-4" />
                     </div>
@@ -1340,15 +1436,26 @@ const Register = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Occupation In Details
+                    Occupation In Details{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
                     name="occupationDetails"
                     value={formData.occupationDetails || ""}
                     onChange={handleChange}
                     placeholder="Occupation / Job title"
-                    className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.occupationDetails
+                        ? "border-red-500"
+                        : "border-gray-300"
+                    }`}
                   />
+
+                  {errors.occupationDetails && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.occupationDetails}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
@@ -1459,6 +1566,11 @@ const Register = () => {
                         </option>
                       ))}
                     </select>
+                    {errors.annualIncome && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.annualIncome}
+                      </p>
+                    )}
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <FaChevronDown className="h-4 w-4" />
                     </div>
