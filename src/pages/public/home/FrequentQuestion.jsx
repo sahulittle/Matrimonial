@@ -56,7 +56,7 @@ const FrequentQuestion = () => {
     {
       question: "Can parents create profiles for their children?",
       answer:
-        "No, parents or guardians can create and manage profiles on behalf of their children.",
+        "No, parents or guardians can't create and manage profiles on behalf of their children.",
     },
     {
       question: "How do I verify profiles?",

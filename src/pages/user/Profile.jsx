@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { getUserProfile } from "../../api/userApi/userApi";
+import { getUserProfile, getStatesByCountry, getCitiesByCountryState } from "../../api/userApi/userApi";
 import { userDataApi } from "../../services/api";
 import { casteOptions } from "../../utils/options";
 import { useAuth } from "../../context/AuthContext";
@@ -169,6 +169,10 @@ export default function Profile() {
   const [maxAgeInvalid, setMaxAgeInvalid] = useState(false);
   const aboutRef = useRef(null);
   const preferencesRef = useRef(null);
+  const [statesList, setStatesList] = useState([]);
+  const [citiesList, setCitiesList] = useState([]);
+  const [loadingStates, setLoadingStates] = useState(false);
+  const [loadingCities, setLoadingCities] = useState(false);
 
   const validateAges = (minRaw, maxRaw) => {
     const min = minRaw === "" || minRaw == null ? null : Number(minRaw);
@@ -337,6 +341,57 @@ export default function Profile() {
       });
     }
   }, [user]);
+
+  // fetch states when country changes
+  useEffect(() => {
+    let mounted = true;
+    const loadStates = async () => {
+      const country = formData.country || "";
+      if (!country) {
+        setStatesList([]);
+        return;
+      }
+      try {
+        setLoadingStates(true);
+        const states = await getStatesByCountry(country);
+        if (!mounted) return;
+        setStatesList(Array.isArray(states) ? states : []);
+      } catch (e) {
+        console.error("Failed to load states", e);
+        if (mounted) setStatesList([]);
+      } finally {
+        if (mounted) setLoadingStates(false);
+      }
+    };
+    loadStates();
+    return () => (mounted = false);
+  }, [formData.country]);
+
+  // fetch cities when country or state changes
+  useEffect(() => {
+    let mounted = true;
+    const loadCities = async () => {
+      const country = formData.country || "";
+      const state = formData.state || "";
+      if (!country || !state) {
+        setCitiesList([]);
+        return;
+      }
+      try {
+        setLoadingCities(true);
+        const cities = await getCitiesByCountryState(country, state);
+        if (!mounted) return;
+        setCitiesList(Array.isArray(cities) ? cities : []);
+      } catch (e) {
+        console.error("Failed to load cities", e);
+        if (mounted) setCitiesList([]);
+      } finally {
+        if (mounted) setLoadingCities(false);
+      }
+    };
+    loadCities();
+    return () => (mounted = false);
+  }, [formData.country, formData.state]);
   // ✅ HERE (correct place)
   const handleBasicSave = async () => {
     try {
@@ -828,6 +883,22 @@ export default function Profile() {
                 <Row label="Native Place" value={user?.nativePlace} />
                 <Row label="Complexion" value={user?.complexion} />
                 <Row label="Blood Group" value={user?.bloodGroup} />
+                <Row
+                  label="Country"
+                  value={
+                    user?.country === "Other"
+                      ? user?.countryOther || "Other"
+                      : user?.country
+                  }
+                />
+                <Row
+                  label="Citizenship"
+                  value={
+                    user?.citizenship || (user?.country === "India" ? "Indian" : "-")
+                  }
+                />
+                <Row label="State" value={user?.state} />
+                <Row label="City" value={user?.city} />
               </Section>
 
               {/* RELIGION */}
@@ -1411,27 +1482,61 @@ export default function Profile() {
               {/* STATE */}
               <div>
                 <label className="text-sm text-gray-600">State</label>
-                <input
-                  placeholder="State"
-                  value={formData.state || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, state: e.target.value })
-                  }
-                  className="border p-2 rounded mt-1 w-full"
-                />
+                {Array.isArray(statesList) && statesList.length > 0 ? (
+                  <select
+                    value={formData.state || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, state: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  >
+                    <option value="">Select State</option>
+                    {statesList.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    placeholder="State"
+                    value={formData.state || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, state: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                )}
               </div>
 
               {/* CITY */}
               <div>
                 <label className="text-sm text-gray-600">City</label>
-                <input
-                  placeholder="City"
-                  value={formData.city || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, city: e.target.value })
-                  }
-                  className="border p-2 rounded mt-1 w-full"
-                />
+                {Array.isArray(citiesList) && citiesList.length > 0 ? (
+                  <select
+                    value={formData.city || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, city: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  >
+                    <option value="">Select City</option>
+                    {citiesList.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    placeholder="City"
+                    value={formData.city || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, city: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                )}
               </div>
 
               {/* BIRTH TIME */}

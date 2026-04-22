@@ -505,13 +505,7 @@ const Register = () => {
 
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !formData.fatherName ||
-      !formData.fatherJob ||
-      !formData.motherName ||
-      !formData.motherJob ||
-      !formData.siblings
-    ) {
+    if (!formData.fatherName || !formData.motherName || !formData.siblings) {
       toast.error("Please fill all required family details");
       return;
     }
@@ -1132,7 +1126,7 @@ const Register = () => {
                         <option key={c} value={c}>
                           {c}
                         </option>
-                      ))} 
+                      ))}
                     </select>
                     {errors.caste && (
                       <p className="text-red-500 text-sm mt-1">
@@ -1686,13 +1680,12 @@ const Register = () => {
                     htmlFor="father-job"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Father's Job <span className="text-red-500">*</span>
+                    Father's Job
                   </label>
                   <input
                     id="father-job"
                     name="fatherJob"
                     type="text"
-                    required
                     onChange={handleChange}
                     value={formData.fatherJob || ""}
                     className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"
@@ -1725,13 +1718,12 @@ const Register = () => {
                     htmlFor="mother-job"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Mother's Job <span className="text-red-500">*</span>
+                    Mother's Job
                   </label>
                   <input
                     id="mother-job"
                     name="motherJob"
                     type="text"
-                    required
                     onChange={handleChange}
                     value={formData.motherJob || ""}
                     className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm"

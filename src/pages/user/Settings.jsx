@@ -3,6 +3,7 @@ import {
   getSettings,
   updateSettings,
   changePassword,
+  deleteAccount,
 } from "../../api/userApi/userApi";
 import toast from "react-hot-toast";
 import {
@@ -217,6 +218,38 @@ const Settings = () => {
                 </div>
 
                 <hr className="border-gray-100" />
+
+                <div className="pt-6">
+                  <h3 className="text-md font-semibold text-gray-900 mb-4">
+                    Danger Zone
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-4">
+                    Deleting your account is permanent. All your data will be removed and this action cannot be undone.
+                  </p>
+                  <button
+                    onClick={async () => {
+                      const ok = window.confirm(
+                        "Are you sure you want to delete your account? This action is irreversible.",
+                      );
+                      if (!ok) return;
+
+                      try {
+                        const res = await deleteAccount();
+                        toast.success(res?.message || "Account deleted");
+                        // clear auth and redirect to home
+                        localStorage.removeItem("authToken");
+                        window.location.href = "/";
+                      } catch (err) {
+                        const msg =
+                          err?.message || err?.response?.data?.message || "Delete failed";
+                        toast.error(msg);
+                      }
+                    }}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl font-semibold"
+                  >
+                    Delete My Account
+                  </button>
+                </div>
 
                 <div>
                   <h3 className="text-md font-semibold text-gray-900 mb-4">

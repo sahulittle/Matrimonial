@@ -160,6 +160,40 @@ export const getUserProfile = async () => {
     throw error.response?.data || { message: "Failed to fetch profile" };
   }
 };
+// ================= COUNTRIES / STATES (external public API) =================
+// Uses https://countriesnow.space API to fetch states and cities for a country
+export const getStatesByCountry = async (country) => {
+  try {
+    const res = await axios.post(
+      "https://countriesnow.space/api/v0.1/countries/states",
+      { country },
+    );
+
+    const states = res?.data?.data?.states;
+    if (Array.isArray(states)) return states.map((s) => (s?.name ? s.name : s));
+
+    // fallback if API returns array directly
+    return Array.isArray(res?.data?.data) ? res.data.data : [];
+  } catch (error) {
+    console.error("Failed to fetch states", error?.response || error);
+    return [];
+  }
+};
+
+export const getCitiesByCountryState = async (country, state) => {
+  try {
+    const res = await axios.post(
+      "https://countriesnow.space/api/v0.1/countries/state/cities",
+      { country, state },
+    );
+
+    const cities = res?.data?.data || res?.data?.cities;
+    return Array.isArray(cities) ? cities : [];
+  } catch (error) {
+    console.error("Failed to fetch cities", error?.response || error);
+    return [];
+  }
+};
 export const updateUserProfile = async (data) => {
   try {
     const res = await axios.put(
@@ -262,6 +296,12 @@ export const changePassword = async (data) => {
     data,
     authHeader(),
   );
+  return res.data;
+};
+
+// DELETE ACCOUNT
+export const deleteAccount = async () => {
+  const res = await axios.delete(`${SETTINGS}/delete`, authHeader());
   return res.data;
 };
 // ================= INTEREST =================
