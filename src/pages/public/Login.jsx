@@ -169,7 +169,7 @@ const Login = () => {
         : "bg-red-400";
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 sm:py-24 px-4 sm:px-6 lg:px-8 mt-10">
+    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 sm:py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-lg w-full space-y-8 bg-white p-6 sm:p-8 lg:p-10 rounded-xl shadow-lg">
         <h3 className="text-center text-4xl font-bold text-pink-500">
           Welcome Back! Please Login

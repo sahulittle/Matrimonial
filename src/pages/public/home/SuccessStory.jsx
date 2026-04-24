@@ -86,8 +86,8 @@ const SuccessStory = () => {
   }, []);
 
   return (
-    <section className="py-20 bg-gradient-to-b from-pink-50 via-white to-gray-50">
-      <div className="container mx-auto px-6 text-center">
+    <section className=" bg-gradient-to-b from-pink-50 via-white to-gray-50">
+      <div className="container mx-auto px-20 text-center py-16">
         {/* Header */}
         <h3 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
           Success Stories

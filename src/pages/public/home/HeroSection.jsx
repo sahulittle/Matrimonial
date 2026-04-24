@@ -127,7 +127,7 @@ const HeroSection = () => {
   };
 
   return (
-    <div className="relative w-full flex items-center justify-center overflow-hidden mt-20 sm:mt-24 py-14 sm:py-24 px-4 sm:px-6 lg:px-10">
+    <div className="relative w-full flex items-center justify-center overflow-hidden  py-14 sm:py-24 px-4 sm:px-6 lg:px-10">
       {/* Background Images */}
       {images.map((img, index) => (
         <div

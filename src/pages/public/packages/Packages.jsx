@@ -88,7 +88,7 @@ const Packages = () => {
 
   return (
     <>
-      <div className="py-16 bg-gray-100 mt-20">
+      <div className="py-16 bg-gray-100">
         <div className="container mx-auto px-6 text-center">
           <h3 className="text-4xl font-bold text-gray-800 mb-4">
             Matrimonial Package

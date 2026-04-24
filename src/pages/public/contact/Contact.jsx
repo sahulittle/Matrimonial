@@ -1,4 +1,4 @@
-    import React, { useState } from "react";
+import React, { useState } from "react";
 import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
 import FrequentQuestion from "../home/FrequentQuestion";
 import HowitWork from "../home/HowitWork";
@@ -12,7 +12,8 @@ const Contact = () => {
     {
       icon: <FaMapMarkerAlt size={30} />,
       title: "Contact Info",
-      detail: "401, Vaibhav Park, 64 Bhavani Shankar Rd, Dadar West, Mumbai -400028, Maharashtra, India",
+      detail:
+        "401, Vaibhav Park, 64 Bhavani Shankar Rd, Dadar West, Mumbai -400028, Maharashtra, India",
     },
     {
       icon: <FaEnvelope size={30} />,
@@ -57,8 +58,11 @@ const Contact = () => {
   };
 
   return (
-    <div className="bg-gray-100 py-16 sm:py-20 mt-24">
+    <div className="bg-gray-100 py-16 sm:py-20 ">
       <div className="container mx-auto px-6">
+        <h3 className="text-4xl md:text-5xl text-center font-bold text-gray-900 mb-10">
+          Contact Us
+        </h3>
         {/* Top Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 text-center">
           {contactInfo.map((item, index) => (

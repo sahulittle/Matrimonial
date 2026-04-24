@@ -6,7 +6,7 @@ import Footer from '../home/Footer'
 
 const Stories = () => {
   return (
-    <div className="pt-24 bg-gray-50">
+    <div className=" bg-gray-50">
         {/* <div className="container mx-auto px-6 py-16 text-center">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
                 Inspiring Success Stories

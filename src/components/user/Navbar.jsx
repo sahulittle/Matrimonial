@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   FaEnvelope,
@@ -14,37 +14,45 @@ import {
 const Navbar = () => {
   const [isTopNavVisible, setIsTopNavVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
-  const handleScroll = () => {
-    const currentScrollY = window.scrollY;
-    // A threshold to prevent hiding on small scrolls
-    const threshold = 80;
-
-    // Hide top nav when scrolling down past the threshold
-    if (currentScrollY > lastScrollY && currentScrollY > threshold) {
-      setIsTopNavVisible(false);
-    } else {
-      // Show top nav when scrolling up
-      setIsTopNavVisible(true);
-    }
-    setLastScrollY(currentScrollY);
-  };
+  // refs for scroll tracking — do NOT use state for scroll position
+  const prevScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
+  const latestScrollY = useRef(prevScrollY.current);
+  const ticking = useRef(false);
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    const onScroll = () => {
+      latestScrollY.current = window.scrollY;
 
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+      if (!ticking.current) {
+        ticking.current = true;
+        requestAnimationFrame(() => {
+          const current = latestScrollY.current;
+          const previous = prevScrollY.current;
 
+          if (current > previous && current > 80) {
+            setIsTopNavVisible(false);
+          } else if (current < previous) {
+            setIsTopNavVisible(true);
+          }
+
+          prevScrollY.current = current;
+          ticking.current = false;
+        });
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   return (
-    <header className="fixed top-0 left-0 w-full z-50 bg-white shadow-md">
+    <header className="sticky top-0 left-0 w-full z-50 bg-white shadow-md">
       <nav
-        className={`flex flex-col md:flex-row items-center justify-between px-4 md:px-10 text-sm text-gray-700 bg-gray-100 overflow-hidden transition-all duration-300 ease-in-out ${
-          isTopNavVisible
-            ? "py-2.5 border-b border-gray-300 max-h-24 md:max-h-12"
-            : "py-0 border-b-0 max-h-0"
+        className={`flex flex-col md:flex-row items-center justify-between px-4 md:px-10 text-sm text-gray-700 bg-gray-100 transition-transform transition-opacity duration-300 ease-in-out transform py-2.5 border-b border-gray-300 ${
+          isTopNavVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
         }`}
+        style={{ willChange: "transform, opacity" }}
       >
         {/* Left Side: Contact Info */}
         <div className="flex flex-wrap justify-center md:justify-start items-center gap-4 md:gap-6 mb-2 md:mb-0">
@@ -94,10 +102,28 @@ const Navbar = () => {
               Home
             </Link>
           </li>
-          <li>
-            <Link to="/about" className="transition hover:text-pink-600">
+          <li className="relative group">
+            <span className="cursor-pointer transition hover:text-pink-600">
               About Us
-            </Link>
+            </span>
+
+            {/* Dropdown */}
+            <ul className="absolute left-0 mt-2 w-52 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+              <li>
+                <Link to="/about" className="block px-4 py-2 hover:bg-gray-100">
+                  About
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/committee-members"
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  Committee Members
+                </Link>
+              </li>
+            </ul>
           </li>
           <li>
             <Link to="/packages" className="transition hover:text-pink-600">
@@ -144,7 +170,7 @@ const Navbar = () => {
         {/* Mobile Menu Dropdown */}
         {isMobileMenuOpen && (
           <div className="absolute top-full left-0 w-full bg-white shadow-lg flex flex-col items-center py-6 gap-6 lg:hidden border-t border-gray-100">
-            <ul className="flex flex-col items-center gap-4 text-base font-medium text-gray-600 w-full">
+            <ul className="flex flex-col items-center gap-5 text-base font-medium text-gray-600 w-full">
               <li>
                 <Link
                   to="/"
@@ -154,14 +180,37 @@ const Navbar = () => {
                   Home
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/about"
-                  className="transition hover:text-pink-600"
-                  onClick={() => setIsMobileMenuOpen(false)}
+              <li className="w-full text-center">
+                <button
+                  onClick={() => setIsAboutOpen(!isAboutOpen)}
+                  className="w-full py-2 hover:text-pink-600"
                 >
                   About Us
-                </Link>
+                </button>
+
+                {isAboutOpen && (
+                  <ul className="flex flex-col items-center bg-gray-50 w-full">
+                    <li>
+                      <Link
+                        to="/about"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block py-2 text-sm"
+                      >
+                        About
+                      </Link>
+                    </li>
+
+                    <li>
+                      <Link
+                        to="/committee-members"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block py-2 text-sm"
+                      >
+                        Committee Members
+                      </Link>
+                    </li>
+                  </ul>
+                )}
               </li>
               <li>
                 <Link
