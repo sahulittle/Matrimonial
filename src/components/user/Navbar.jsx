@@ -104,14 +104,14 @@ const Navbar = () => {
           </li>
           <li className="relative group">
             <span className="cursor-pointer transition hover:text-pink-600">
-              About Us
+              About
             </span>
 
             {/* Dropdown */}
             <ul className="absolute left-0 mt-2 w-52 bg-white shadow-lg rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
               <li>
                 <Link to="/about" className="block px-4 py-2 hover:bg-gray-100">
-                  About
+                  About MSV
                 </Link>
               </li>
 
