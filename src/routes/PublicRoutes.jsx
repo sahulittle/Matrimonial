@@ -21,6 +21,7 @@ import Privacy from "../pages/public/privacy/Privacy";
 import TermAndService from "../pages/public/privacy/TermAndService";
 import PurchasePolicy from "../pages/public/privacy/PurchasePolicy";
 import CommitteeMembers from "../pages/public/contact/CommitteeMembers";
+import OurProjects from "../pages/public/OurProjects";
 
 /**
  * PublicRoutes - All public route definitions
@@ -40,6 +41,7 @@ const PublicRoutes = () => (
       <Route path="signup" element={<SignUp />} />
       {/* <Route path="packages" element={<Packages />} /> */}
       <Route path="members" element={<Members />} />
+      <Route path="our-projects" element={<OurProjects />} />
       <Route path="stories" element={<Stories />} />
       <Route path="contact" element={<Contact />} />
       <Route path="privacy-policy" element={<Privacy />} />

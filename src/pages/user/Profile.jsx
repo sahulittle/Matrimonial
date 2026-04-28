@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { getUserProfile, getStatesByCountry, getCitiesByCountryState } from "../../api/userApi/userApi";
+import {
+  getUserProfile,
+  getStatesByCountry,
+  getCitiesByCountryState,
+} from "../../api/userApi/userApi";
 import { userDataApi } from "../../services/api";
 import { casteOptions } from "../../utils/options";
 import { useAuth } from "../../context/AuthContext";
@@ -150,6 +154,28 @@ export default function Profile() {
     "Other",
   ];
   const [isCareerOpen, setIsCareerOpen] = useState(false);
+  // Income options (same as registration page)
+  const incomeOptions = [
+    "Upto 1 Lakh",
+    "1 to 2 Lakhs",
+    "2 to 3 Lakhs",
+    "3 to 4 Lakhs",
+    "4 to 5 Lakhs",
+    "5 to 7.5 Lakhs",
+    "7.5 to 10 Lakhs",
+    "10 to 15 Lakhs",
+    "15 to 20 Lakhs",
+    "20 to 30 Lakhs",
+    "30 to 50 Lakhs",
+    "50 to 75 Lakhs",
+    "75 Lakhs to 1 Crore",
+    "1 Crore & above",
+  ];
+  // Job-specific states/cities
+  const [jobStatesList, setJobStatesList] = useState([]);
+  const [jobCitiesList, setJobCitiesList] = useState([]);
+  const [loadingJobStates, setLoadingJobStates] = useState(false);
+  const [loadingJobCities, setLoadingJobCities] = useState(false);
   const [isFamilyOpen, setIsFamilyOpen] = useState(false);
   const [isExtendedOpen, setIsExtendedOpen] = useState(false);
   const [isHobbiesOpen, setIsHobbiesOpen] = useState(false);
@@ -392,6 +418,57 @@ export default function Profile() {
     loadCities();
     return () => (mounted = false);
   }, [formData.country, formData.state]);
+
+  // load job states when jobCountry changes
+  useEffect(() => {
+    let mounted = true;
+    const loadJobStates = async () => {
+      const country = formData.jobCountry || "";
+      if (!country) {
+        setJobStatesList([]);
+        return;
+      }
+      try {
+        setLoadingJobStates(true);
+        const states = await getStatesByCountry(country);
+        if (!mounted) return;
+        setJobStatesList(Array.isArray(states) ? states : []);
+      } catch (e) {
+        console.error("Failed to load job states", e);
+        if (mounted) setJobStatesList([]);
+      } finally {
+        if (mounted) setLoadingJobStates(false);
+      }
+    };
+    loadJobStates();
+    return () => (mounted = false);
+  }, [formData.jobCountry]);
+
+  // load job cities when jobCountry or jobState changes
+  useEffect(() => {
+    let mounted = true;
+    const loadJobCities = async () => {
+      const country = formData.jobCountry || "";
+      const state = formData.jobState || "";
+      if (!country || !state) {
+        setJobCitiesList([]);
+        return;
+      }
+      try {
+        setLoadingJobCities(true);
+        const cities = await getCitiesByCountryState(country, state);
+        if (!mounted) return;
+        setJobCitiesList(Array.isArray(cities) ? cities : []);
+      } catch (e) {
+        console.error("Failed to load job cities", e);
+        if (mounted) setJobCitiesList([]);
+      } finally {
+        if (mounted) setLoadingJobCities(false);
+      }
+    };
+    loadJobCities();
+    return () => (mounted = false);
+  }, [formData.jobCountry, formData.jobState]);
   // ✅ HERE (correct place)
   const handleBasicSave = async () => {
     try {
@@ -894,7 +971,8 @@ export default function Profile() {
                 <Row
                   label="Citizenship"
                   value={
-                    user?.citizenship || (user?.country === "India" ? "Indian" : "-")
+                    user?.citizenship ||
+                    (user?.country === "India" ? "Indian" : "-")
                   }
                 />
                 <Row label="State" value={user?.state} />
@@ -935,7 +1013,7 @@ export default function Profile() {
                 />
                 <Row label="Education Details" value={user?.educationDetails} />
                 <Row label="College" value={user?.college} />
-                <Row label="Field of Study" value={user?.fieldOfStudy} />
+                {/* <Row label="Field of Study" value={user?.fieldOfStudy} /> */}
               </Section>
 
               {/* CAREER */}
@@ -948,8 +1026,8 @@ export default function Profile() {
                   label="Occupation Details"
                   value={user?.occupationDetails}
                 />
-                <Row label="Job" value={user?.job} />
-                <Row label="Job Location" value={user?.jobLocation} />
+                {/* <Row label="Job" value={user?.job} /> */}
+                {/* <Row label="Job Location" value={user?.jobLocation} /> */}
                 <Row
                   label="Job Country"
                   value={
@@ -1934,7 +2012,7 @@ export default function Profile() {
                 />
               </div>
 
-              <div className="col-span-2">
+              {/* <div className="col-span-2">
                 <label className="text-sm text-gray-600">Field of Study</label>
                 <textarea
                   rows={3}
@@ -1945,7 +2023,7 @@ export default function Profile() {
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />
-              </div>
+              </div> */}
             </div>
 
             <div className="flex justify-end gap-3 mt-4">
@@ -2354,32 +2432,9 @@ export default function Profile() {
                 </svg>
               </button>
             </div>
-            <div>
-              <label className="text-sm text-gray-600">Employed In</label>
-
-              <select
-                value={formData.employedIn || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, employedIn: e.target.value })
-                }
-                className="border p-2 rounded mt-1 w-full"
-              >
-                <option value="">Select</option>
-                <option value="Private Company">Private Company</option>
-                <option value="Government/Public Sector">
-                  Government/Public Sector
-                </option>
-                <option value="Defence/Civil Service">
-                  Defence/Civil Service
-                </option>
-                <option value="Business/Self Employed">
-                  Business/Self Employed
-                </option>
-                <option value="Not Working">Not Working</option>
-              </select>
-            </div>
+            <div></div>
             <div className="grid grid-cols-2 gap-3">
-              <div>
+              {/* <div>
                 <label className="text-sm text-gray-600">Job</label>
                 <input
                   placeholder="Job"
@@ -2389,19 +2444,40 @@ export default function Profile() {
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />
-              </div>
+              </div> */}
 
-              <div>
+              {/* <div>
                 <label className="text-sm text-gray-600">Job Location</label>
-                <input
-                  placeholder="Job Location"
-                  value={formData.jobLocation || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, jobLocation: e.target.value })
-                  }
-                  className="border p-2 rounded mt-1 w-full"
-                />
-              </div>
+                {Array.isArray(jobCitiesList) && jobCitiesList.length > 0 ? (
+                  <select
+                    value={formData.jobLocation || formData.jobCity || ""}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        jobLocation: e.target.value,
+                        jobCity: e.target.value,
+                      })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  >
+                    <option value="">Select Job Location</option>
+                    {jobCitiesList.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    placeholder="Job Location"
+                    value={formData.jobLocation || ""}
+                    onChange={(e) =>
+                      setFormData({ ...formData, jobLocation: e.target.value })
+                    }
+                    className="border p-2 rounded mt-1 w-full"
+                  />
+                )}
+              </div> */}
 
               <div>
                 <label className="text-sm text-gray-600">Employed In</label>
@@ -2473,26 +2549,43 @@ export default function Profile() {
 
               <div>
                 <label className="text-sm text-gray-600">Job State</label>
-                <input
-                  placeholder="Job State"
+                <select
                   value={formData.jobState || ""}
                   onChange={(e) =>
-                    setFormData({ ...formData, jobState: e.target.value })
+                    setFormData({
+                      ...formData,
+                      jobState: e.target.value,
+                      jobCity: "",
+                      jobLocation: "",
+                    })
                   }
                   className="border p-2 rounded mt-1 w-full"
-                />
+                >
+                  <option value="">Select Job State</option>
+                  {jobStatesList.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
                 <label className="text-sm text-gray-600">Job City</label>
-                <input
-                  placeholder="Job City"
+                <select
                   value={formData.jobCity || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, jobCity: e.target.value })
                   }
                   className="border p-2 rounded mt-1 w-full"
-                />
+                >
+                  <option value="">Select Job City</option>
+                  {jobCitiesList.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="col-span-2">
@@ -2514,14 +2607,20 @@ export default function Profile() {
 
               <div className="col-span-2">
                 <label className="text-sm text-gray-600">Annual Income</label>
-                <input
-                  placeholder="Annual Income"
+                <select
                   value={formData.annualIncome || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, annualIncome: e.target.value })
                   }
                   className="border p-2 rounded mt-1 w-full"
-                />
+                >
+                  <option value="">Select Annual Income</option>
+                  {incomeOptions.map((inc) => (
+                    <option key={inc} value={inc}>
+                      {inc}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 

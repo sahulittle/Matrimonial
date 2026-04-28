@@ -130,6 +130,11 @@ const Navbar = () => {
               Packages
             </Link>
           </li>
+          <li>
+            <Link to="/our-projects" className="transition hover:text-pink-600">
+              Our Projects
+            </Link>
+          </li>
           {/* <li><Link to="/members" className="transition hover:text-pink-600">Members</Link></li> */}
           <li>
             <Link to="/stories" className="transition hover:text-pink-600">
@@ -219,6 +224,15 @@ const Navbar = () => {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Packages
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/our-projects"
+                  className="transition hover:text-pink-600"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Our Projects
                 </Link>
               </li>
               {/* <li><Link to="/members" className="transition hover:text-pink-600" onClick={() => setIsMobileMenuOpen(false)}>Members</Link></li> */}
