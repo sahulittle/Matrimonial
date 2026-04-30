@@ -12,44 +12,10 @@ const ManagePackages = () => {
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    interestLimit: "",
-    profileLimit: "",
-    imageLimit: "",
     validity: "",
-    benefits: [""], // ✅ ADD THIS
+    benefits: [""],
   });
-  const [packages, setPackages] = useState([
-    {
-      id: 1,
-      name: "Basic",
-      interestLimit: 50,
-      profileLimit: 100,
-      imageLimit: 5,
-      validity: 30,
-      price: 499,
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Premium",
-      interestLimit: 150,
-      profileLimit: 300,
-      imageLimit: 10,
-      validity: 90,
-      price: 1299,
-      status: "Active",
-    },
-    {
-      id: 3,
-      name: "VIP",
-      interestLimit: -1,
-      profileLimit: -1,
-      imageLimit: 20,
-      validity: 365,
-      price: 4999,
-      status: "Disabled",
-    },
-  ]);
+  const [packages, setPackages] = useState([]);
 
   useEffect(() => {
     fetchPackages();
@@ -81,9 +47,6 @@ const ManagePackages = () => {
     setFormData({
       name: "",
       price: "",
-      interestLimit: "",
-      profileLimit: "",
-      imageLimit: "",
       validity: "",
       benefits: [""],
     });
@@ -92,7 +55,12 @@ const ManagePackages = () => {
 
   const openEditModal = (pkg) => {
     setEditingPackage(pkg);
-    setFormData({ ...pkg, benefits: pkg.benefits || [""] });
+    setFormData({
+      name: pkg.name || "",
+      price: pkg.price || "",
+      validity: pkg.validity || "",
+      benefits: pkg.benefits || [""],
+    });
     setIsModalOpen(true);
   };
 
@@ -137,12 +105,10 @@ const ManagePackages = () => {
     e.preventDefault();
 
     const packageData = {
-      ...formData,
+      name: formData.name,
       price: Number(formData.price),
-      interestLimit: Number(formData.interestLimit),
-      profileLimit: Number(formData.profileLimit),
-      imageLimit: Number(formData.imageLimit),
       validity: Number(formData.validity),
+      benefits: formData.benefits,
     };
 
     try {
@@ -191,15 +157,15 @@ const ManagePackages = () => {
               <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
                 Name
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
-                Interest Express Limit
+              {/* <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
+                Send Unlimited Interests
               </th>
               <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
                 Profile Show Limit
               </th>
               <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
-                Image Upload Limit
-              </th>
+                View 50 Contact Numbers
+              </th> */}
               <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
                 Validity Period
               </th>
@@ -222,9 +188,9 @@ const ManagePackages = () => {
               >
                 <td className="py-3 px-4">{index + 1}</td>
                 <td className="py-3 px-4 font-medium">{pkg.name}</td>
-                <td className="py-3 px-4">{renderLimit(pkg.interestLimit)}</td>
-                <td className="py-3 px-4">{renderLimit(pkg.profileLimit)}</td>
-                <td className="py-3 px-4">{renderLimit(pkg.imageLimit)}</td>
+                {/* <td className="py-3 px-4">{renderLimit(pkg.interestLimit)}</td> */}
+                {/* <td className="py-3 px-4">{renderLimit(pkg.profileLimit)}</td> */}
+                {/* <td className="py-3 px-4">{renderLimit(pkg.imageLimit)}</td> */}
                 <td className="py-3 px-4">
                   {pkg.validity === -1
                     ? renderLimit(pkg.validity)
@@ -305,7 +271,7 @@ const ManagePackages = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                   />
                 </div>
-                <div>
+                {/* <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Interest Express Limit
                   </label>
@@ -346,7 +312,8 @@ const ManagePackages = () => {
                     placeholder="Enter -1 for unlimited"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
                   />
-                </div>
+                </div> */}
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Validity Period (In Days)
@@ -368,7 +335,10 @@ const ManagePackages = () => {
                   </label>
 
                   {formData.benefits.map((feature, index) => (
-                    <div key={index} className="flex flex-col sm:flex-row gap-2 mb-2">
+                    <div
+                      key={index}
+                      className="flex flex-col sm:flex-row gap-2 mb-2"
+                    >
                       <input
                         type="text"
                         value={feature}

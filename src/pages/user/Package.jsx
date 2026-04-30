@@ -121,7 +121,7 @@ const Packages = () => {
                     Duration ({pkg.validity} Days)
                   </div>
 
-                  <div className="flex items-center gap-3 border-b pb-3">
+                  {/* <div className="flex items-center gap-3 border-b pb-3">
                     <FaCheck className="text-pink-500 text-sm" />
                     Profile View ({pkg.profileLimit})
                   </div>
@@ -134,7 +134,7 @@ const Packages = () => {
                   <div className="flex items-center gap-3 pb-3 border-b">
                     <FaCheck className="text-pink-500 text-sm" />
                     Image Upload ({pkg.imageLimit})
-                  </div>
+                  </div> */}
                   {/* 🔥 NEW DYNAMIC BENEFITS */}
                   {(pkg.benefits || []).map((benefit, i) => (
                     <div
