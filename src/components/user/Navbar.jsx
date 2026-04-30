@@ -17,7 +17,9 @@ const Navbar = () => {
   const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   // refs for scroll tracking — do NOT use state for scroll position
-  const prevScrollY = useRef(typeof window !== "undefined" ? window.scrollY : 0);
+  const prevScrollY = useRef(
+    typeof window !== "undefined" ? window.scrollY : 0,
+  );
   const latestScrollY = useRef(prevScrollY.current);
   const ticking = useRef(false);
 
@@ -50,7 +52,9 @@ const Navbar = () => {
     <header className="sticky top-0 left-0 w-full z-50 bg-white shadow-md">
       <nav
         className={`flex flex-col md:flex-row items-center justify-between px-4 md:px-10 text-sm text-gray-700 bg-gray-100 transition-transform transition-opacity duration-300 ease-in-out transform py-2.5 border-b border-gray-300 ${
-          isTopNavVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+          isTopNavVisible
+            ? "translate-y-0 opacity-100"
+            : "-translate-y-full opacity-0"
         }`}
         style={{ willChange: "transform, opacity" }}
       >
@@ -123,6 +127,14 @@ const Navbar = () => {
                   Committee Members
                 </Link>
               </li>
+              <li>
+                <Link
+                  to="/our-projects"
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  Our Projects
+                </Link>
+              </li>
             </ul>
           </li>
           <li>
@@ -130,11 +142,11 @@ const Navbar = () => {
               Packages
             </Link>
           </li>
-          <li>
+          {/* <li>
             <Link to="/our-projects" className="transition hover:text-pink-600">
               Our Projects
             </Link>
-          </li>
+          </li> */}
           {/* <li><Link to="/members" className="transition hover:text-pink-600">Members</Link></li> */}
           <li>
             <Link to="/stories" className="transition hover:text-pink-600">
