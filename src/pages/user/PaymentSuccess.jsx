@@ -7,7 +7,20 @@ const PaymentSuccess = () => {
   const { fetchUserProfile } = useAuth();
 
   useEffect(() => {
-    fetchUserProfile(); // 🔥 important
+    const updateUser = async () => {
+      try {
+        await fetchUserProfile(); // ✅ refresh user
+
+        // 🔥 redirect AFTER update
+        setTimeout(() => {
+          navigate("/user/dashboard");
+        }, 500); // small delay ensures UI updates
+      } catch (err) {
+        console.error("User refresh failed", err);
+      }
+    };
+
+    updateUser();
   }, []);
 
   return (
@@ -19,13 +32,6 @@ const PaymentSuccess = () => {
       <p className="text-gray-700 mb-6">
         Your subscription has been activated successfully.
       </p>
-
-      <button
-        onClick={() => navigate("/dashboard")}
-        className="px-6 py-2 bg-green-600 text-white rounded-md"
-      >
-        Go to Dashboard
-      </button>
     </div>
   );
 };

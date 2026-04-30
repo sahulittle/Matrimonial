@@ -14,7 +14,8 @@ import {
   getActiveUsers, // ✅ NEW
   getShortlist,
   removeFromShortlist,
-  addToShortlist, // ✅ ADD THIS
+  addToShortlist, // ✅ ADD THIS\
+  getCurrentSubscription,
 } from "../../api/userApi/userApi";
 
 const Dashboard = () => {
@@ -36,6 +37,7 @@ const Dashboard = () => {
   const [activeUsers, setActiveUsers] = useState([]);
   const [sentInterests, setSentInterests] = useState([]);
   const [shortlist, setShortlist] = useState([]);
+  const [subscription, setSubscription] = useState(null);
 
   useEffect(() => {
     const loadDashboard = async () => {
@@ -65,6 +67,16 @@ const Dashboard = () => {
         console.log(nearRes);
         console.log(activeRes);
         console.log(interests);
+        const subRes = await getCurrentSubscription();
+
+        console.log("SUB RESPONSE:", subRes);
+
+        // ✅ CORRECT FIX (axios response handling)
+        const subData = subRes?.data?.subscription;
+
+        if (subData) {
+          setSubscription(subData);
+        }
       } catch (error) {
         console.error("Dashboard load error:", error);
       }
@@ -72,6 +84,15 @@ const Dashboard = () => {
 
     loadDashboard();
   }, []);
+
+  const remainingDays = subscription?.endDate
+    ? Math.max(
+        0,
+        Math.ceil(
+          (new Date(subscription.endDate) - new Date()) / (1000 * 60 * 60 * 24),
+        ),
+      )
+    : 0;
   const handleShortlist = async (profileId, isShortlisted) => {
     try {
       if (isShortlisted) {
@@ -140,7 +161,65 @@ const Dashboard = () => {
           />
         </div>
       </div>
+      {/* Subscription Card */}
+      {subscription && (
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-800">
+              Your Subscription
+            </h2>
 
+            <span
+              className={`text-xs px-3 py-1 rounded-full ${
+                subscription.status === "active"
+                  ? "bg-green-100 text-green-600"
+                  : "bg-red-100 text-red-600"
+              }`}
+            >
+              {subscription.status}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
+            <p>
+              <span className="font-medium">Plan:</span>{" "}
+              {subscription.plan || user?.subscriptionPlan || "Premium"}
+            </p>
+
+            <p>
+              <span className="font-medium">Purchased:</span>{" "}
+              {subscription.startDate
+                ? new Date(subscription.startDate).toLocaleDateString()
+                : "-"}
+            </p>
+
+            <p>
+              <span className="font-medium">Expiry:</span>{" "}
+              {subscription.endDate
+                ? new Date(subscription.endDate).toLocaleDateString()
+                : "-"}
+            </p>
+
+            <p>
+              <span className="font-medium">Remaining:</span> {remainingDays}{" "}
+              days
+            </p>
+          </div>
+
+          {/* Benefits */}
+          {subscription?.benefits?.length > 0 && (
+            <div className="mt-4">
+              <p className="font-medium text-gray-800 mb-2">Active Benefits:</p>
+
+              <ul className="list-disc pl-5 text-sm text-gray-600 space-y-1">
+                {subscription.benefits.map((b, i) => (
+                  <li key={i}>{b}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
       {/* Stats Grid */}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">

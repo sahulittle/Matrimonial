@@ -17,10 +17,7 @@ import {
 
 const Sidebar = ({ isOpen, onClose }) => {
   const { appData, user } = useAuth();
-  const isPremiumActive =
-    user?.subscriptionStatus === "active" &&
-    user?.subscriptionEndDate &&
-    new Date(user.subscriptionEndDate) > new Date();
+  const isPremiumActive = user?.subscriptionStatus === "active";
 
   const location = useLocation();
   const {

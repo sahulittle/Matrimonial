@@ -519,13 +519,13 @@ const Messages = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button className="p-2 rounded-full hover:bg-gray-100">
+                  {/* <button className="p-2 rounded-full hover:bg-gray-100">
                     <Phone className="w-5 h-5" />
                   </button>
 
                   <button className="p-2 rounded-full hover:bg-gray-100">
                     <Video className="w-5 h-5" />
-                  </button>
+                  </button> */}
 
                   <button className="p-2 rounded-full hover:bg-gray-100">
                     <MoreVertical className="w-5 h-5" />

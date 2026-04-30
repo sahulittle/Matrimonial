@@ -465,7 +465,17 @@ export const publicSearchProfiles = async (filters = {}) => {
     throw error.response?.data || { message: "Search failed" };
   }
 };
-
+export const getCurrentSubscription = async () => {
+  try {
+    const res = await axios.get(
+      `${BASE_URL}/payments/subscription`,
+      authHeader(),
+    );
+    return res.data;
+  } catch (error) {
+    throw error.response?.data || { message: "Failed to fetch subscription" };
+  }
+};
 // ================= PHOTOS =================
 
 const PHOTOS = `${BASE_URL}/photos`;

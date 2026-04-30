@@ -436,13 +436,15 @@ const UserDetailsPage = () => {
                           📞 Contact Number <br />
                           <span
                             onClick={() => {
-                              if (user?.subscriptionStatus !== "active") {
+                              if (
+                                currentUser?.subscriptionStatus !== "active"
+                              ) {
                                 setShowUpgradeModal(true);
                               }
                             }}
                             className="text-gray-500 cursor-pointer"
                           >
-                            {user?.subscriptionStatus === "active"
+                            {currentUser?.subscriptionStatus === "active"
                               ? user?.phone || "Not available"
                               : "+91 XXXXXXXX"}
                           </span>
@@ -454,13 +456,15 @@ const UserDetailsPage = () => {
                           📧 Email ID <br />
                           <span
                             onClick={() => {
-                              if (user?.subscriptionStatus !== "active") {
+                              if (
+                                currentUser?.subscriptionStatus !== "active"
+                              ) {
                                 setShowUpgradeModal(true);
                               }
                             }}
                             className="text-gray-500 cursor-pointer"
                           >
-                            {user?.subscriptionStatus === "active"
+                            {currentUser?.subscriptionStatus === "active"
                               ? user?.email
                               : "XXXXXXXX@gmail.com"}
                           </span>
@@ -469,7 +473,7 @@ const UserDetailsPage = () => {
 
                       {/* STATUS */}
                       <p className="text-sm text-gray-500 flex items-center gap-2">
-                        {user?.subscriptionStatus === "active"
+                        {currentUser?.subscriptionStatus === "active"
                           ? "✅ You can contact directly"
                           : "🔒 Click to unlock contact details"}
                       </p>
