@@ -249,6 +249,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    setUser, // ✅ ADD THIS LINE
     profile,
     loading,
     authToken,

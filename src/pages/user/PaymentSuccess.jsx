@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 const PaymentSuccess = () => {
   const navigate = useNavigate();
+  const { fetchUserProfile } = useAuth();
+
+  useEffect(() => {
+    fetchUserProfile(); // 🔥 important
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center bg-green-50">
