@@ -1,37 +1,50 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, Clock, Heart, MessageCircle } from "lucide-react";
 import { getVisitors, toggleLike } from "../../api/userApi/userApi";
 import { useAuth } from "../../context/AuthContext";
 
 const Visitors = () => {
   const { user } = useAuth();
+  const isPremium = user?.subscriptionStatus === "active";
+  const navigate = useNavigate();
+
   const [visitors, setVisitors] = useState([]);
   const [likedUsers, setLikedUsers] = useState([]);
+  const visibleVisitors = isPremium ? visitors : visitors.slice(0, 3);
+  const lockedVisitors = isPremium ? [] : visitors.slice(3);
 
+  // 🔥 ADD THIS
   useEffect(() => {
-    const fetchVisitors = async () => {
-      try {
-        const data = await getVisitors();
+    fetchVisitors();
+  }, []); // OK for now (no issue), but better:
 
-        // 🔥 map backend → existing UI format (NO UI CHANGE)
-        const formatted = data.map((v) => ({
-          id: v._id || v.userId || v.id,
-          name: `${v.firstName || ""} ${v.lastName || ""}`,
-          avatar: v.profilePhoto,
-          profession: v.job || "Not specified",
-          viewedAt: v.viewedAt,
-          isLiked: v.isLiked || false, // ✅ add this
+  const fetchVisitors = async () => {
+    try {
+      const data = await getVisitors();
+
+      const formatted = data
+        .filter((v) => v.userId) // ✅ safety
+        .map((v) => ({
+          id: v.userId._id,
+          name: v.userId.fullName || "Unknown User",
+          avatar: v.userId.profilePhoto,
+          profession: v.userId.jobLocation || "Not specified",
+          viewedAt: v.visitedAt,
+          isLiked: false,
         }));
 
-        setVisitors(formatted);
-      } catch (error) {
+      setVisitors(formatted);
+    } catch (error) {
+      if (error?.response?.status === 403) {
+        alert("🔒 Please upgrade to premium to view visitors");
+        navigate("/user/packages"); // ✅ FIXED
+      } else {
         console.error("Error fetching visitors:", error);
       }
-    };
+    }
+  };
 
-    fetchVisitors();
-  }, []);
   const handleLike = async (id) => {
     try {
       const res = await toggleLike(id);
@@ -127,33 +140,24 @@ const Visitors = () => {
 
       {visitors.length > 0 ? (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {visitors.map((visitor) => (
+          {/* ✅ Visible Visitors */}
+          {visibleVisitors.map((visitor) => (
             <div
               key={visitor.id}
               className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100"
             >
               <div className="flex items-start gap-4">
-                {/* Avatar */}
-
                 <Link to={`/user/user-details/${visitor.id}`}>
                   <img
                     src={visitor.avatar || "/default-avatar.jpg"}
                     alt={visitor.name}
                     className="w-16 h-16 rounded-xl object-cover border border-gray-200"
-                    onError={(e) => {
-                      e.target.src = "/default-avatar.jpg";
-                    }}
                   />
                 </Link>
 
-                {/* Visitor Info */}
-
                 <div className="flex-1">
-                  <Link
-                    to={`/user/user-details/${visitor.id}`}
-                    className="block"
-                  >
-                    <h3 className="font-semibold text-gray-900 hover:text-primary-600">
+                  <Link to={`/user/user-details/${visitor.id}`}>
+                    <h3 className="font-semibold text-gray-900">
                       {visitor.name}
                     </h3>
                   </Link>
@@ -167,21 +171,20 @@ const Visitors = () => {
                 </div>
               </div>
 
-              {/* Buttons */}
-
               <div className="flex gap-2 mt-4">
                 <Link
                   to={`/user/user-details/${visitor.id}`}
-                  className="flex-1 py-2.5 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium text-center text-sm hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+                  className="flex-1 py-2.5 bg-pink-500 text-white rounded-xl text-sm text-center"
                 >
                   View Profile
                 </Link>
+
                 <button
                   onClick={() => handleLike(visitor.id)}
-                  className={`px-4 py-2.5 border-2 rounded-xl transition-colors ${
+                  className={`px-4 py-2.5 border-2 rounded-xl ${
                     visitor.isLiked
                       ? "bg-pink-500 text-white border-pink-500"
-                      : "border-gray-200 text-gray-400 hover:border-pink-500 hover:text-pink-600"
+                      : "border-gray-200 text-gray-400"
                   }`}
                 >
                   <Heart className="w-5 h-5" />
@@ -189,6 +192,46 @@ const Visitors = () => {
               </div>
             </div>
           ))}
+
+          {/* 🔒 Locked Visitors */}
+          {!isPremium &&
+            lockedVisitors.map((visitor, index) => (
+              <div
+                key={index}
+                className="relative bg-white rounded-2xl p-6 shadow-sm border border-gray-100 overflow-hidden"
+              >
+                <div className="blur-sm">
+                  <div className="flex items-start gap-4">
+                    <img
+                      src={visitor.avatar || "/default-avatar.jpg"}
+                      className="w-16 h-16 rounded-xl object-cover"
+                    />
+
+                    <div>
+                      <h3 className="font-semibold text-gray-900">
+                        {visitor.name}
+                      </h3>
+                      <p className="text-gray-500 text-sm">
+                        {visitor.profession}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70">
+                  <p className="text-sm font-semibold mb-2">
+                    🔒 Upgrade to view
+                  </p>
+
+                  <button
+                    onClick={() => navigate("/user/packages")}
+                    className="px-4 py-2 bg-pink-500 text-white rounded-lg text-sm"
+                  >
+                    Upgrade
+                  </button>
+                </div>
+              </div>
+            ))}
         </div>
       ) : (
         <div className="bg-white rounded-2xl p-12 shadow-sm border border-gray-100 text-center">

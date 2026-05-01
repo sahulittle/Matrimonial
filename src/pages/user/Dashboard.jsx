@@ -72,7 +72,11 @@ const Dashboard = () => {
         console.log("SUB RESPONSE:", subRes);
 
         // ✅ CORRECT FIX (axios response handling)
-        const subData = subRes?.data?.subscription;
+        const subData = subRes?.subscription;
+
+        if (subData) {
+          setSubscription(subData);
+        }
 
         if (subData) {
           setSubscription(subData);
