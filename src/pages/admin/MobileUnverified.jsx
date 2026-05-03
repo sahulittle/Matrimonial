@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FiEye, FiSearch } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { getAllUsers } from "../../api/adminApi/adminApi"; // ✅ API
+import { on, off } from "../../services/socketService";
 
 const MobileUnverified = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,11 +13,16 @@ const MobileUnverified = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await getAllUsers({
-        status: "phoneUnverified",
-        search: searchTerm,
+      const res = await getAllUsers({ status: "phoneUnverified", search: searchTerm });
+      const usersList = (res.users || []).map((u) => {
+        const avatar =
+          u.profilePhoto ||
+          (Array.isArray(u.photos) && u.photos.find((p) => p.isProfile)?.url) ||
+          u.image ||
+          null;
+        return { ...u, avatar };
       });
-      setUsers(res.users || []);
+      setUsers(usersList);
     } catch (error) {
       console.error("Error fetching phone unverified users:", error);
     } finally {
@@ -27,6 +33,19 @@ const MobileUnverified = () => {
   // initial load
   useEffect(() => {
     fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const handleUpdate = () => fetchUsers();
+    on("user:status", handleUpdate);
+    on("dashboard:graphUpdated", handleUpdate);
+    on("payment:updated", handleUpdate);
+
+    return () => {
+      off("user:status", handleUpdate);
+      off("dashboard:graphUpdated", handleUpdate);
+      off("payment:updated", handleUpdate);
+    };
   }, []);
 
   // search debounce

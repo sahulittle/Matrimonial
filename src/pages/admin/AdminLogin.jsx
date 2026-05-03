@@ -120,6 +120,9 @@ const AdminLogin = () => {
             </a>
           </p>
         </div>
+        <div className="mt-4 text-center text-sm">
+          <a href="/forgot-password" className="text-pink-600 hover:underline">Forgot password?</a>
+        </div>
       </div>
     </div>
   );

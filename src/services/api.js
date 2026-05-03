@@ -103,6 +103,8 @@ export const searchApi = {
   viewProfile: (profileId) => api.get(`/users/search/profile/${profileId}`),
   getVisitors: (page = 1, limit = 10) =>
     api.get(`/users/search/visitors?page=${page}&limit=${limit}`),
+  // Unlock contact details (consumes remainingViews)
+  unlockProfile: (profileId) => api.post(`/users/search/profile/${profileId}/unlock`, {}),
   blockUser: (blockedUserId) =>
     api.post("/users/search/block", { blockedUserId }),
   unblockUser: (blockedUserId) =>
@@ -323,6 +325,13 @@ export const adminReligionApi = {
   remove: (id) => api.delete(`/admin/religions/${id}`),
 };
 
+// =============== ADMIN EDUCATION API ===============
+export const adminEducationApi = {
+  list: () => api.get('/admin/educations'),
+  create: (name) => api.post('/admin/educations', { name }),
+  remove: (id) => api.delete(`/admin/educations/${id}`),
+};
+
 // =============== ADMIN PAGES API ===============
 // Provides simple endpoints for dynamic page content like the About page
 export const adminPagesApi = {
@@ -335,6 +344,7 @@ export const adminPagesApi = {
 // =============== USER DATA API ===============
 export const userDataApi = {
   getReligions: () => api.get('/users/religions'),
+  getEducations: () => api.get('/users/educations'),
 };
 
 // =============== ADMIN SETTINGS API ===============

@@ -15,11 +15,23 @@ export function addUser(user) {
 }
 
 export function getCurrentUser() {
-  return JSON.parse(localStorage.getItem("currentUser"))
+  // Prefer server-provided `user` key (set by AuthContext). Fallback to legacy `currentUser`.
+  try {
+    const userRaw = localStorage.getItem("user") || localStorage.getItem("currentUser");
+    return userRaw ? JSON.parse(userRaw) : null;
+  } catch (e) {
+    return null;
+  }
 }
 
 export function setCurrentUser(user) {
-  localStorage.setItem("currentUser", JSON.stringify(user))
+  try {
+    localStorage.setItem("currentUser", JSON.stringify(user));
+    // also set `user` to keep parity with AuthContext
+    localStorage.setItem("user", JSON.stringify(user));
+  } catch (e) {
+    // ignore
+  }
 }
 
 export function logoutUser() {
@@ -124,6 +136,24 @@ export function sendInterest(interest) {
   allInterests[receiverId].received.push(newReceivedInterest);
 
   localStorage.setItem("interests", JSON.stringify(allInterests));
+
+  // Decrement sender's remainingInterests if present (simulate backend limits)
+  try {
+    const raw = localStorage.getItem("user") || localStorage.getItem("currentUser");
+    if (raw) {
+      const u = JSON.parse(raw);
+      if (typeof u.remainingInterests === "number") {
+        // 999 used to represent 'unlimited' in parseBenefits
+        if (u.remainingInterests > 0 && u.remainingInterests !== 999) {
+          u.remainingInterests = Math.max(0, u.remainingInterests - 1);
+          localStorage.setItem("currentUser", JSON.stringify(u));
+          localStorage.setItem("user", JSON.stringify(u));
+        }
+      }
+    }
+  } catch (e) {
+    // ignore
+  }
 }
 
 export function updateInterestStatus(userId, interestId, status) {

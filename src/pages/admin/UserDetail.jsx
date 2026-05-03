@@ -1,40 +1,69 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import {
-  FiLogIn,
-  FiBell,
-  FiSlash,
-  FiCreditCard,
-  FiHeart,
-  FiEye,
-  FiImage,
-} from "react-icons/fi";
+import { useParams, Link } from "react-router-dom";
+import { FiLogIn, FiUsers, FiChevronRight, FiCreditCard, FiHeart, FiEye, FiImage } from "react-icons/fi";
 import toast from "react-hot-toast";
-import {
-  getUserDetails,
-  updateUserDetails,
-  toggleVerification,
-  banUser,
-  unbanUser,
-} from "../../api/adminApi/adminApi";
-const ToggleBar = ({ title, value, onChange }) => {
+import { getUserDetails, banUser, unbanUser } from "../../api/adminApi/adminApi";
+import { on, off } from "../../services/socketService";
+
+// Simple RelatedTabs component (renders populated relations from admin GET)
+const RelatedTabs = ({ user }) => {
+  const [active, setActive] = useState("matches");
+
+  const renderProfileItem = (u) => {
+    if (!u) return null;
+    const person = u.userId || u; // support both shapes
+    const avatar = person.profilePhoto || (person.photos && person.photos.find(p=>p.isProfile)?.url) || person.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(person.firstName+' '+person.lastName)}&background=ddd`;
+    return (
+      <div className="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow">
+        <div className="flex items-center gap-3">
+          <img src={avatar} className="w-14 h-14 rounded-full object-cover" />
+          <div className="flex-1">
+            <div className="font-medium text-gray-800">{person.firstName} {person.lastName}</div>
+            <div className="text-xs text-gray-500">{person.email || person.phone || "-"}</div>
+          </div>
+          <div className="text-pink-500">
+            <FiChevronRight />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const list = (key) => {
+    const arr = user[key] || [];
+    if (arr.length === 0) return <div className="p-6 text-center text-gray-500">No items</div>;
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        {arr.map((it) => (
+          <div key={(it.userId && it.userId._id) || it._id}>{renderProfileItem(it)}</div>
+        ))}
+      </div>
+    );
+  };
+
   return (
-    <div className="w-[320px]">
-      <p className="mb-2 font-medium text-gray-700">{title}</p>
+    <div>
+      <div className="flex flex-wrap gap-3 items-center mb-4">
+        <button onClick={() => setActive("matches")} className={`flex items-center gap-2 px-4 py-2 rounded-full ${active==='matches'?'bg-pink-600 text-white shadow':'bg-gray-100 text-gray-700'}`}>
+          <FiUsers /> Matches {user.matches?.length > 0 && <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">{user.matches.length}</span>}
+        </button>
+        <button onClick={() => setActive("shortlist")} className={`flex items-center gap-2 px-4 py-2 rounded-full ${active==='shortlist'?'bg-pink-600 text-white shadow':'bg-gray-100 text-gray-700'}`}>
+          <FiHeart /> Shortlist {user.shortlist?.length > 0 && <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">{user.shortlist.length}</span>}
+        </button>
+        <button onClick={() => setActive("visitors")} className={`flex items-center gap-2 px-4 py-2 rounded-full ${active==='visitors'?'bg-pink-600 text-white shadow':'bg-gray-100 text-gray-700'}`}>
+          <FiEye /> Visitors {user.visitors?.length > 0 && <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">{user.visitors.length}</span>}
+        </button>
 
-      <div
-        onClick={() => onChange()}
-        className={`relative h-11 rounded-md flex items-center justify-center text-white font-semibold cursor-pointer transition-all duration-300 ${
-          value ? "bg-green-500" : "bg-red-500"
-        }`}
-      >
-        {value ? "Verified" : "Unverified"}
+        {/* Link to dedicated related users page */}
+        {/* <Link to={`/admin/users/related/${user._id}`} className="ml-auto inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg shadow hover:bg-indigo-700">
+          View Related Details
+        </Link> */}
+      </div>
 
-        <div
-          className={`absolute top-1 w-2.5 h-9 bg-slate-900 rounded transition-all duration-300 ${
-            value ? "right-1" : "left-1"
-          }`}
-        ></div>
+      <div>
+        {active === "matches" && list("matches")}
+        {active === "shortlist" && list("shortlist")}
+        {active === "visitors" && list("visitors")}
       </div>
     </div>
   );
@@ -44,67 +73,84 @@ const UserDetail = () => {
   const { userId } = useParams();
   const [user, setUser] = useState(null);
 
+  const fetchUser = async () => {
+    try {
+      const res = await getUserDetails(userId);
+      // normalize avatar selection
+      const u = res.user || {};
+      const avatar =
+        u.profilePhoto ||
+        (Array.isArray(u.photos) && u.photos.find((p) => p.isProfile)?.url) ||
+        u.image ||
+        null;
+      setUser({ ...u, avatar });
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await getUserDetails(userId);
-        setUser(res.user);
-      } catch (error) {
-        console.error("Error fetching user:", error);
+    fetchUser();
+
+    const handleUserStatus = (payload) => {
+      // payload may contain userId
+      if (!payload) return;
+      if (payload.userId && payload.userId.toString() === userId.toString()) {
+        fetchUser();
       }
     };
 
-    fetchUser();
+    const handlePaymentUpdated = (payload) => {
+      // payment updates may include userId
+      if (!payload) return fetchUser();
+      const uId = payload.userId || payload.user || payload.userId?.toString();
+      if (!uId) return fetchUser();
+      if (uId.toString() === userId.toString()) fetchUser();
+    };
+
+    const handleDashboard = () => fetchUser();
+
+    on("user:status", handleUserStatus);
+    on("user:online", handleUserStatus);
+    on("user:offline", handleUserStatus);
+    on("payment:updated", handlePaymentUpdated);
+    on("dashboard:graphUpdated", handleDashboard);
+
+    return () => {
+      off("user:status", handleUserStatus);
+      off("user:online", handleUserStatus);
+      off("user:offline", handleUserStatus);
+      off("payment:updated", handlePaymentUpdated);
+      off("dashboard:graphUpdated", handleDashboard);
+    };
   }, [userId]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUser((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleToggle = async (field) => {
-    try {
-      const res = await toggleVerification(userId, {
-        field,
-        value: !user[field],
-      });
-
-      setUser(res.user);
-    } catch (err) {
-      console.error("Toggle error:", err);
-    }
-  };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const res = await updateUserDetails(userId, user);
-      setUser(res.user);
-      
-      toast.success("User updated successfully");
-    } catch (error) {
-      console.error("Update error:", error);
-    }
-  };
+  // (no inline edit form on this page by design)
   const stats = [
+    // derive real values from user object
     {
       title: "Active Package",
-      value: "Premium",
+      value: user?.subscriptionPlan || "—",
       icon: <FiCreditCard className="text-blue-500" />,
     },
     {
       title: "Remaining Interest",
-      value: "145",
+      value:
+        user?.remainingInterests ??
+        user?.subscriptionFeatures?.interestExpress ??
+        0,
       icon: <FiHeart className="text-red-500" />,
     },
     {
       title: "Remaining Contact View",
-      value: "298",
+      value:
+        user?.remainingViews ?? user?.subscriptionFeatures?.contactViews ?? 0,
       icon: <FiEye className="text-green-500" />,
     },
     {
       title: "Remaining Image Upload",
-      value: "8",
+      value:
+        user?.remainingUploads ?? user?.subscriptionFeatures?.imageUploads ?? 0,
       icon: <FiImage className="text-purple-500" />,
     },
   ];
@@ -118,220 +164,34 @@ const UserDetail = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h4 className="text-2xl font-bold text-gray-800">
-          User Detail - {user.firstName} {user.lastName}
-        </h4>
-        <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors">
-          <FiLogIn className="mr-2" /> Login as User
-        </button>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <img src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName} ${user.lastName}`)}&background=fff&color=333&size=128`} alt="avatar" className="w-20 h-20 rounded-full object-cover" />
+          <div>
+            <h2 className="text-2xl font-bold">{user.firstName} {user.lastName}</h2>
+            <p className="text-sm text-gray-500">@{user.username || ""}</p>
+            <p className="text-sm text-gray-600">{user.email || ""} • {user.phone || ""}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-700 transition-colors">
+            <FiLogIn className="mr-2" /> Login as User
+          </button> */}
+
+          {user.isBanned ? (
+            <button onClick={async () => { try { const res = await unbanUser(userId); setUser(res.user); toast.success('User unbanned'); } catch(e){console.error(e)} }} className="bg-green-600 text-white px-4 py-2 rounded">Unban</button>
+          ) : (
+            <button onClick={async () => { try { const res = await banUser(userId, 'Admin action'); setUser(res.user); toast.success('User banned'); } catch(e){console.error(e)} }} className="bg-red-600 text-white px-4 py-2 rounded">Ban</button>
+          )}
+        </div>
       </div>
 
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => (
-          <div
-            key={index}
-            className="bg-white p-6 rounded-lg shadow-md flex items-center space-x-4"
-          >
-            <div className="text-3xl">{stat.icon}</div>
-            <div>
-              <p className="text-gray-500 text-sm font-medium">{stat.title}</p>
-              <p className="text-2xl font-bold text-gray-800">{stat.value}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex flex-wrap gap-4">
-        <button className="flex items-center bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
-          <FiLogIn className="mr-2" /> Logins
-        </button>
-        <button className="flex items-center bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">
-          <FiBell className="mr-2" /> Notification
-        </button>
-        {user.isBanned ? (
-          <button
-            onClick={async () => {
-              try {
-                const res = await unbanUser(userId);
-                setUser(res.user);
-                toast.success("User unbanned");
-              } catch (err) {
-                console.error(err);
-              }
-            }}
-            className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600"
-          >
-            Unban User
-          </button>
-        ) : (
-          <button
-            onClick={async () => {
-              try {
-                const res = await banUser(userId, "Admin action");
-                setUser(res.user);
-                toast.success("User banned");
-              } catch (err) {
-                console.error(err);
-              }
-            }}
-            className="flex items-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
-          >
-            Ban User
-          </button>
-        )}
-      </div>
-
-      {/* User Information Form */}
-      <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-lg shadow-md">
-        <h4 className="text-xl font-bold text-gray-800 mb-6 border-b pb-4">
-          Information of {user.firstName} {user.lastName}
-        </h4>
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                First Name
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                value={user.firstName}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Last Name
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                value={user.lastName}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                value={user.email}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Mobile Number
-              </label>
-              <input
-                type="text"
-                name="mobile"
-                value={user.mobile}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Address
-              </label>
-              <input
-                type="text"
-                name="address"
-                value={user.address}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                City
-              </label>
-              <input
-                type="text"
-                name="city"
-                value={user.city}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                State
-              </label>
-              <input
-                type="text"
-                name="state"
-                value={user.state}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Zip/Postal
-              </label>
-              <input
-                type="text"
-                name="zip"
-                value={user.zip}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Country
-              </label>
-              <input
-                type="text"
-                name="country"
-                value={user.country}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-4 sm:gap-6 p-4 sm:p-6">
-            <ToggleBar
-              title="Email Verification"
-              value={user.isEmailVerified}
-              onChange={() => handleToggle("isEmailVerified")}
-            />
-
-            <ToggleBar
-              title="Mobile Verification"
-              value={user.isPhoneVerified}
-              onChange={() => handleToggle("isPhoneVerified")}
-            />
-
-            <ToggleBar
-              title="KYC"
-              value={user.isKycVerified}
-              onChange={() => handleToggle("isKycVerified")}
-            />
-          </div>
-
-          <div className="mt-8 flex justify-end">
-            <button
-              type="submit"
-              className="w-full sm:w-auto bg-pink-600 text-white px-6 py-3 rounded-lg shadow-md hover:bg-pink-700"
-            >
-              Submit
-            </button>
-          </div>
-        </form>
+      {/* Related tabs */}
+      <div className="bg-white rounded-lg shadow-md p-4">
+        <RelatedTabs user={user} />
       </div>
     </div>
   );

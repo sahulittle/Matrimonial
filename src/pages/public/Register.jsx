@@ -130,77 +130,37 @@ const Register = () => {
     "10+",
   ];
 
-  const educationOptions = [
-    // Basic Education
+  const defaultEducationOptions = [
     "No Formal Education",
     "Primary School",
     "Middle School",
     "High School (10th)",
     "Higher Secondary (12th)",
-
-    // Skill / Training
-    "Trade/Technical/Vocational Training",
-    "ITI (Industrial Training Institute)",
-    "Certification Course",
-    "Online Certification (Coursera/Udemy etc)",
-
-    // Diploma Level
     "Diploma",
-    "Polytechnic Diploma",
-    "Advanced Diploma",
-    "Post Diploma",
-
-    // Associate
     "Associate Degree",
-
-    // Bachelor's Degrees
-    "Bachelor's Degree (BA/BSc/BCom etc)",
-    "Bachelor of Engineering (BE)",
-    "Bachelor of Technology (B.Tech)",
-    "Bachelor of Medicine (MBBS)",
-    "Bachelor of Dental Surgery (BDS)",
-    "Bachelor of Pharmacy (B.Pharm)",
-    "Bachelor of Nursing (BSc Nursing)",
-    "Bachelor of Law (LLB)",
-    "Bachelor of Architecture (B.Arch)",
-    "Bachelor of Design (B.Des)",
-    "Bachelor of Business Administration (BBA)",
-    "Bachelor of Computer Applications (BCA)",
-    "Bachelor of Science in IT (BSc IT)",
-    "Bachelor of Hotel Management (BHM)",
-    "Bachelor of Education (B.Ed)",
-
-    // Master's Degrees
-    "Master's Degree (MA/MSc/MCom etc)",
-    "Master of Technology (M.Tech)",
-    "Master of Engineering (ME)",
-    "Master of Business Administration (MBA)",
-    "Master of Computer Applications (MCA)",
-    "Master of Architecture (M.Arch)",
-    "Master of Science (MSc)",
-    "Master of Arts (MA)",
-    "Master of Commerce (MCom)",
-    "Master of Pharmacy (M.Pharm)",
-    "Master of Law (LLM)",
-    "Master of Education (M.Ed)",
-    "Master of Design (M.Des)",
-
-    // Doctorate
+    "Bachelor's Degree",
+    "Master's Degree",
     "Doctorate (PhD)",
-    "Doctor of Medicine (MD)",
-    "Doctor of Surgery (MS)",
-    "Post Doctorate",
-
-    // Professional / Certifications
-    "Professional Degree (CA/CS/CFA/ICWA etc)",
-    "Chartered Accountant (CA)",
-    "Company Secretary (CS)",
-    "Cost and Management Accountant (CMA)",
-    "Certified Financial Analyst (CFA)",
-
-    // Others
+    "Professional Degree (CA/CS/etc)",
     "Other",
   ];
+
+  const [educationOptions, setEducationOptions] = useState(defaultEducationOptions);
+
+  useEffect(() => {
+    let mounted = true;
+    userDataApi
+      .getEducations()
+      .then((res) => {
+        if (!mounted) return;
+        const list = Array.isArray(res?.data) ? res.data : res?.data || [];
+        if (Array.isArray(list) && list.length) setEducationOptions(list.map((i) => (i.name ? i.name : i)));
+      })
+      .catch(() => {
+        // keep defaults on failure
+      });
+    return () => (mounted = false);
+  }, []);
 
   // Dynamic states and cities
   const [states, setStates] = useState([]);

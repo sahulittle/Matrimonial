@@ -17,6 +17,7 @@ import {
 import { initSocket, disconnectSocket } from "../services/socketService";
 import toast from "react-hot-toast";
 import { getUserProfile, updateUserProfile } from "../api/userApi/userApi"; // ✅ NEW API
+import { getCurrentSubscription } from "../api/userApi/userApi";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
@@ -123,6 +124,13 @@ export const AuthProvider = ({ children }) => {
       // Load initial app data
       await loadAppData();
 
+      // Fetch full user profile (ensures avatar/profilePhoto is available immediately)
+      try {
+        await fetchUserProfile();
+      } catch (err) {
+        console.error("fetchUserProfile after login failed:", err);
+      }
+
       toast.success("Login successful!");
       return response;
     } catch (error) {
@@ -153,6 +161,20 @@ export const AuthProvider = ({ children }) => {
         ...userData,
       };
 
+      // also fetch current subscription and merge relevant fields
+      try {
+        const subRes = await getCurrentSubscription();
+        if (subRes && subRes.subscription) {
+          formattedProfile.subscriptionPlan = subRes.subscription.plan || formattedProfile.subscriptionPlan;
+          formattedProfile.subscriptionStatus = subRes.subscription.status || formattedProfile.subscriptionStatus;
+          formattedProfile.subscriptionStartDate = subRes.subscription.startDate || formattedProfile.subscriptionStartDate;
+          formattedProfile.subscriptionEndDate = subRes.subscription.endDate || formattedProfile.subscriptionEndDate;
+          formattedProfile.subscriptionBenefits = subRes.subscription.benefits || formattedProfile.subscriptionBenefits;
+        }
+      } catch (e) {
+        // ignore subscription fetch errors
+      }
+
       // include backend-calculated missing fields if provided
       if (response.missingFields) {
         formattedProfile.missingFields = response.missingFields;
@@ -160,6 +182,13 @@ export const AuthProvider = ({ children }) => {
 
       setProfile(formattedProfile);
       setUser((prev) => ({ ...prev, ...formattedProfile }));
+
+      // persist updated user to localStorage so other components (and reloads) have the latest
+      try {
+        localStorage.setItem("user", JSON.stringify({ ...JSON.parse(localStorage.getItem("user") || "{}"), ...formattedProfile }));
+      } catch (e) {
+        // ignore storage errors
+      }
 
       return formattedProfile;
     } catch (error) {

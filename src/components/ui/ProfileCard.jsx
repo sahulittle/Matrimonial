@@ -57,6 +57,13 @@ const ProfileCard = ({ profile, showActions = true, size = "md" }) => {
     e.stopPropagation();
     if (!currentUser || isInterestSent) return;
 
+    // check remainingInterests
+    if (typeof currentUser.remainingInterests === "number" && currentUser.remainingInterests === 0) {
+      // ask user to upgrade
+      alert("You have no remaining interests. Please upgrade your package.");
+      return;
+    }
+
     sendInterest({
       senderId: currentUser.id,
       receiverId: profile.id,

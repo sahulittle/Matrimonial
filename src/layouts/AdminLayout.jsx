@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "../components/admin/Navbar";
 import Sidebar from "../components/admin/Sidebar";
@@ -10,6 +10,9 @@ import { on, off } from "../services/socketService";
  * Contains admin Navbar + Sidebar + content area via Outlet
  */
 const AdminLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const sidebarRef = useRef(null);
   useEffect(() => {
     // Ticket events
     const handleTicketNew = (data) => {
@@ -91,11 +94,37 @@ const AdminLayout = () => {
     };
   }, []);
 
+  // close on ESC
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape") setSidebarOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, []);
+
   return (
     <div className="bg-gray-50 min-h-screen">
-      <Navbar />
-      <Sidebar />
-      <main className="pt-24 pl-64">
+      <Navbar onHamburger={() => setSidebarOpen(true)} collapsed={collapsed} onToggleCollapse={() => setCollapsed((c) => !c)} />
+
+      <Sidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        collapsed={collapsed}
+        onToggleCollapse={() => setCollapsed((c) => !c)}
+        ref={sidebarRef}
+      />
+
+      {/* Overlay for mobile when sidebar open */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-40 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <main className={`pt-24 ${collapsed ? "lg:pl-16" : "lg:pl-64"}`}>
         <div className="px-6 lg:px-8 py-8">
           <Outlet />
         </div>

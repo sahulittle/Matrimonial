@@ -1,7 +1,7 @@
 const aboutData = {
   title: "About MarathiShubhaVivah",
   heroImage:
-    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=1770&auto=format&fit=crop&ixlib=rb-4.0.3&s=8c1c0f7c7d9c8a1f2b6b0a4f6e5a3b2c",
+    "/aboutIMG.jpeg",
   paragraphs: [
     `विदर्भ वैभव मंदिर यांच्या पुढाकारातून साकारलेले Marathishubhavivah.com हे केवळ एक डिजिटल
 प्लॅटफॉर्म नसून, आधुनिक युगातील समाजसेवेचे एक उज्ज्वल उदाहरण आहे. आजच्या धावपळीच्या,

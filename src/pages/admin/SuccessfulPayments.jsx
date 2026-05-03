@@ -21,7 +21,7 @@ const formatInitiated = (isoDate) => {
   const diffInMonths = Math.floor(diffInDays / 30.44);
   const diffInYears = Math.floor(diffInDays / 365.25);
 
-  let relativeTime = "just now";
+  let relativeTime = "";
   if (diffInYears > 0) {
     relativeTime = `${diffInYears} year${diffInYears > 1 ? "s" : ""} ago`;
   } else if (diffInMonths > 0) {
@@ -202,9 +202,9 @@ const SuccessfulPayments = () => {
               <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
                 Amount
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
+              {/* <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
                 Conversion
-              </th>
+              </th> */}
               <th className="py-3 px-4 text-center text-sm font-semibold text-gray-600 uppercase">
                 Status
               </th>
@@ -215,7 +215,7 @@ const SuccessfulPayments = () => {
           </thead>
           <tbody className="text-gray-700">
             {currentPayments.map((payment) => {
-              const initiatedTime = formatInitiated(payment.initiated);
+              const initiatedTime = formatInitiated(payment.createdAt);
               const user = payment.user || payment.userId || {};
               return (
                 <tr
@@ -224,10 +224,12 @@ const SuccessfulPayments = () => {
                 >
                   <td className="py-3 px-4">
                     <p className="font-medium text-gray-800">
-                      {payment.gateway}
+                      {payment.paymentMethod?.toUpperCase() || "CCAVENUE"}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {payment.transactionId}
+                      {payment.transactionId ||
+                        payment.ccavenueOrderId ||
+                        payment._id}
                     </p>
                   </td>
                   <td className="py-3 px-4">
@@ -260,7 +262,7 @@ const SuccessfulPayments = () => {
                   <td className="py-3 px-4">
                     <p className="font-bold text-gray-800">₹{payment.amount}</p>
                   </td>
-                  <td className="py-3 px-4">{payment.conversion}</td>
+                  {/* <td className="py-3 px-4">{payment.conversion}</td> */}
                   <td className="py-3 px-4 text-center">
                     <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
                       {payment.status}
@@ -320,14 +322,50 @@ const SuccessfulPayments = () => {
               </button>
             </div>
             <div className="space-y-3">
-              {Object.entries(selectedPayment.details || {}).map(
-                ([key, value]) => (
-                  <div key={key} className="flex justify-between border-b py-2">
-                    <p className="font-semibold text-gray-600">{key}</p>
-                    <p className="text-gray-800 text-right">{String(value)}</p>
-                  </div>
-                ),
-              )}
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">User</p>
+                <p className="text-gray-800">
+                  {selectedPayment.userId?.firstName}{" "}
+                  {selectedPayment.userId?.lastName}
+                </p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Email</p>
+                <p className="text-gray-800">{selectedPayment.userId?.email}</p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Amount</p>
+                <p className="text-gray-800">₹{selectedPayment.amount}</p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Gateway</p>
+                <p className="text-gray-800">
+                  {selectedPayment.paymentMethod?.toUpperCase()}
+                </p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Transaction ID</p>
+                <p className="text-gray-800">
+                  {selectedPayment.transactionId ||
+                    selectedPayment.ccavenueOrderId}
+                </p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Status</p>
+                <p className="text-gray-800">{selectedPayment.status}</p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Date</p>
+                <p className="text-gray-800">
+                  {new Date(selectedPayment.createdAt).toLocaleString()}
+                </p>
+              </div>
             </div>
             <div className="mt-6 flex justify-end">
               <button

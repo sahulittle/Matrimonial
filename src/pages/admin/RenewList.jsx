@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiMail, FiMessageSquare, FiSearch } from "react-icons/fi";
 import { getRenewals } from "../../api/adminApi/adminApi";
+import { on, off } from "../../services/socketService";
 
 const RenewList = () => {
   const [renewals, setRenewals] = useState([]);
@@ -40,6 +41,27 @@ const RenewList = () => {
   useEffect(() => {
     fetchRenewals();
   }, [searchName, startDate, endDate]);
+
+  // Real-time: refresh when payments are updated or dashboard signals change
+  useEffect(() => {
+    const handlePaymentUpdated = (data) => {
+      console.log("payment:updated received", data);
+      fetchRenewals();
+    };
+
+    const handleGraphUpdated = (data) => {
+      console.log("dashboard:graphUpdated received", data);
+      fetchRenewals();
+    };
+
+    on("payment:updated", handlePaymentUpdated);
+    on("dashboard:graphUpdated", handleGraphUpdated);
+
+    return () => {
+      off("payment:updated", handlePaymentUpdated);
+      off("dashboard:graphUpdated", handleGraphUpdated);
+    };
+  }, []);
 
   return (
     <div className="container mx-auto p-4">
@@ -96,9 +118,13 @@ const RenewList = () => {
               {/* 👤 USER */}
               <div className="flex items-center gap-3">
                 <img
-                  src="https://i.pravatar.cc/40"
-                  alt="user"
-                  className="w-10 h-10 rounded-full"
+                  src={
+                    renewal.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                      renewal.userName,
+                    )}&background=ddd&color=555&size=64`
+                  }
+                  alt={renewal.userName}
+                  className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
                   <p className="font-semibold text-gray-800">
@@ -134,7 +160,7 @@ const RenewList = () => {
 
               {/* 💰 PRICE */}
               <div className="font-semibold text-gray-800">
-                ₹{renewal.amount || "—"}
+                ₹{renewal.amount != null ? renewal.amount : "—"}
               </div>
 
               {/* ⚙️ ACTION */}

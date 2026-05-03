@@ -165,9 +165,9 @@ const PendingPayments = () => {
               <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
                 Amount
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
+              {/* <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
                 Conversion
-              </th>
+              </th> */}
               <th className="py-3 px-4 text-center text-sm font-semibold text-gray-600 uppercase">
                 Status
               </th>
@@ -178,18 +178,21 @@ const PendingPayments = () => {
           </thead>
           <tbody className="text-gray-700">
             {currentPayments.map((payment) => {
-              const initiatedTime = formatInitiated(payment.initiated);
+              const initiatedTime = formatInitiated(payment.createdAt);
+              const user = payment.userId || {}; // ✅ ADD THIS LINE
               return (
                 <tr
-                  key={payment.id}
+                  key={payment._id || payment.id}
                   className="border-b border-gray-200 hover:bg-gray-50"
                 >
                   <td className="py-3 px-4">
                     <p className="font-medium text-gray-800">
-                      {payment.gateway}
+                      {payment.paymentMethod?.toUpperCase() || "CCAVENUE"}
                     </p>
                     <p className="text-sm text-gray-500">
-                      {payment.transactionId}
+                      {payment.transactionId ||
+                        payment.ccavenueOrderId ||
+                        payment._id}
                     </p>
                   </td>
                   <td className="py-3 px-4">
@@ -201,16 +204,21 @@ const PendingPayments = () => {
                   <td className="py-3 px-4">
                     <div className="flex items-center">
                       <img
-                        src={payment.user.avatar}
-                        alt={payment.user.name}
+                        src={
+                          user.profilePhoto ||
+                          `https://i.pravatar.cc/150?u=${user._id}`
+                        }
+                        alt={user.firstName || "user"}
                         className="w-10 h-10 rounded-full mr-4"
                       />
+
                       <div>
                         <p className="font-medium text-gray-800">
-                          {payment.user.name}
+                          {`${user.firstName || ""} ${user.lastName || ""}`.trim()}
                         </p>
+
                         <p className="text-sm text-gray-500">
-                          @{payment.user.username}
+                          @{user.username || user.email?.split("@")[0]}
                         </p>
                       </div>
                     </div>
@@ -218,7 +226,7 @@ const PendingPayments = () => {
                   <td className="py-3 px-4">
                     <p className="font-bold text-gray-800">₹{payment.amount}</p>
                   </td>
-                  <td className="py-3 px-4">{payment.conversion}</td>
+                  {/* <td className="py-3 px-4">{payment.conversion}</td> */}
                   <td className="py-3 px-4 text-center">
                     <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
                       {payment.status}
@@ -278,12 +286,50 @@ const PendingPayments = () => {
               </button>
             </div>
             <div className="space-y-3">
-              {Object.entries(selectedPayment.details).map(([key, value]) => (
-                <div key={key} className="flex justify-between border-b py-2">
-                  <p className="font-semibold text-gray-600">{key}</p>
-                  <p className="text-gray-800 text-right">{value}</p>
-                </div>
-              ))}
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">User</p>
+                <p className="text-gray-800">
+                  {selectedPayment.userId?.firstName}{" "}
+                  {selectedPayment.userId?.lastName}
+                </p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Email</p>
+                <p className="text-gray-800">{selectedPayment.userId?.email}</p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Amount</p>
+                <p className="text-gray-800">₹{selectedPayment.amount}</p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Gateway</p>
+                <p className="text-gray-800">
+                  {selectedPayment.paymentMethod?.toUpperCase()}
+                </p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Transaction ID</p>
+                <p className="text-gray-800">
+                  {selectedPayment.transactionId ||
+                    selectedPayment.ccavenueOrderId}
+                </p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Status</p>
+                <p className="text-gray-800">{selectedPayment.status}</p>
+              </div>
+
+              <div className="flex justify-between border-b py-2">
+                <p className="font-semibold text-gray-600">Date</p>
+                <p className="text-gray-800">
+                  {new Date(selectedPayment.createdAt).toLocaleString()}
+                </p>
+              </div>
             </div>
             <div className="mt-6 flex justify-end">
               <button

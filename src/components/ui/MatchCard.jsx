@@ -10,6 +10,7 @@ import {
   MessageCircle,
   Phone,
 } from "lucide-react";
+import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthContext";
 import {
   addToShortlist,
@@ -78,6 +79,12 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
     e.stopPropagation();
 
     if (!currentUser || interestStatus) return;
+
+    // frontend gating: check remainingInterests (backend also enforces limits)
+    if (typeof currentUser.remainingInterests === "number" && currentUser.remainingInterests === 0) {
+      toast.error("No remaining interests. Please upgrade your package.");
+      return;
+    }
 
     try {
       await sendInterest({

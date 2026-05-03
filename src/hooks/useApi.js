@@ -385,6 +385,12 @@ export const usePayment = () => {
         transactionId,
       );
       toast.success("Payment successful");
+      // refresh current subscription state after successful payment
+      try {
+        await getCurrentSubscription();
+      } catch (err) {
+        console.error("Failed to refresh subscription after payment:", err);
+      }
       return response;
     } catch (error) {
       toast.error(error.message);

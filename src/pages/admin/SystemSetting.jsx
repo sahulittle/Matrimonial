@@ -7,7 +7,12 @@ import {
   FiGlobe,
   FiFileText,
 } from "react-icons/fi";
-import { adminReligionApi, adminPagesApi } from "../../services/api";
+import {
+  adminReligionApi,
+  adminPagesApi,
+  adminEducationApi,
+  adminSettingsApi,
+} from "../../services/api";
 import {
   FaPuzzlePiece,
   FaCookieBite,
@@ -38,6 +43,12 @@ const SystemSetting = () => {
       title: "Manage Religions",
       description: "Add, edit or remove religions visible to users.",
       color: "teal",
+    },
+    {
+      icon: <FaSitemap />,
+      title: "Manage Educations",
+      description: "Add or remove education categories shown to users.",
+      color: "purple",
     },
     {
       icon: <FiFileText />,
@@ -123,6 +134,8 @@ const SystemSetting = () => {
 
   const [religions, setReligions] = React.useState([]);
   const [newReligion, setNewReligion] = React.useState("");
+  const [educations, setEducations] = React.useState([]);
+  const [newEducation, setNewEducation] = React.useState("");
   React.useEffect(() => {
     let mounted = true;
     adminReligionApi
@@ -141,6 +154,23 @@ const SystemSetting = () => {
       })
       .catch((err) => {
         console.error("Failed to load religions", err);
+      });
+
+    // load education categories
+    adminEducationApi
+      .list()
+      .then((res) => {
+        if (!mounted) return;
+        if (res && res.data && Array.isArray(res.data)) {
+          setEducations(res.data.map((e) => e.name));
+        } else if (Array.isArray(res)) {
+          setEducations(res.map((e) => (e.name ? e.name : e)));
+        } else {
+          setEducations([]);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to load educations", err);
       });
 
     // load about page content if available
@@ -193,6 +223,32 @@ const SystemSetting = () => {
     }
   };
 
+  const handleAddEducation = async () => {
+    const name = newEducation.trim();
+    if (!name) return;
+    try {
+      await adminEducationApi.create(name);
+      const res = await adminEducationApi.list();
+      setEducations((res.data || res || []).map((e) => (e.name ? e.name : e)));
+      setNewEducation("");
+    } catch (e) {
+      console.error("Add education failed", e);
+    }
+  };
+
+  const handleRemoveEducation = async (name) => {
+    try {
+      const res = await adminEducationApi.list();
+      const item = res.data.find((r) => r.name === name);
+      if (!item) return;
+      await adminEducationApi.remove(item._id);
+      const updated = (await adminEducationApi.list()).data.map((r) => r.name);
+      setEducations(updated);
+    } catch (e) {
+      console.error("Remove education failed", e);
+    }
+  };
+
   const handleSaveAbout = async () => {
     try {
       await adminPagesApi.updateAbout(aboutContent);
@@ -207,6 +263,7 @@ const SystemSetting = () => {
     "General Setting": "/admin/extra/application",
     "Notification Setting": "/admin/users/send-notification",
     "Manage Religions": "/admin/system-setting#religions",
+    "Manage Educations": "/admin/system-setting#educations",
     "About Page": "/admin/system-setting#about",
   };
 
@@ -473,6 +530,44 @@ const SystemSetting = () => {
                     <span>{r}</span>
                     <button
                       onClick={() => handleRemoveReligion(r)}
+                      className="text-red-600 text-sm"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {selected === "Manage Educations" && (
+            <div className="bg-white p-6 rounded-lg shadow">
+              <h5 className="font-semibold mb-4">Manage Educations</h5>
+              <div className="flex gap-2 mb-3">
+                <input
+                  type="text"
+                  placeholder="Add new education"
+                  value={newEducation}
+                  onChange={(e) => setNewEducation(e.target.value)}
+                  className="flex-1 px-3 py-2 border rounded"
+                />
+                <button
+                  onClick={handleAddEducation}
+                  className="px-4 py-2 bg-pink-600 text-white rounded"
+                >
+                  Add
+                </button>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {educations.map((e) => (
+                  <div
+                    key={e}
+                    className="flex items-center gap-2 bg-gray-100 px-3 py-1 rounded"
+                  >
+                    <span>{e}</span>
+                    <button
+                      onClick={() => handleRemoveEducation(e)}
                       className="text-red-600 text-sm"
                     >
                       Remove

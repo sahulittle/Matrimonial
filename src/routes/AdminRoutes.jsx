@@ -35,6 +35,7 @@ import Application from "../pages/admin/Application";
 import Server from "../pages/admin/Server";
 import Cache from "../pages/admin/Cache";
 import Update from "../pages/admin/Update";
+import ChangePassword from "../pages/admin/ChangePassword";
 import ReportRequest from "../pages/admin/ReportRequest";
 import RenewList from "../pages/admin/RenewList";
 import SuccessStories from "../pages/admin/SuccessStory";
@@ -49,6 +50,8 @@ const AdminRoutes = () => (
       {/* Redirect /admin → /admin/dashboard */}
       <Route index element={<Navigate to="dashboard" replace />} />
       <Route path="dashboard" element={<Dashboard />} />
+      <Route path="notifications" element={<NotificationHistory />} />
+      <Route path="change-password" element={<ChangePassword />} />
       <Route path="manage-packages" element={<ManagePackages />} />
       <Route path="renewlist" element={<RenewList />} />
 
@@ -101,8 +104,8 @@ const AdminRoutes = () => (
       <Route path="success-story" element={<SuccessStories />} />
 
 
-      {/* Catch-all to redirect to dashboard */}
-      <Route path="*" element={<Navigate to="dashboard" replace />} />
+      {/* Catch-all to redirect to dashboard (use absolute path to avoid append loops) */}
+      <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
     </Route>
   </Route>
 );

@@ -165,9 +165,9 @@ const InitiatedPayments = () => {
               <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
                 Amount
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
+              {/* <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
                 Conversion
-              </th>
+              </th> */}
               <th className="py-3 px-4 text-center text-sm font-semibold text-gray-600 uppercase">
                 Status
               </th>
@@ -223,7 +223,7 @@ const InitiatedPayments = () => {
                   <td className="py-3 px-4">
                     <p className="font-bold text-gray-800">₹{payment.amount}</p>
                   </td>
-                  <td className="py-3 px-4">{payment.conversion}</td>
+                  {/* <td className="py-3 px-4">{payment.conversion}</td> */}
                   <td className="py-3 px-4 text-center">
                     <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
                       {payment.status}

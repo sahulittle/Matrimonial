@@ -172,7 +172,7 @@ const AnsweredTicket = () => {
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex items-center">
-                        <img
+                        {/* <img
                           src={
                             ticket.userId?.avatar || ticket.submittedBy?.avatar
                           }
@@ -180,7 +180,7 @@ const AnsweredTicket = () => {
                             ticket.userId?.firstName || ticket.submittedBy?.name
                           }
                           className="w-10 h-10 rounded-full mr-4"
-                        />
+                        /> */}
                         <div>
                           <p className="font-medium text-gray-800">
                             {ticket.userId?.firstName
@@ -188,7 +188,7 @@ const AnsweredTicket = () => {
                               : ticket.submittedBy?.name || "N/A"}
                           </p>
                           <p className="text-sm text-gray-500">
-                            @
+                            
                             {(
                               ticket.userId?.username ||
                               ticket.submittedBy?.username ||

@@ -322,18 +322,21 @@ const Members = () => {
             </div>
 
             {/* Profession */}
-            {/* <div>
-              <label className="block text-sm font-semibold text-gray-600 mb-1">
-                Profession
-              </label>
-              <input
-                type="text"
-                placeholder="Profession"
-                value={profession}
-                onChange={(e) => setProfession(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none"
-              />
-            </div> */}
+              {/* Profession - advanced filter */}
+              {currentUser?.advancedSearch ? (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1">
+                    Profession
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Profession"
+                    value={profession}
+                    onChange={(e) => setProfession(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 outline-none"
+                  />
+                </div>
+              ) : null}
 
             {/* City */}
             <div>

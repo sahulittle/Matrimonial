@@ -26,6 +26,8 @@ import {
   PieChart,
   Pie,
   Cell,
+  ComposedChart,
+  Line,
 } from "recharts";
 import React, { useEffect, useState } from "react";
 import { on, off } from "../../services/socketService";
@@ -120,23 +122,20 @@ const Dashboard = () => {
   const usersJoinedData = graphData?.usersJoined || [];
   const revenueData = graphData?.revenue || [];
 
-  const osData = [
-    { name: "Windows", value: 400 },
-    { name: "macOS", value: 300 },
-    { name: "Linux", value: 150 },
-    { name: "Android", value: 200 },
-    { name: "iOS", value: 250 },
-  ];
+  const timeseries = graphData?.timeseries || [];
 
-  const countryData = [
-    { name: "USA", logins: 3500 },
-    { name: "India", logins: 4800 },
-    { name: "UK", logins: 1500 },
-    { name: "Canada", logins: 2100 },
-    { name: "Australia", logins: 1800 },
-  ];
+  const revenueByPackage = graphData?.revenueByPackage || [];
+
+  const osData = graphData?.os || [];
+
+  const countryData = graphData?.countries || [];
 
   const PIE_COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
+  const currencyFormatter = new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+  });
   if (loading) {
     return <div className="text-center py-10">Loading dashboard...</div>;
   }
@@ -168,47 +167,35 @@ const Dashboard = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Login by OS */}
+        {/* Users overview (Total / Active / Banned) + Revenue */}
         <div className="bg-white p-6 rounded-lg shadow-md">
           <h3 className="text-lg font-semibold text-gray-700 mb-4">
-            Login By OS (Last 30 days)
+            Users Overview (Last 30 days)
           </h3>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={osData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-                label={({ name, percent }) =>
-                  `${name} ${(percent * 100).toFixed(0)}%`
-                }
-              >
-                {osData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={PIE_COLORS[index % PIE_COLORS.length]}
-                  />
-                ))}
-              </Pie>
+          <ResponsiveContainer width="100%" height={320}>
+            <ComposedChart data={timeseries}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="date" />
+              <YAxis yAxisId="left" />
+              <YAxis yAxisId="right" orientation="right" />
               <Tooltip
-                contentStyle={{
-                  backgroundColor: "#fff",
-                  border: "1px solid #ddd",
-                  borderRadius: "0.5rem",
+                formatter={(value, name) => {
+                  if (name === "revenue") return currencyFormatter.format(value || 0);
+                  return value;
                 }}
               />
-              <Legend iconType="circle" iconSize={10} />
-            </PieChart>
+              <Legend />
+              <Line yAxisId="left" type="monotone" dataKey="totalUsers" stroke="#8884d8" dot={false} />
+              <Line yAxisId="left" type="monotone" dataKey="activeUsers" stroke="#00C49F" dot={false} />
+              <Line yAxisId="left" type="monotone" dataKey="totalBanned" stroke="#FF8042" dot={false} />
+              <Bar yAxisId="right" dataKey="revenue" barSize={16} fill="#2563eb" />
+            </ComposedChart>
           </ResponsiveContainer>
         </div>
       </div>
 
       {/* Login by Country */}
-      <div className="bg-white p-6 rounded-lg shadow-md">
+      {/* <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold text-gray-700 mb-4">
           Login By Country (Last 30 days)
         </h3>
@@ -235,6 +222,23 @@ const Dashboard = () => {
             />
             <Legend iconType="circle" iconSize={10} />
             <Bar dataKey="logins" fill="#22c55e" radius={[4, 4, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
+      </div> */}
+
+      {/* Revenue by Package (Last 30 days) */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <h3 className="text-lg font-semibold text-gray-700 mb-4">
+          Revenue by Package (Last 30 days)
+        </h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={revenueByPackage} layout="vertical" margin={{ left: 40 }}>
+            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+            <XAxis type="number" />
+            <YAxis dataKey="packageName" type="category" width={160} />
+            <Tooltip formatter={(value) => currencyFormatter.format(value || 0)} />
+            <Legend />
+            <Bar dataKey="total" fill="#22c55e" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

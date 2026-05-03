@@ -225,7 +225,7 @@ const IgnoredProfile = () => {
                             : user.name}
                         </p>
                         <p className="text-sm text-gray-500">
-                          @{user.username || (user.email || "").split("@")[0]}
+                          {user.username || (user.email || "").split("")[0]}
                         </p>
                       </div>
                     </div>
@@ -252,9 +252,9 @@ const IgnoredProfile = () => {
                             : profile.name}
                         </p>
                         <p className="text-sm text-gray-500">
-                          @
+                          
                           {profile.username ||
-                            (profile.email || "").split("@")[0]}
+                            (profile.email || "").split("")[0]}
                         </p>
                       </div>
                     </div>

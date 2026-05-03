@@ -111,7 +111,7 @@ const Interests = () => {
                             {interest.senderId?.lastName}
                           </p>
                           <p className="text-sm text-gray-500">
-                            @{interest.senderId?.username}
+                            {interest.senderId?.username}
                           </p>
                         </div>
                       </div>
@@ -134,7 +134,7 @@ const Interests = () => {
                             {interest.receiverId?.lastName}
                           </p>
                           <p className="text-sm text-gray-500">
-                            @{interest.receiverId?.username}
+                            {interest.receiverId?.username}
                           </p>
                         </div>
                       </div>

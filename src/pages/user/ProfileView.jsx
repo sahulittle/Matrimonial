@@ -75,6 +75,12 @@ const ProfileView = () => {
 
   const handleSendInterest = () => {
     if (!currentUser || !profile || isInterestSent) return;
+
+    if (typeof currentUser.remainingInterests === "number" && currentUser.remainingInterests === 0) {
+      alert("No remaining interests. Please upgrade your package.");
+      return;
+    }
+
     sendInterest({
       senderId: currentUser.id,
       receiverId: profile.id,
@@ -88,6 +94,11 @@ const ProfileView = () => {
     const targetId = profile._id || profile.id;
     if (!targetId) {
       console.error("Cannot open chat: missing profile id", profile);
+      return;
+    }
+    // check messaging permission
+    if (typeof currentUser?.canMessage !== "undefined" && !currentUser?.canMessage) {
+      alert("Messaging is available only for paid plans. Please upgrade.");
       return;
     }
     navigate("/user/messages", { state: { newConversationWith: targetId } });

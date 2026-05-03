@@ -10,9 +10,7 @@ const getToken = () => localStorage.getItem("authToken");
 const authHeader = () => {
   const token = getToken();
 
-  if (!token) {
-    console.warn("No auth token found");
-  }
+  if (!token) return {}; // ✅ VERY IMPORTANT
 
   return {
     headers: {
@@ -544,7 +542,11 @@ export const deletePhoto = async (photoId) => {
     throw error.response?.data || { message: "Failed to delete photo" };
   }
 };
-
+// ================= ABOUT PAGE =================
+export const getAboutPage = async () => {
+  const res = await axios.get(`${BASE_URL}/settings/about`, authHeader());
+  return res.data;
+};
 // REORDER PHOTOS
 export const reorderPhotos = async (order) => {
   try {

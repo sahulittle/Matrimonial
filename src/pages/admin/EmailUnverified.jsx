@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiSearch, FiEye } from "react-icons/fi";
 import { getAllUsers } from "../../api/adminApi/adminApi"; // ✅ API
+import { on, off } from "../../services/socketService";
 
 const EmailUnverified = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,11 +13,16 @@ const EmailUnverified = () => {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const res = await getAllUsers({
-        status: "emailUnverified",
-        search: searchTerm,
+      const res = await getAllUsers({ status: "emailUnverified", search: searchTerm });
+      const usersList = (res.users || []).map((u) => {
+        const avatar =
+          u.profilePhoto ||
+          (Array.isArray(u.photos) && u.photos.find((p) => p.isProfile)?.url) ||
+          u.image ||
+          null;
+        return { ...u, avatar };
       });
-      setUsers(res.users || []);
+      setUsers(usersList);
     } catch (error) {
       console.error("Error fetching email unverified users:", error);
     } finally {
@@ -27,6 +33,19 @@ const EmailUnverified = () => {
   // load initially
   useEffect(() => {
     fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    const handleUpdate = () => fetchUsers();
+    on("user:status", handleUpdate);
+    on("dashboard:graphUpdated", handleUpdate);
+    on("payment:updated", handleUpdate);
+
+    return () => {
+      off("user:status", handleUpdate);
+      off("dashboard:graphUpdated", handleUpdate);
+      off("payment:updated", handleUpdate);
+    };
   }, []);
 
   // search debounce

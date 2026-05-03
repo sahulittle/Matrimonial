@@ -153,6 +153,20 @@ export default function Profile() {
     "Certified Financial Analyst (CFA)",
     "Other",
   ];
+  const [educationsList, setEducationsList] = useState(educationOptions);
+
+  // normalize option item into { key, value, label }
+  const normalizeOption = (opt, idx) => {
+    if (opt == null) return { key: idx, value: "", label: "" };
+    if (typeof opt === "string") return { key: opt, value: opt, label: opt };
+    if (typeof opt === "object") {
+      const value = opt.value ?? opt.name ?? opt.id ?? JSON.stringify(opt);
+      const label = opt.label ?? opt.name ?? opt.value ?? String(value);
+      const key = opt.id ?? value ?? idx;
+      return { key, value, label };
+    }
+    return { key: idx, value: String(opt), label: String(opt) };
+  };
   const [isCareerOpen, setIsCareerOpen] = useState(false);
   // Income options (same as registration page)
   const incomeOptions = [
@@ -254,6 +268,27 @@ export default function Profile() {
         setReligionsList(finalList);
       } catch (e) {
         console.error("Failed to load religions", e);
+      }
+    })();
+    return () => (mounted = false);
+  }, []);
+
+  // fetch education categories for dropdown
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await userDataApi.getEducations();
+        if (!mounted) return;
+        const list = Array.isArray(res?.data)
+          ? res.data
+          : Array.isArray(res)
+            ? res
+            : res?.data || [];
+        const finalList = list && list.length ? list : educationOptions;
+        setEducationsList(finalList);
+      } catch (e) {
+        console.error("Failed to load educations", e);
       }
     })();
     return () => (mounted = false);
@@ -1399,11 +1434,14 @@ export default function Profile() {
                     className="border p-2 rounded mt-1 w-full"
                   >
                     <option value="">Any</option>
-                    {religionsList.map((r) => (
-                      <option key={r} value={r}>
-                        {r}
-                      </option>
-                    ))}
+                    {religionsList.map((r, i) => {
+                      const o = normalizeOption(r, i);
+                      return (
+                        <option key={o.key} value={o.value}>
+                          {o.label}
+                        </option>
+                      );
+                    })}
                   </select>
                 ) : (
                   <input
@@ -1873,11 +1911,14 @@ export default function Profile() {
                       <option value="" disabled>
                         Select Religion
                       </option>
-                      {religionsList.map((r) => (
-                        <option key={r} value={r}>
-                          {r}
-                        </option>
-                      ))}
+                        {religionsList.map((r, i) => {
+                          const o = normalizeOption(r, i);
+                          return (
+                            <option key={o.key} value={o.value}>
+                              {o.label}
+                            </option>
+                          );
+                        })}
                     </select>
                   ) : (
                     <input
@@ -1973,11 +2014,14 @@ export default function Profile() {
                   className="border p-2 rounded mt-1 w-full"
                 >
                   <option value="">Select Education Category</option>
-                  {educationOptions.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
+                  {educationsList.map((opt, i) => {
+                    const o = normalizeOption(opt, i);
+                    return (
+                      <option key={o.key} value={o.value}>
+                        {o.label}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 
