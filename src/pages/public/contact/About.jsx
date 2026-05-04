@@ -56,7 +56,7 @@ const About = () => {
       <main className="max-w-6xl mx-auto px-6 lg:px-0 -mt-10">
         <div className="grid grid-cols-1 gap-8 place-items-center">
           <div className="w-full max-w-3xl">
-            <div className="bg-white rounded-xl shadow-lg p-8">
+            <div className="bg-white rounded-xl shadow-lg mt-10 p-8">
               <div
                 className="text-gray-700 leading-relaxed text-justify"
                 dangerouslySetInnerHTML={{ __html: content }}
