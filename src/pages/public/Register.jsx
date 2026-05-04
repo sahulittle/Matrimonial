@@ -1746,19 +1746,7 @@ const Register = () => {
                     name="brothersMarried"
                     value={formData.brothersMarried || ""}
                     onChange={handleChange}
-                    onBlur={(e) => {
-                      const value = e.target.value.toLowerCase().trim();
-
-                      if (
-                        value &&
-                        !/^\d+$/.test(value) &&
-                        value !== "yes" &&
-                        value !== "no"
-                      ) {
-                        toast.error("Enter only number or Yes/No");
-                      }
-                    }}
-                    placeholder="e.g. 0 / 1 / Yes / No"
+                    placeholder="Enter details (e.g. 2 married, 1 engaged, All married)"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
@@ -1785,19 +1773,7 @@ const Register = () => {
                     name="sistersMarried"
                     value={formData.sistersMarried || ""}
                     onChange={handleChange}
-                    onBlur={(e) => {
-                      const value = e.target.value.toLowerCase().trim();
-
-                      if (
-                        value &&
-                        !/^\d+$/.test(value) &&
-                        value !== "yes" &&
-                        value !== "no"
-                      ) {
-                        toast.error("Enter only number or Yes/No");
-                      }
-                    }}
-                    placeholder="e.g. 0 / 1 / Yes / No"
+                    placeholder="Enter details (e.g. 1 married, 2 unmarried, All married)"
                     className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                   />
                 </div>
