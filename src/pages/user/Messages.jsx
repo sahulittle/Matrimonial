@@ -671,7 +671,7 @@ const Messages = () => {
                       disabled={
                         !newMessage.trim() && selectedFiles.length === 0
                       }
-                      className="p-3 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
+                      className="p-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50"
                     >
                       <Send className="w-5 h-5" />
                     </button>

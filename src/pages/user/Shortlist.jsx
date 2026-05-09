@@ -149,7 +149,7 @@ const Shortlist = () => {
 
                   <Link
                     to={`/user/user-details/${profile?._id}`}
-                    className="block w-full py-2.5 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium text-center hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+                    className="block w-full py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium text-center hover:shadow-lg hover:shadow-primary-500/25 transition-all"
                   >
                     View Profile
                   </Link>
@@ -171,7 +171,7 @@ const Shortlist = () => {
           {/* ✅ FIX: Now this WILL show */}
           <Link
             to="/user/search"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-primary-500/25 transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:shadow-lg hover:shadow-primary-500/25 transition-all"
           >
             Browse Profiles
           </Link>

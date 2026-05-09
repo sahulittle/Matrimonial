@@ -195,7 +195,7 @@ const InterestCard = ({
         <div className="border-t border-gray-100 px-4 py-3 flex gap-3">
           <button
             onClick={handleOpenChat}
-            className="flex-1 py-2.5 bg-linear-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:shadow-md transition-colors flex items-center justify-center gap-2"
+            className="flex-1 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-medium hover:shadow-md transition-colors flex items-center justify-center gap-2"
           >
             Chat
           </button>

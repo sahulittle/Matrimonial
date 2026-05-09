@@ -79,7 +79,7 @@ const Signup = () => {
       <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-linear-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl">💕</span>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Create Account</h1>
@@ -215,7 +215,7 @@ const Signup = () => {
 
           <button
             type="submit"
-            className="w-full py-3 bg-linear-to-r from-pink-500 to-rose-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-pink-500/25 transition-all"
+            className="w-full py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-pink-500/25 transition-all"
           >
             Create Account
           </button>
