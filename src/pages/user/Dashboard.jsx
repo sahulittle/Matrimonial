@@ -307,7 +307,7 @@ const Dashboard = () => {
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-lg font-semibold text-gray-800">
-                New Matches Today
+                New Matches
               </h2>
 
               <Link
