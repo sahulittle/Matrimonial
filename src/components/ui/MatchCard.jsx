@@ -214,8 +214,25 @@ const MatchCard = ({
 
       {/* DETAILS */}
       <div className="p-3 flex flex-col gap-3">
-        <h3 className="font-semibold truncate">{profile.fullName}</h3>
-        <p className="text-sm text-gray-500">{profile.age} yrs</p>
+        <div className="flex flex-col gap-1">
+          <h3 className="font-semibold truncate">{profile.fullName}</h3>
+          <p className="text-sm text-gray-500">
+            <span className="font-medium text-gray-700">Age: </span>
+            {profile.age || "N/A"} yrs
+          </p>
+          
+          <div className="flex items-center gap-1.5 text-xs text-gray-600 truncate mt-1">
+            <Briefcase className="w-3.5 h-3.5 text-gray-400" />
+            <span className="font-medium">Job:</span>
+            <span>{profile.job || profile.profession || "Not specified"}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-xs text-gray-600 truncate">
+            <MapPin className="w-3.5 h-3.5 text-gray-400" />
+            <span className="font-medium">Loc:</span>
+            <span>{profile.jobLocation || profile.city || "Not specified"}</span>
+          </div>
+        </div>
 
         {/* BUTTONS */}
         <div className="flex flex-col gap-2">

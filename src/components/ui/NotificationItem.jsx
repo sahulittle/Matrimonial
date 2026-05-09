@@ -10,6 +10,7 @@ const NotificationItem = ({ notification, onRemove, onMarkRead }) => {
     switch (type) {
       case "interest":
         return <Heart className="w-5 h-5 text-pink-500" />;
+      case "match":
       case "accept":
       case "interest_accepted":
         return <CheckCheck className="w-5 h-5 text-green-500" />;
@@ -17,6 +18,7 @@ const NotificationItem = ({ notification, onRemove, onMarkRead }) => {
         return <MessageCircle className="w-5 h-5 text-blue-500" />;
       case "visit":
       case "profile_view":
+      case "visitor":
         return <Eye className="w-5 h-5 text-purple-500" />;
       default:
         return <Heart className="w-5 h-5 text-gray-500" />;
@@ -28,11 +30,13 @@ const NotificationItem = ({ notification, onRemove, onMarkRead }) => {
       case "interest":
       case "accept":
       case "interest_accepted":
+      case "match":
         return `/user/user-details/${senderId}`;
       case "message":
         return "/user/messages";
       case "visit":
       case "profile_view":
+      case "visitor":
         return `/user/user-details/${senderId}`;
       default:
         return "/notifications";
@@ -79,25 +83,26 @@ const NotificationItem = ({ notification, onRemove, onMarkRead }) => {
     }
   };
 
-  // Use senderId for profile link (from seeded data)
-  const profileId = notification.senderId || notification.profile?.id;
+  // Extract sender details from various possible fields
+  const sender = notification.relatedUserId || notification.sender || notification.profile || {};
+  const profileId = sender._id || sender.id || notification.senderId;
+  const senderName = sender.fullName || sender.name || notification.senderName || "Someone";
+  const senderAvatar = sender.profilePhoto || sender.avatar || notification.senderAvatar;
 
   return (
     <Link
       to={getLink(notification.type, profileId)}
       onClick={handleClick}
       className={`flex items-start gap-4 p-4 hover:bg-gray-50 transition-colors ${
-        !notification.read ? "bg-primary-50/50" : ""
+        !notification.read && !notification.isRead ? "bg-primary-50/50" : ""
       }`}
     >
       {/* Icon/Avatar */}
       <div className="relative shrink-0">
-        {notification.senderAvatar || notification.profile?.avatar ? (
+        {senderAvatar ? (
           <img
-            src={notification.senderAvatar || notification.profile?.avatar}
-            alt={
-              notification.senderName || notification.profile?.name || "User"
-            }
+            src={senderAvatar}
+            alt={senderName}
             className="w-12 h-12 rounded-full object-cover"
           />
         ) : (
@@ -111,7 +116,8 @@ const NotificationItem = ({ notification, onRemove, onMarkRead }) => {
           </div>
         )}
         {(notification.type === "accept" ||
-          notification.type === "interest_accepted") && (
+          notification.type === "interest_accepted" ||
+          notification.type === "match") && (
           <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1">
             <Check className="w-3 h-3 text-white" />
           </div>
@@ -122,7 +128,8 @@ const NotificationItem = ({ notification, onRemove, onMarkRead }) => {
           </div>
         )}
         {(notification.type === "visit" ||
-          notification.type === "profile_view") && (
+          notification.type === "profile_view" ||
+          notification.type === "visitor") && (
           <div className="absolute -bottom-1 -right-1 bg-purple-500 rounded-full p-1">
             <Eye className="w-3 h-3 text-white" />
           </div>
@@ -132,10 +139,7 @@ const NotificationItem = ({ notification, onRemove, onMarkRead }) => {
       {/* Content */}
       <div className="flex-1 min-w-0">
         <p className="text-sm text-gray-800">
-          <span className="font-semibold">
-            {notification.senderName || notification.profile?.name || "Someone"}
-          </span>{" "}
-          {notification.message}
+          <span className="font-semibold">{senderName}</span> {notification.message}
         </p>
         <p className="text-xs text-gray-500 mt-1">
           {formatTime(notification.timestamp || notification.createdAt)}

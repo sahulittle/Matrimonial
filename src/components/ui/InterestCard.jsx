@@ -137,7 +137,8 @@ const InterestCard = ({
               </h3>
 
               <p className="text-gray-500 text-sm">
-                {age ? `${age} years` : ""}
+                <span className="font-medium text-gray-700">Age: </span>
+                {age ? `${age} years` : "N/A"}
               </p>
             </div>
 
@@ -147,12 +148,14 @@ const InterestCard = ({
           <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
             <span className="flex items-center gap-1">
               <Briefcase className="w-4 h-4" />
-              {profile?.job || "Not specified"}
+              <span className="font-medium text-gray-700">Profession:</span>
+              {profile?.job || profile?.profession || "Not specified"}
             </span>
 
             <span className="flex items-center gap-1">
               <MapPin className="w-4 h-4" />
-              {profile?.jobLocation || "Not specified"}
+              <span className="font-medium text-gray-700">Location:</span>
+              {profile?.jobLocation || profile?.city || "Not specified"}
             </span>
           </div>
 

@@ -48,6 +48,8 @@ const Visitors = () => {
         name: v.fullName || "Unknown User",
         avatar: v.profilePhoto,
         profession: v.job || "Not specified",
+        location: v.jobLocation || "Not specified",
+        age: v.age || "N/A",
         viewedAt: v.visitedAt,
         isLiked: v.isLiked || false,
       }));
@@ -188,8 +190,21 @@ const Visitors = () => {
                       {visitor.name}
                     </h3>
                   </Link>
+                  
+                  <p className="text-gray-500 text-xs mt-0.5">
+                    <span className="font-medium text-gray-700">Age: </span>
+                    {visitor.age} yrs
+                  </p>
 
-                  <p className="text-gray-500 text-sm">{visitor.profession}</p>
+                  <p className="text-gray-500 text-xs">
+                    <span className="font-medium text-gray-700">Profession: </span>
+                    {visitor.profession}
+                  </p>
+                  
+                  <p className="text-gray-500 text-xs mt-0.5">
+                    <span className="font-medium text-gray-700">Location: </span>
+                    {visitor.location}
+                  </p>
 
                   <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
                     <Clock className="w-3 h-3" />
@@ -239,16 +254,26 @@ const Visitors = () => {
                         {visitor.name}
                       </h3>
                       <p className="text-gray-500 text-sm">
+                        <span className="font-medium text-gray-700">Age: </span>
+                        {visitor.age ? `${visitor.age} years` : "N/A"}
+                      </p>
+                      <p className="text-gray-500 text-xs">
+                        <span className="font-medium text-gray-700">Profession: </span>
                         {visitor.profession}
+                      </p>
+                      <p className="text-gray-500 text-xs mt-0.5">
+                        <span className="font-medium text-gray-700">Location: </span>
+                        {visitor.location}
                       </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70">
-                  <p className="text-sm font-semibold mb-2">
-                    🔒 Upgrade to view
-                  </p>
+                    <p className="text-gray-500 text-sm mb-3">
+                      <span className="font-medium text-gray-700">Age: </span>
+                      {visitor.age ? `${visitor.age} years` : "N/A"}
+                    </p>
 
                   <button
                     onClick={() => navigate("/user/packages")}

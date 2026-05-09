@@ -79,10 +79,10 @@ const Shortlist = () => {
           {shortlistItems.map((item) => {
             const profile = item.userId;
 
-            const age = profile?.dateOfBirth
+            const age = profile?.age || (profile?.dateOfBirth
               ? new Date().getFullYear() -
                 new Date(profile.dateOfBirth).getFullYear()
-              : "";
+              : "");
 
             return (
               <div
@@ -124,25 +124,28 @@ const Shortlist = () => {
                     </h3>
 
                     <p className="text-gray-500 text-sm mb-3">
-                      {age} years old
+                      <span className="font-medium text-gray-700">Age: </span>
+                      {age ? `${age} years` : "N/A"}
                     </p>
                   </Link>
 
                   <div className="space-y-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <Briefcase className="w-4 h-4 text-gray-400" />
+                      <span className="font-medium">Profession:</span>
                       <span>
-                        {profile?.profession ||
-                          profile?.education?.occupation ||
+                        {profile?.job ||
+                          profile?.profession ||
                           "Not specified"}
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-gray-600">
                       <MapPin className="w-4 h-4 text-gray-400" />
+                      <span className="font-medium">Location:</span>
                       <span>
-                        {profile?.location?.city || "N/A"},{" "}
-                        {profile?.location?.state || ""}
+                        {profile?.jobLocation || 
+                         (profile?.city ? `${profile.city}${profile.state ? `, ${profile.state}` : ""}` : "Not specified")}
                       </span>
                     </div>
                   </div>
