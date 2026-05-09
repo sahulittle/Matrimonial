@@ -2,11 +2,11 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, Clock, Heart, MessageCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { 
-  getVisitors, 
-  toggleLike, 
-  getSentInterests, 
-  getDashboardStats 
+import {
+  getVisitors,
+  toggleLike,
+  getSentInterests,
+  getDashboardStats
 } from "../../api/userApi/userApi";
 import { useAuth } from "../../context/AuthContext";
 
@@ -44,11 +44,11 @@ const Visitors = () => {
       ]);
 
       const formatted = (visitorData || []).map((v) => ({
-        id: v._id || v.id,
+        id: v._id,
         name: v.fullName || "Unknown User",
         avatar: v.profilePhoto,
-        profession: v.job || "Not specified",
-        viewedAt: v.visitedAt, // Don't default to now here, it masks issues
+        profession: v.job || v.jobLocation || "Not specified",
+        viewedAt: v.visitedAt || new Date().toISOString(),
         isLiked: v.isLiked || false,
       }));
 
@@ -85,18 +85,12 @@ const Visitors = () => {
   const formatTime = (time) => {
     if (!time) return "Recently";
 
-    const date = new Date(time);
-    if (isNaN(date.getTime())) return "Recently";
-
-    const diff = Date.now() - date.getTime();
-    
-    // If the difference is negative or less than 1 minute
-    if (diff < 60000) return "Just now";
-    
+    const diff = Date.now() - new Date(time).getTime();
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
+    if (minutes < 1) return "Just now";
     if (minutes < 60) return `${minutes} minutes ago`;
     if (hours < 24) return `${hours} hours ago`;
 
@@ -208,11 +202,10 @@ const Visitors = () => {
 
                 <button
                   onClick={() => handleLike(visitor.id)}
-                  className={`px-4 py-2.5 border-2 rounded-xl ${
-                    visitor.isLiked
+                  className={`px-4 py-2.5 border-2 rounded-xl ${visitor.isLiked
                       ? "bg-pink-500 text-white border-pink-500"
                       : "border-gray-200 text-gray-400"
-                  }`}
+                    }`}
                 >
                   <Heart className="w-5 h-5" />
                 </button>
