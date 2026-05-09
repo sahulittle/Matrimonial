@@ -112,7 +112,7 @@ const InterestCard = ({
               profile?.photos?.[0] ||
               "/default-avatar.png"
             }
-            alt={profile?.firstName || "User"}
+            alt={profile?.fullName || "User"}
             className="w-20 h-20 rounded-2xl object-cover"
           />
 
@@ -132,7 +132,7 @@ const InterestCard = ({
                   to={`/user/user-details/${profile?._id || ""}`}
                   className="hover:underline"
                 >
-                  {profile?.firstName} {profile?.lastName}
+                  {profile?.fullName}
                 </Link>
               </h3>
 

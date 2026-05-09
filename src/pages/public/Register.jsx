@@ -19,6 +19,7 @@ const Register = () => {
     password: "",
     gender: "",
     dateOfBirth: "",
+    phone: "",
     height: "",
     rashi: "",
     weight: "",
@@ -32,6 +33,11 @@ const Register = () => {
     religion: "Hindu",
     caste: "",
 
+    // misc
+    about: "",
+    smoking: "non-smoker",
+    drinking: "non-drinker",
+
     // Personal location
     country: "India",
     citizenship: "Indian",
@@ -41,11 +47,13 @@ const Register = () => {
     nativePlace: "",
 
     // Education
+
     educationCategory: "",
     educationDetails: "",
     college: "",
 
     // Career
+    job: "",
     employedIn: "",
     occupationDetails: "",
 
@@ -68,6 +76,10 @@ const Register = () => {
     fatherJob: "",
     motherName: "",
     motherJob: "",
+    hobbies: "",
+    preferredGender: "",
+    preferredMinAge: 18,
+    preferredMaxAge: 40,
     siblings: "",
     brothers: "",
     brothersMarried: "",
@@ -343,27 +355,27 @@ const Register = () => {
     const reasons = [];
     const ls = lengthScore(len);
     score += ls;
-    if (ls < 18) reasons.push("Consider increasing length");
+    if (len < 8) reasons.push("Make it longer (at least 8-10 characters recommended)");
     const lower = hasLower(pw);
     const upper = hasUpper(pw);
     const digit = hasDigit(pw);
     const symbol = hasSymbol(pw);
     const variety = [lower, upper, digit, symbol].filter(Boolean).length;
     score += variety * 15;
-    if (!lower) reasons.push("Add lowercase letters");
-    if (!upper) reasons.push("Add uppercase letters");
-    if (!digit) reasons.push("Add numbers");
-    if (!symbol) reasons.push("Add special characters");
+    if (variety < 3) reasons.push("Use a mix of uppercase, lowercase, numbers, and symbols");
+    
     const lowers = pw.toLowerCase();
-    const weakPatterns = ["password", "1234", "qwerty", "admin", "letmein"];
+    const weakPatterns = ["password", "12345", "qwerty", "admin", "letmein"];
     const usesWeak = weakPatterns.some((p) => lowers.includes(p));
     if (usesWeak) {
-      score = Math.max(0, score - 30);
-      reasons.push("Avoid common words or sequences");
+      // Reduced penalty for longer passwords
+      const penalty = len > 10 ? 15 : 30;
+      score = Math.max(0, score - penalty);
+      reasons.push("Avoid common sequences like '12345'");
     }
     if (/^(.)\1+$/.test(pw)) {
       score = Math.max(0, score - 25);
-      reasons.push("Avoid repeated characters");
+      reasons.push("Avoid repeating the same character");
     }
     score = Math.max(0, Math.min(100, score));
     return {
@@ -378,40 +390,43 @@ const Register = () => {
   const validateByPolicy = (pw = "", pol = "professional") => {
     const errors = [];
     if (pol === "professional") {
-      if (pw.length < 6) errors.push("At least 6 characters required");
+      if (pw.length < 6) {
+        errors.push("Make it longer (at least 8-10 characters recommended). Password must be at least 6 characters long.");
+      }
       const classes = [
         hasLower(pw),
         hasUpper(pw),
         hasDigit(pw),
         hasSymbol(pw),
       ].filter(Boolean).length;
-      if (classes < 3)
-        errors.push("Include at least 3 of: lower, upper, number, symbol");
-      const { score } = computePasswordScore(pw);
-      if (score < 60)
-        errors.push("Password strength is low; consider making it stronger");
+      
+      if (classes < 3) {
+        errors.push("Use at least 3 types of characters (Uppercase, Lowercase, Numbers, Symbols).");
+      }
+      
+      const { score, reasons } = computePasswordScore(pw);
+      if (score < 50) {
+        errors.push("This password is too easy to guess. Try making it more unique.");
+        if (reasons.length > 0) {
+          reasons.forEach(r => {
+            if (!errors.some(e => e.includes(r))) errors.push(r);
+          });
+        }
+      }
     } else {
-      if (pw.length < 16) errors.push("Minimum 16 characters required");
-      if (!hasLower(pw)) errors.push("Include lowercase letters");
-      if (!hasUpper(pw)) errors.push("Include uppercase letters");
-      if (!hasDigit(pw)) errors.push("Include numbers");
-      if (!hasSymbol(pw)) errors.push("Include special characters");
+      if (pw.length < 16) errors.push("Strict policy: At least 16 characters required.");
+      if (!hasLower(pw)) errors.push("Missing lowercase letters.");
+      if (!hasUpper(pw)) errors.push("Missing uppercase letters.");
+      if (!hasDigit(pw)) errors.push("Missing numbers.");
+      if (!hasSymbol(pw)) errors.push("Missing special characters.");
       const lowers = pw.toLowerCase();
-      const weakPatterns = [
-        "password",
-        "1234",
-        "qwerty",
-        "admin",
-        "letmein",
-        "company",
-        "work",
-      ];
+      const weakPatterns = ["password", "1234", "qwerty", "admin", "letmein"];
       if (weakPatterns.some((p) => lowers.includes(p)))
-        errors.push("Avoid dictionary or corporate words");
-      if (/^(.)\1+$/.test(pw)) errors.push("Avoid repeated characters");
+        errors.push("Avoid common words or patterns.");
+      if (/^(.)\1+$/.test(pw)) errors.push("Avoid repeating characters.");
       const { score } = computePasswordScore(pw);
       if (score < 80)
-        errors.push("Password must be strong for industrial policy");
+        errors.push("Password strength must be 'Excellent' for industrial policy.");
     }
     return { ok: errors.length === 0, errors };
   };
@@ -426,6 +441,10 @@ const Register = () => {
       newErrors.password = "Minimum 6 characters required";
     } else if (formData.password.length > 25) {
       newErrors.password = "Maximum 25 characters allowed";
+    }
+
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required";
     }
 
     if (!formData.state) newErrors.state = "State is required";
@@ -460,14 +479,16 @@ const Register = () => {
 
     if (!formData.annualIncome) newErrors.annualIncome = "Income is required";
 
+    if (!formData.job) newErrors.job = "Job/Designation is required";
+
     setErrors((prev) => ({ ...prev, ...newErrors }));
     return Object.keys(newErrors).length === 0;
   };
 
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.fatherName || !formData.motherName || !formData.siblings) {
-      toast.error("Please fill all required family details");
+    if (!formData.fatherName || !formData.motherName || !formData.siblings || !formData.about) {
+      toast.error("Please fill all required details including About Me");
       return;
     }
     if (!formData.password) {
@@ -507,6 +528,12 @@ const Register = () => {
             : [];
 
           langs.forEach((lang) => formDataToSend.append("languages", lang));
+        }
+        else if (key === "hobbies") {
+          const hobs = formData.hobbies
+            ? formData.hobbies.split(",").map((h) => h.trim())
+            : [];
+          hobs.forEach((h) => formDataToSend.append("hobbies", h));
         }
 
         // ❌ Skip preview only
@@ -980,6 +1007,26 @@ const Register = () => {
                   )}
                 </div>
 
+                {/* Phone */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={formData.phone || ""}
+                    onChange={handleChange}
+                    placeholder="Enter 10-digit mobile number"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.phone ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {errors.phone && (
+                    <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+                  )}
+                </div>
+
                 {/* Body Type */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
@@ -1222,6 +1269,48 @@ const Register = () => {
                 </div>
               </div>
 
+              {/* Partner Preference Header */}
+              <div className="pt-6">
+                <h4 className="font-bold text-gray-800 border-b pb-2 mb-4">Partner Preference</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Looking For</label>
+                    <select
+                      name="preferredGender"
+                      value={formData.preferredGender || ""}
+                      onChange={handleChange}
+                      className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    >
+                      <option value="Any">Any</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Min Age</label>
+                    <input
+                      type="number"
+                      name="preferredMinAge"
+                      value={formData.preferredMinAge || 18}
+                      onChange={handleChange}
+                      min={18}
+                      className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Max Age</label>
+                    <input
+                      type="number"
+                      name="preferredMaxAge"
+                      value={formData.preferredMaxAge || 40}
+                      onChange={handleChange}
+                      min={18}
+                      className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="pt-6">
                 <button
                   type="submit"
@@ -1273,7 +1362,7 @@ const Register = () => {
                 {/* Education Category */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Education Category <span className="text-red-500">*</span>
+                    Category <span className="text-red-500">*</span>
                   </label>
                   <div className="mt-1 relative">
                     <select
@@ -1309,7 +1398,7 @@ const Register = () => {
                 {/* Education in Detail */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
-                    Education in Detail <span className="text-red-500">*</span>
+                    in Detail <span className="text-red-500">*</span>
                   </label>
                   <input
                     name="educationDetails"
@@ -1329,6 +1418,9 @@ const Register = () => {
                     </p>
                   )}
                 </div>
+
+
+
 
                 {/* College / Institute */}
                 <div>
@@ -1409,6 +1501,27 @@ const Register = () => {
                   {errors.occupationDetails && (
                     <p className="text-red-500 text-sm mt-1">
                       {errors.occupationDetails}
+                    </p>
+                  )}
+                </div>
+
+                {/* Job / Designation */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">
+                    Job / Designation <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    name="job"
+                    value={formData.job || ""}
+                    onChange={handleChange}
+                    placeholder="e.g. Software Engineer, Manager"
+                    className={`mt-1 block w-full px-3 py-3 border rounded-md ${
+                      errors.job ? "border-red-500" : "border-gray-300"
+                    }`}
+                  />
+                  {errors.job && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.job}
                     </p>
                   )}
                 </div>
@@ -1612,6 +1725,33 @@ const Register = () => {
                   value={formData.ancestralOrigin || ""}
                   onChange={handleChange}
                   placeholder="Ancestral origin / hometown"
+                  className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  About Me <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  name="about"
+                  value={formData.about || ""}
+                  onChange={handleChange}
+                  placeholder="Tell us a bit about yourself, your interests and what you're looking for..."
+                  rows={4}
+                  className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Hobbies (comma separated)
+                </label>
+                <input
+                  name="hobbies"
+                  value={formData.hobbies || ""}
+                  onChange={handleChange}
+                  placeholder="e.g. Reading, Music, Traveling"
                   className="mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                 />
               </div>

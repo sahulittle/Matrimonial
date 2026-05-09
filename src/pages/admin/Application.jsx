@@ -2,7 +2,7 @@ import React from 'react';
 
 const Application = () => {
   const appInfo = [
-    { name: 'Matrilab Version', value: '2.3' },
+    { name: 'MSV Version', value: '2.3' },
     { name: 'ViserAdmin Version', value: '5.1.16' },
     { name: 'Laravel Version', value: '11.46.0' },
     { name: 'Timezone', value: 'UTC' },

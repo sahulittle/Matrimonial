@@ -129,14 +129,8 @@ const IgnoredProfile = () => {
   ];
 
   const filteredIgnored = ignoredProfiles.filter((item) => {
-    const userName =
-      `${item.userId?.firstName || item.user?.firstName || ""} ${item.userId?.lastName || item.user?.lastName || ""}`
-        .trim()
-        .toLowerCase();
-    const profileName =
-      `${item.ignoredUserId?.firstName || item.ignoredUser?.firstName || ""} ${item.ignoredUserId?.lastName || item.ignoredUser?.lastName || ""}`
-        .trim()
-        .toLowerCase();
+    const userName = (item.userId?.fullName || item.user?.fullName || item.userId?.name || "").toLowerCase();
+    const profileName = (item.ignoredUserId?.fullName || item.ignoredUser?.fullName || item.ignoredUserId?.name || "").toLowerCase();
     return (
       userName.includes(searchTerm.toLowerCase()) ||
       profileName.includes(searchTerm.toLowerCase())
@@ -211,18 +205,12 @@ const IgnoredProfile = () => {
                           user.avatar ||
                           `https://i.pravatar.cc/150?u=${user._id || user.username || index}`
                         }
-                        alt={
-                          user.firstName
-                            ? `${user.firstName} ${user.lastName}`
-                            : user.name
-                        }
+                        alt={user.fullName || user.name}
                         className="w-10 h-10 rounded-full mr-4"
                       />
                       <div>
                         <p className="font-medium text-gray-800">
-                          {user.firstName
-                            ? `${user.firstName} ${user.lastName}`
-                            : user.name}
+                          {user.fullName || user.name}
                         </p>
                         <p className="text-sm text-gray-500">
                           {user.username || (user.email || "").split("")[0]}
@@ -238,18 +226,12 @@ const IgnoredProfile = () => {
                           profile.avatar ||
                           `https://i.pravatar.cc/150?u=${profile._id || profile.username || index}`
                         }
-                        alt={
-                          profile.firstName
-                            ? `${profile.firstName} ${profile.lastName}`
-                            : profile.name
-                        }
+                        alt={profile.fullName || profile.name}
                         className="w-10 h-10 rounded-full mr-4"
                       />
                       <div>
                         <p className="font-medium text-gray-800">
-                          {profile.firstName
-                            ? `${profile.firstName} ${profile.lastName}`
-                            : profile.name}
+                          {profile.fullName || profile.name}
                         </p>
                         <p className="text-sm text-gray-500">
                           

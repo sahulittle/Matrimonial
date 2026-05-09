@@ -53,11 +53,7 @@ const Messages = () => {
         if (!mounted) return;
         const list = (res.conversations || []).map((c) => {
           const userObj = c.user || {};
-          const name =
-            userObj.name ||
-            (userObj.firstName
-              ? `${userObj.firstName} ${userObj.lastName || ""}`.trim()
-              : "");
+          const name = userObj.fullName || userObj.name || "";
 
           return {
             userId: c._id?.otherUserId || userObj._id || c.userId,

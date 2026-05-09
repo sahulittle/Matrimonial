@@ -102,13 +102,12 @@ const Interests = () => {
                             interest.senderId?.profilePhoto ||
                             "https://i.pravatar.cc/150"
                           }
-                          alt={interest.senderId?.firstName}
+                          alt={interest.senderId?.fullName}
                           className="w-10 h-10 rounded-full mr-4"
                         />
                         <div>
                           <p className="font-medium text-gray-800">
-                            {interest.senderId?.firstName}{" "}
-                            {interest.senderId?.lastName}
+                            {interest.senderId?.fullName}
                           </p>
                           <p className="text-sm text-gray-500">
                             {interest.senderId?.username}
@@ -125,13 +124,12 @@ const Interests = () => {
                             interest.receiverId?.profilePhoto ||
                             "https://i.pravatar.cc/150"
                           }
-                          alt={interest.receiverId?.firstName}
+                          alt={interest.receiverId?.fullName}
                           className="w-10 h-10 rounded-full mr-4"
                         />
                         <div>
                           <p className="font-medium text-gray-800">
-                            {interest.receiverId?.firstName}{" "}
-                            {interest.receiverId?.lastName}
+                            {interest.receiverId?.fullName}
                           </p>
                           <p className="text-sm text-gray-500">
                             {interest.receiverId?.username}

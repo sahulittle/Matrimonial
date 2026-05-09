@@ -12,13 +12,13 @@ const RelatedTabs = ({ user }) => {
   const renderProfileItem = (u) => {
     if (!u) return null;
     const person = u.userId || u; // support both shapes
-    const avatar = person.profilePhoto || (person.photos && person.photos.find(p=>p.isProfile)?.url) || person.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(person.firstName+' '+person.lastName)}&background=ddd`;
+    const avatar = person.profilePhoto || (person.photos && person.photos.find(p=>p.isProfile)?.url) || person.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(person.fullName)}&background=ddd`;
     return (
       <div className="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow">
         <div className="flex items-center gap-3">
           <img src={avatar} className="w-14 h-14 rounded-full object-cover" />
           <div className="flex-1">
-            <div className="font-medium text-gray-800">{person.firstName} {person.lastName}</div>
+            <div className="font-medium text-gray-800">{person.fullName}</div>
             <div className="text-xs text-gray-500">{person.email || person.phone || "-"}</div>
           </div>
           <div className="text-pink-500">

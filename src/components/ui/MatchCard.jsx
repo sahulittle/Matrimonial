@@ -20,30 +20,47 @@ import {
   getSentInterests,
 } from "../../api/userApi/userApi";
 
-const MatchCard = ({ profile, layout = "horizontal" }) => {
+const MatchCard = ({ 
+  profile, 
+  layout = "horizontal",
+  isShortlisted: propIsShortlisted,
+  interestSent: propInterestSent,
+  onShortlist,
+  onInterest
+}) => {
   const { user: currentUser, refreshData } = useAuth();
 
-  const [isShortlisted, setIsShortlisted] = useState(false);
-  const [interestStatus, setInterestStatus] = useState(null);
+  const [isShortlisted, setIsShortlisted] = useState(propIsShortlisted ?? false);
+  const [interestStatus, setInterestStatus] = useState(propInterestSent ? "pending" : null);
   // null | "pending" | "accepted"
 
   useEffect(() => {
+    if (propIsShortlisted !== undefined) setIsShortlisted(propIsShortlisted);
+  }, [propIsShortlisted]);
+
+  useEffect(() => {
+    if (propInterestSent !== undefined) setInterestStatus(propInterestSent ? "pending" : null);
+  }, [propInterestSent]);
+
+  useEffect(() => {
     const loadData = async () => {
-      if (!currentUser) return;
+      // If props are provided, we don't need to fetch internally
+      if (!currentUser || (propIsShortlisted !== undefined && propInterestSent !== undefined)) return;
 
       try {
-        // shortlist
-        const shortlist = await getShortlist();
-        setIsShortlisted(
-          shortlist.some((item) => item.userId?._id === profile._id),
-        );
+        if (propIsShortlisted === undefined) {
+          const shortlist = await getShortlist();
+          setIsShortlisted(
+            shortlist.some((item) => item.userId?._id === profile._id),
+          );
+        }
 
-        // interests
-        const sent = await getSentInterests();
-        const found = sent.find((i) => i.receiverId?._id === profile._id);
-
-        if (found) {
-          setInterestStatus(found.status);
+        if (propInterestSent === undefined) {
+          const sent = await getSentInterests();
+          const found = sent.find((i) => i.receiverId?._id === profile._id);
+          if (found) {
+            setInterestStatus(found.status);
+          }
         }
       } catch (err) {
         console.error(err);
@@ -51,13 +68,18 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
     };
 
     loadData();
-  }, [profile._id, currentUser]);
+  }, [profile._id, currentUser, propIsShortlisted, propInterestSent]);
 
   const handleShortlist = async (e) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (!currentUser) return;
+
+    if (onShortlist) {
+      onShortlist(profile._id);
+      return;
+    }
 
     try {
       if (isShortlisted) {
@@ -80,6 +102,11 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
 
     if (!currentUser || interestStatus) return;
 
+    if (onInterest) {
+      onInterest(profile._id);
+      return;
+    }
+
     // frontend gating: check remainingInterests (backend also enforces limits)
     if (typeof currentUser.remainingInterests === "number" && currentUser.remainingInterests === 0) {
       toast.error("No remaining interests. Please upgrade your package.");
@@ -93,9 +120,16 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
       });
 
       setInterestStatus("pending");
+      toast.success("Interest sent successfully!");
       refreshData();
     } catch (err) {
       console.error("Interest error:", err);
+      const errorMsg = err.message || err.response?.data?.message || "Failed to send interest";
+      if (errorMsg === "Upgrade required") {
+        toast.error("Please upgrade your membership to send more interests.");
+      } else {
+        toast.error(errorMsg);
+      }
     }
   };
 
@@ -129,13 +163,13 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
               profile.photos?.[0] ||
               "/default-avatar.png"
             }
-            alt={profile.name}
+            alt={profile.fullName}
             className="w-full h-full object-cover"
           />
         </div>
 
         <div className="flex-1 p-4">
-          <h3 className="font-semibold">{profile.name}</h3>
+          <h3 className="font-semibold">{profile.fullName}</h3>
           <p className="text-sm text-gray-500">{profile.age} yrs</p>
         </div>
       </Link>
@@ -159,7 +193,7 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
             profile.photos?.[0] ||
             "/default-avatar.png"
           }
-          alt={profile.name}
+          alt={profile.fullName}
           className="w-full h-full object-cover"
         />
 
@@ -180,7 +214,7 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
 
       {/* DETAILS */}
       <div className="p-3 flex flex-col gap-3">
-        <h3 className="font-semibold">{profile.name}</h3>
+        <h3 className="font-semibold truncate">{profile.fullName}</h3>
         <p className="text-sm text-gray-500">{profile.age} yrs</p>
 
         {/* BUTTONS */}
@@ -263,3 +297,4 @@ const MatchCard = ({ profile, layout = "horizontal" }) => {
 };
 
 export default MatchCard;
+

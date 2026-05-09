@@ -10,6 +10,7 @@ import {
   Star,
   ArrowLeft,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 import {
   getProfiles,
@@ -77,7 +78,7 @@ const ProfileView = () => {
     if (!currentUser || !profile || isInterestSent) return;
 
     if (typeof currentUser.remainingInterests === "number" && currentUser.remainingInterests === 0) {
-      alert("No remaining interests. Please upgrade your package.");
+      toast.error("Please upgrade your membership to send more interests.");
       return;
     }
 
@@ -98,7 +99,7 @@ const ProfileView = () => {
     }
     // check messaging permission
     if (typeof currentUser?.canMessage !== "undefined" && !currentUser?.canMessage) {
-      alert("Messaging is available only for paid plans. Please upgrade.");
+      toast.error("Messaging is available only for paid plans. Please upgrade.");
       return;
     }
     navigate("/user/messages", { state: { newConversationWith: targetId } });

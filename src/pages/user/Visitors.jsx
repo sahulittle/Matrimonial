@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, Clock, Heart, MessageCircle } from "lucide-react";
-import { getVisitors, toggleLike } from "../../api/userApi/userApi";
+import toast from "react-hot-toast";
+import { 
+  getVisitors, 
+  toggleLike, 
+  getSentInterests, 
+  getDashboardStats 
+} from "../../api/userApi/userApi";
 import { useAuth } from "../../context/AuthContext";
 
 const Visitors = () => {
@@ -11,6 +17,15 @@ const Visitors = () => {
 
   const [visitors, setVisitors] = useState([]);
   const [likedUsers, setLikedUsers] = useState([]);
+  const [statsData, setStatsData] = useState({
+    profileViews: 0,
+    interests: 0,
+    messages: 0,
+    shortlisted: 0,
+    sentInterests: 0
+  });
+  const [loading, setLoading] = useState(true);
+
   const visibleVisitors = isPremium ? visitors : visitors.slice(0, 3);
   const lockedVisitors = isPremium ? [] : visitors.slice(3);
 
@@ -21,27 +36,35 @@ const Visitors = () => {
 
   const fetchVisitors = async () => {
     try {
-      const data = await getVisitors();
+      const [visitorData, sentRes, stats] = await Promise.all([
+        getVisitors(),
+        getSentInterests(),
+        getDashboardStats()
+      ]);
 
-      const formatted = data
-        .filter((v) => v.userId) // ✅ safety
-        .map((v) => ({
-          id: v.userId._id,
-          name: v.userId.fullName || "Unknown User",
-          avatar: v.userId.profilePhoto,
-          profession: v.userId.jobLocation || "Not specified",
-          viewedAt: v.visitedAt,
-          isLiked: false,
-        }));
+      const formatted = (visitorData || []).map((v) => ({
+        id: v._id,
+        name: v.fullName || "Unknown User",
+        avatar: v.profilePhoto,
+        profession: v.job || v.jobLocation || "Not specified",
+        viewedAt: v.visitedAt || new Date().toISOString(),
+        isLiked: v.isLiked || false,
+      }));
 
       setVisitors(formatted);
+      setStatsData({
+        ...stats,
+        sentInterests: Array.isArray(sentRes) ? sentRes.length : (sentRes?.interests?.length || 0)
+      });
     } catch (error) {
       if (error?.response?.status === 403) {
-        alert("🔒 Please upgrade to premium to view visitors");
+        toast.error("🔒 Please upgrade to premium to view visitors");
         navigate("/user/packages"); // ✅ FIXED
       } else {
         console.error("Error fetching visitors:", error);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -99,7 +122,7 @@ const Visitors = () => {
 
             <div>
               <p className="text-2xl font-bold text-gray-900">
-                {visitors.length}
+                {statsData.profileViews}
               </p>
 
               <p className="text-sm text-gray-500">Total Views</p>
@@ -115,9 +138,9 @@ const Visitors = () => {
 
             <div>
               <p className="text-2xl font-bold text-gray-900">
-                {visitors.filter((v) => v.isLiked).length}
+                {statsData.interests}
               </p>
-              <p className="text-sm text-gray-500">Liked You</p>
+              <p className="text-sm text-gray-500">Interests Rec.</p>
             </div>
           </div>
         </div>
@@ -129,7 +152,9 @@ const Visitors = () => {
             </div>
 
             <div>
-              <p className="text-2xl font-bold text-gray-900">1</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {statsData.sentInterests}
+              </p>
               <p className="text-sm text-gray-500">Sent Interest</p>
             </div>
           </div>

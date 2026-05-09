@@ -30,7 +30,7 @@ const Interests = () => {
         ...i,
         profile: {
           id: i.senderId?._id,
-          name: `${i.senderId?.firstName || ""} ${i.senderId?.lastName || ""}`,
+          name: i.senderId?.fullName || "User",
           image:
             i.senderId?.profilePhoto ||
             i.senderId?.photos?.[0] ||
@@ -47,7 +47,7 @@ const Interests = () => {
         ...i,
         profile: {
           id: i.receiverId?._id,
-          name: `${i.receiverId?.firstName || ""} ${i.receiverId?.lastName || ""}`,
+          name: i.receiverId?.fullName || "User",
           image:
             i.receiverId?.profilePhoto ||
             i.receiverId?.photos?.[0] ||

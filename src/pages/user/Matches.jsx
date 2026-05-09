@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Users, Sparkles, Clock, Heart } from "lucide-react";
 import MatchCard from "../../components/ui/MatchCard";
+import toast from "react-hot-toast";
 import {
   getRecommendedProfiles,
   getNewMatches,
-  getNearMatches,
+  getSentInterests,
+  getReceivedInterests,
+  sendInterest,
+  addToShortlist,
+  removeFromShortlist,
+  getShortlist,
 } from "../../api/userApi/userApi";
 
 import { useAuth } from "../../context/AuthContext";
@@ -14,9 +20,9 @@ const Matches = () => {
 
   const [recommendations, setRecommendations] = useState([]);
   const [todayMatches, setTodayMatches] = useState([]);
-  const [nearMatches, setNearMatches] = useState([]);
   const [received, setReceived] = useState([]);
   const [sent, setSent] = useState([]);
+  const [shortlist, setShortlist] = useState([]);
   const [activeTab, setActiveTab] = useState("new");
   const [loading, setLoading] = useState(true);
 
@@ -25,19 +31,17 @@ const Matches = () => {
       try {
         const recommended = await getRecommendedProfiles();
         const today = await getNewMatches();
-        const near = await getNearMatches();
 
         setRecommendations(Array.isArray(recommended) ? recommended : []);
         setTodayMatches(Array.isArray(today) ? today : []);
-        setNearMatches(Array.isArray(near) ? near : []);
 
         const sentRes = await getSentInterests();
         const receivedRes = await getReceivedInterests();
+        const shortlistRes = await getShortlist();
 
-        setSent(Array.isArray(sentRes?.interests) ? sentRes.interests : []);
-        setReceived(
-          Array.isArray(receivedRes?.interests) ? receivedRes.interests : [],
-        );
+        setSent(Array.isArray(sentRes) ? sentRes : []);
+        setReceived(Array.isArray(receivedRes) ? receivedRes : []);
+        setShortlist(Array.isArray(shortlistRes) ? shortlistRes : []);
       } catch (error) {
         console.error("Match load error:", error);
       } finally {
@@ -51,23 +55,40 @@ const Matches = () => {
   // send interest
   const handleSendInterest = async (profileId) => {
     try {
-      await sendInterest(profileId);
+      await sendInterest({ receiverId: profileId });
 
       setSent((prev) => [
         ...prev,
         { receiverId: { _id: profileId }, status: "pending" },
       ]);
+      toast.success("Interest sent successfully!");
     } catch (error) {
       console.error(error);
+      const errorMsg = error.message || error.response?.data?.message || "Failed to send interest";
+      if (errorMsg === "Upgrade required") {
+        toast.error("Please upgrade your membership to send more interests.");
+      } else {
+        toast.error(errorMsg);
+      }
     }
   };
 
   // shortlist
   const handleShortlist = async (profileId) => {
     try {
-      await toggleShortlist(profileId);
+      const isShortlisted = shortlist.some((s) => s.userId?._id === profileId);
+      if (isShortlisted) {
+        await removeFromShortlist(profileId);
+        toast.success("Removed from shortlist");
+      } else {
+        await addToShortlist(profileId);
+        toast.success("Added to shortlist");
+      }
+      const updated = await getShortlist();
+      setShortlist(updated);
     } catch (error) {
       console.error(error);
+      toast.error("Failed to update shortlist");
     }
   };
 
@@ -80,22 +101,20 @@ const Matches = () => {
 
   // tabs
   const tabs = [
-    { id: "new", label: "New Matches", count: recommendations.length },
-    { id: "today", label: "Today's Matches", count: todayMatches.length },
+    { id: "new", label: "New Matches", count: todayMatches.length },
     { id: "recommended", label: "Recommended", count: recommendations.length },
-    { id: "nearme", label: "Near Me", count: nearMatches.length },
   ];
 
   const stats = [
     {
       label: "New",
-      value: recommendations.length,
+      value: todayMatches.length,
       color: "bg-pink-100 text-pink-600",
       icon: Sparkles,
     },
     {
-      label: "Today's",
-      value: todayMatches.length,
+      label: "Recommended",
+      value: recommendations.length,
       color: "bg-blue-100 text-blue-600",
       icon: Clock,
     },
@@ -116,14 +135,13 @@ const Matches = () => {
   // ✅ FIXED DISPLAY LOGIC
   let displayed = [];
 
-  if (activeTab === "new") displayed = recommendations;
-  if (activeTab === "today") displayed = todayMatches;
+  if (activeTab === "new") displayed = todayMatches;
   if (activeTab === "recommended") displayed = recommendations;
-  if (activeTab === "nearme") displayed = nearMatches;
 
   if (loading) {
     return <div className="p-10 text-center">Loading matches...</div>;
   }
+
 
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8">
@@ -165,17 +183,15 @@ const Matches = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg whitespace-nowrap transition-all ${
-                activeTab === tab.id
+              className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg whitespace-nowrap transition-all ${activeTab === tab.id
                   ? "bg-gradient-to-r from-pink-500 to-rose-500 text-white"
                   : "text-gray-600 hover:bg-pink-50 hover:text-pink-600"
-              }`}
+                }`}
             >
               {tab.label}
               <span
-                className={`ml-2 px-2 py-0.5 rounded-md text-xs ${
-                  activeTab === tab.id ? "bg-white/20" : "bg-gray-200"
-                }`}
+                className={`ml-2 px-2 py-0.5 rounded-md text-xs ${activeTab === tab.id ? "bg-white/20" : "bg-gray-200"
+                  }`}
               >
                 {tab.count}
               </span>
@@ -195,6 +211,7 @@ const Matches = () => {
               <MatchCard
                 profile={profile}
                 layout="vertical"
+                isShortlisted={shortlist.some((s) => s.userId?._id === profile._id)}
                 interestSent={isInterestSent(profile._id)}
                 onInterest={() => handleSendInterest(profile._id)}
                 onShortlist={() => handleShortlist(profile._id)}

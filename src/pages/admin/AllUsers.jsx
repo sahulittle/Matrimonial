@@ -99,12 +99,12 @@ const AllUsers = () => {
                                             <div className="flex items-center">
                                                 <img
                                                     src={user.avatar || "https://i.pravatar.cc/150"}
-                                                    alt={user.firstName}
+                                                    alt={user.fullName}
                                                     className="w-10 h-10 rounded-full mr-4"
                                                 />
                                                 <div>
                                                     <p className="font-medium text-gray-800">
-                                                        {user.firstName} {user.lastName}
+                                                        {user.fullName}
                                                     </p>
                                                     <p className="text-sm text-gray-500">@{user.username}</p>
                                                 </div>

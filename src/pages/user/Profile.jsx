@@ -302,6 +302,7 @@ export default function Profile() {
 
         email: user.email || "",
         gender: user.gender || "",
+        maritalStatus: user.maritalStatus || "Single",
         // provide YYYY-MM-DD (no time) so <input type="date"> displays correctly
         dateOfBirth: user.dateOfBirth
           ? new Date(user.dateOfBirth).toISOString().split("T")[0]
@@ -327,8 +328,6 @@ export default function Profile() {
         caste: user.caste || "",
 
         // EDUCATION
-        education: user.education || "",
-        fieldOfStudy: user.fieldOfStudy || "",
         educationCategory: user.educationCategory || "",
         educationDetails: user.educationDetails || "",
         college: user.college || "",
@@ -392,6 +391,7 @@ export default function Profile() {
         smoking: user.smoking || "",
         drinking: user.drinking || "",
         // PREFERENCES
+        preferredGender: user.preferredGender || "",
         preferredMinAge: user.preferredMinAge ?? "",
         preferredMaxAge: user.preferredMaxAge ?? "",
         preferredHeight: user.preferredHeight || "",
@@ -513,6 +513,7 @@ export default function Profile() {
 
         email: formData.email,
         gender: formData.gender,
+        maritalStatus: formData.maritalStatus,
         dateOfBirth: formData.dateOfBirth,
         birthTime: formData.birthTime,
         birthName: formData.birthName,
@@ -550,7 +551,6 @@ export default function Profile() {
 
   const handleEducationSave = async () => {
     const payload = {
-      fieldOfStudy: formData.fieldOfStudy,
       educationCategory: formData.educationCategory,
       educationDetails: formData.educationDetails,
       college: formData.college,
@@ -682,6 +682,7 @@ export default function Profile() {
   const handlePartnerPrefSave = async () => {
     try {
       console.log("Saving partner preferences, payload:", {
+        preferredGender: formData.preferredGender,
         preferredMinAge: formData.preferredMinAge,
         preferredMaxAge: formData.preferredMaxAge,
         preferredHeight: formData.preferredHeight,
@@ -712,6 +713,7 @@ export default function Profile() {
       }
 
       const prefs = {
+        preferredGender: formData.preferredGender || "",
         preferredMinAge: minAge,
         preferredMaxAge: maxAge,
         preferredHeight: formData.preferredHeight || "",
@@ -798,6 +800,7 @@ export default function Profile() {
   useEffect(() => {
     if (!user) return;
     const prefs = {
+      preferredGender: formData.preferredGender,
       preferredMinAge: formData.preferredMinAge,
       preferredMaxAge: formData.preferredMaxAge,
       preferredHeight: formData.preferredHeight,
@@ -983,6 +986,7 @@ export default function Profile() {
                 <Row label="Name" value={user?.fullName || "-"} />
                 <Row label="Email" value={user?.email} />
                 <Row label="Gender" value={user?.gender} />
+                <Row label="Marital Status" value={user?.maritalStatus} />
                 <Row label="Mother Tongue" value={user?.motherTongue} />
                 <Row label="Body Type" value={user?.bodyType} />
                 <Row label="Age" value={calculateAge(user?.dateOfBirth)} />
@@ -1043,12 +1047,11 @@ export default function Profile() {
                 onEdit={() => setIsEducationOpen(true)}
               >
                 <Row
-                  label="Education Category"
+                  label="Category"
                   value={user?.educationCategory}
                 />
-                <Row label="Education Details" value={user?.educationDetails} />
+                <Row label="Details" value={user?.educationDetails} />
                 <Row label="College" value={user?.college} />
-                {/* <Row label="Field of Study" value={user?.fieldOfStudy} /> */}
               </Section>
 
               {/* CAREER */}
@@ -1061,8 +1064,8 @@ export default function Profile() {
                   label="Occupation Details"
                   value={user?.occupationDetails}
                 />
-                {/* <Row label="Job" value={user?.job} /> */}
-                {/* <Row label="Job Location" value={user?.jobLocation} /> */}
+                <Row label="Job" value={user?.job} />
+                <Row label="Job Location" value={user?.jobLocation} />
                 <Row
                   label="Job Country"
                   value={
@@ -1250,6 +1253,10 @@ export default function Profile() {
                   </div>
 
                   <Row
+                    label="Preferred Gender"
+                    value={formData.preferredGender || "-"}
+                  />
+                  <Row
                     label="Age"
                     value={
                       formData.preferredMinAge && formData.preferredMaxAge
@@ -1344,6 +1351,22 @@ export default function Profile() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <label className="text-sm text-gray-600">
+                  Preferred Gender
+                </label>
+                <select
+                  value={formData.preferredGender || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, preferredGender: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                >
+                  <option value="Any">Any</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </div>
               <div>
                 <label className="text-sm text-gray-600">
                   Preferred Min Age
@@ -1580,6 +1603,25 @@ export default function Profile() {
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />
+              </div>
+
+              {/* MARITAL STATUS */}
+              <div>
+                <label className="text-sm text-gray-600">Marital Status</label>
+                <select
+                  value={formData.maritalStatus || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, maritalStatus: e.target.value })
+                  }
+                  className="border p-2 rounded mt-1 w-full"
+                >
+                  <option value="">Select Status</option>
+                  <option value="Single">Single</option>
+                  <option value="Married">Married</option>
+                  <option value="Divorced">Divorced</option>
+                  <option value="Widow">Widow</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
 
               {/* DOB */}
@@ -2001,7 +2043,7 @@ export default function Profile() {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-sm text-gray-600">
-                  Education Category
+                  Category
                 </label>
                 <select
                   value={formData.educationCategory || ""}
@@ -2027,7 +2069,7 @@ export default function Profile() {
 
               <div>
                 <label className="text-sm text-gray-600">
-                  Education Details
+                  Details
                 </label>
                 <input
                   placeholder="Education details (e.g. B.Sc, Year)"
@@ -2056,18 +2098,8 @@ export default function Profile() {
                 />
               </div>
 
-              {/* <div className="col-span-2">
-                <label className="text-sm text-gray-600">Field of Study</label>
-                <textarea
-                  rows={3}
-                  placeholder="Field of Study"
-                  value={formData.fieldOfStudy || ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, fieldOfStudy: e.target.value })
-                  }
-                  className="border p-2 rounded mt-1 w-full"
-                />
-              </div> */}
+
+
             </div>
 
             <div className="flex justify-end gap-3 mt-4">
@@ -2478,20 +2510,20 @@ export default function Profile() {
             </div>
             <div></div>
             <div className="grid grid-cols-2 gap-3">
-              {/* <div>
-                <label className="text-sm text-gray-600">Job</label>
+              <div>
+                <label className="text-sm text-gray-600">Job / Designation</label>
                 <input
-                  placeholder="Job"
+                  placeholder="e.g. Software Engineer"
                   value={formData.job || ""}
                   onChange={(e) =>
                     setFormData({ ...formData, job: e.target.value })
                   }
                   className="border p-2 rounded mt-1 w-full"
                 />
-              </div> */}
+              </div>
 
-              {/* <div>
-                <label className="text-sm text-gray-600">Job Location</label>
+              <div>
+                <label className="text-sm text-gray-600">Job Location (City)</label>
                 {Array.isArray(jobCitiesList) && jobCitiesList.length > 0 ? (
                   <select
                     value={formData.jobLocation || formData.jobCity || ""}
@@ -2521,7 +2553,7 @@ export default function Profile() {
                     className="border p-2 rounded mt-1 w-full"
                   />
                 )}
-              </div> */}
+              </div>
 
               <div>
                 <label className="text-sm text-gray-600">Employed In</label>

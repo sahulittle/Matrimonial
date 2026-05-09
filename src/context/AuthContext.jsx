@@ -155,7 +155,7 @@ export const AuthProvider = ({ children }) => {
 
       const formattedProfile = {
         _id: userData._id || userData._id,
-        name: `${userData.firstName || ""} ${userData.lastName || ""}`,
+        fullName: userData.fullName || "",
         email: userData.email,
         avatar: userData.profilePhoto || userData.avatar,
         ...userData,

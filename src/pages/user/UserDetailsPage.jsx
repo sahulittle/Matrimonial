@@ -698,8 +698,9 @@ const UserDetailsPage = () => {
                   {/* EDUCATION */}
                   <TimelineBlock icon="🎓" title="Education & Career">
                     <div className="text-sm text-gray-600 space-y-1">
-                      <p>{user?.education || "Education not specified"}</p>
-                      {user?.fieldOfStudy && <p>{user.fieldOfStudy}</p>}
+                      <p>
+                        {user?.educationCategory} {user?.educationDetails ? `- ${user.educationDetails}` : ""}
+                      </p>
                       <p>
                         {user?.employmentStatus ||
                           user?.job ||
@@ -894,7 +895,7 @@ const ModernPreferences = ({ user, currentUser }) => {
       value: user?.preferredEducation || null,
       matches: () => {
         if (!currentUser || !user?.preferredEducation) return false;
-        return String(currentUser.education || "")
+        return String(currentUser.educationCategory || "")
           .toLowerCase()
           .includes(String(user.preferredEducation).toLowerCase());
       },

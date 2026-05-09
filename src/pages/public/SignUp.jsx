@@ -82,16 +82,10 @@ const SignUp = () => {
             </div>
             <form className="mt-8 space-y-6" onSubmit={(e) => { e.preventDefault(); setStep(2); }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
-                {/* First Name */}
-                <div>
-                  <label htmlFor="first-name" className="block text-sm font-medium text-gray-700">First Name</label>
-                  <input id="first-name" name="firstName" type="text" required onChange={handleChange} value={formData.firstName || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Enter your first name" />
-                </div>
-
-                {/* Last Name */}
-                <div>
-                  <label htmlFor="last-name" className="block text-sm font-medium text-gray-700">Last Name</label>
-                  <input id="last-name" name="lastName" type="text" required onChange={handleChange} value={formData.lastName || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Enter your last name" />
+                {/* Full Name */}
+                <div className="md:col-span-2">
+                  <label htmlFor="full-name" className="block text-sm font-medium text-gray-700">Full Name</label>
+                  <input id="full-name" name="fullName" type="text" required onChange={handleChange} value={formData.fullName || ''} className="mt-1 appearance-none block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm" placeholder="Enter your full name" />
                 </div>
 
                 {/* Birth Name */}

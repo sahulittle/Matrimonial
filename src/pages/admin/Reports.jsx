@@ -131,7 +131,7 @@ const Reports = () => {
         const formatted = res.reports.map((r) => ({
           id: r._id,
           user: {
-            name: `${r.reportedByUserId?.firstName || ""} ${r.reportedByUserId?.lastName || ""}`.trim(),
+            name: r.reportedByUserId?.fullName || "User",
             username:
               r.reportedByUserId?.username ||
               r.reportedByUserId?.email?.split("@")[0] ||
@@ -142,7 +142,7 @@ const Reports = () => {
           },
           profile: {
             _id: r.reportedUserId?._id,
-            name: `${r.reportedUserId?.firstName || ""} ${r.reportedUserId?.lastName || ""}`.trim(),
+            name: r.reportedUserId?.fullName || "User",
             username:
               r.reportedUserId?.username ||
               r.reportedUserId?.email?.split("@")[0] ||
@@ -171,7 +171,7 @@ const Reports = () => {
       const formatted = {
         id: r._id,
         user: {
-          name: `${r.reportedBy?.firstName || ""} ${r.reportedBy?.lastName || ""}`.trim(),
+          name: r.reportedBy?.fullName || "User",
           username:
             r.reportedBy?.username ||
             r.reportedBy?.email?.split("@")[0] ||
@@ -182,7 +182,7 @@ const Reports = () => {
         },
         profile: {
           _id: r.reportedUser?._id,
-          name: `${r.reportedUser?.firstName || ""} ${r.reportedUser?.lastName || ""}`.trim(),
+          name: r.reportedUser?.fullName || "User",
           username:
             r.reportedUser?.username ||
             r.reportedUser?.email?.split("@")[0] ||

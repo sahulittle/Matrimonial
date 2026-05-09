@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Heart, Star, MapPin, Briefcase, GraduationCap } from "lucide-react";
+import toast from "react-hot-toast";
 import {
   getCurrentUser,
   getShortlistForUser,
@@ -60,7 +61,7 @@ const ProfileCard = ({ profile, showActions = true, size = "md" }) => {
     // check remainingInterests
     if (typeof currentUser.remainingInterests === "number" && currentUser.remainingInterests === 0) {
       // ask user to upgrade
-      alert("You have no remaining interests. Please upgrade your package.");
+      toast.error("Please upgrade your membership to send more interests.");
       return;
     }
 

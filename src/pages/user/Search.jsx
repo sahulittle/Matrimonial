@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import ProfileCard from "../../components/ui/ProfileCard";
+import toast from "react-hot-toast";
 // import { searchProfiles } from "../../api/userApi/userApi";
 import {
   searchProfiles,
@@ -325,8 +326,15 @@ const SearchPage = () => {
 
       const updated = await getSentInterests();
       setSentInterests(updated);
+      toast.success("Interest sent successfully!");
     } catch (err) {
       console.error(err);
+      const errorMsg = err.message || err.response?.data?.message || "Failed to send interest";
+      if (errorMsg === "Upgrade required") {
+        toast.error("Please upgrade your membership to send more interests.");
+      } else {
+        toast.error(errorMsg);
+      }
     }
   };
 
@@ -334,8 +342,10 @@ const SearchPage = () => {
     try {
       if (isShortlisted) {
         await removeFromShortlist(profileId);
+        toast.success("Removed from shortlist");
       } else {
         await addToShortlist(profileId);
+        toast.success("Added to shortlist");
       }
 
       const updated = await getShortlist();
@@ -598,7 +608,7 @@ const SearchPage = () => {
 
                         {/* Name */}
                         <h3 className="text-lg font-semibold text-gray-800">
-                          {profile.firstName} {profile.lastName}
+                          {profile.fullName}
                         </h3>
 
                         {/* Details */}

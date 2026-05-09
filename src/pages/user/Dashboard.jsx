@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 
 import { ArrowRight, Heart, MessageCircle, Eye, Star } from "lucide-react";
 import MatchCard from "../../components/ui/MatchCard";
@@ -10,11 +11,11 @@ import {
   getNewMatches,
   getNewInterests,
   getVisitors,
-  getNearMatches, // ✅ NEW
-  getActiveUsers, // ✅ NEW
+  getActiveUsers,
   getShortlist,
   removeFromShortlist,
-  addToShortlist, // ✅ ADD THIS\
+  addToShortlist,
+  sendInterest,
   getCurrentSubscription,
 } from "../../api/userApi/userApi";
 
@@ -33,7 +34,6 @@ const Dashboard = () => {
   });
   const [newMatches, setNewMatches] = useState([]);
   const [recommended, setRecommended] = useState([]);
-  const [nearMatches, setNearMatches] = useState([]);
   const [activeUsers, setActiveUsers] = useState([]);
   const [sentInterests, setSentInterests] = useState([]);
   const [shortlist, setShortlist] = useState([]);
@@ -45,7 +45,6 @@ const Dashboard = () => {
         const stats = await getDashboardStats();
         const recommendedRes = await getRecommendedProfiles();
         const newMatchesRes = await getNewMatches();
-        const nearRes = await getNearMatches();
         const activeRes = await getActiveUsers();
         const interests = await getNewInterests();
         const visitorData = await getVisitors();
@@ -53,30 +52,15 @@ const Dashboard = () => {
         setShortlist(shortlistRes);
 
         setStatsData(stats);
-
-        setRecommended(recommendedRes);
-        setNewMatches(newMatchesRes);
-        setNearMatches(nearRes);
-        setActiveUsers(activeRes);
+        setRecommended(Array.isArray(recommendedRes) ? recommendedRes : []);
+        setNewMatches(Array.isArray(newMatchesRes) ? newMatchesRes : []);
+        setActiveUsers(Array.isArray(activeRes) ? activeRes : []);
 
         setReceived(interests);
         setVisitors(visitorData);
-        console.log(stats);
-        console.log(recommendedRes);
-        console.log(newMatchesRes);
-        console.log(nearRes);
-        console.log(activeRes);
-        console.log(interests);
+        
         const subRes = await getCurrentSubscription();
-
-        console.log("SUB RESPONSE:", subRes);
-
-        // ✅ CORRECT FIX (axios response handling)
         const subData = subRes?.subscription;
-
-        if (subData) {
-          setSubscription(subData);
-        }
 
         if (subData) {
           setSubscription(subData);
@@ -97,18 +81,43 @@ const Dashboard = () => {
         ),
       )
     : 0;
-  const handleShortlist = async (profileId, isShortlisted) => {
+
+  const handleShortlist = async (profileId) => {
     try {
+      const isShortlisted = shortlist.some((s) => s.userId?._id === profileId);
       if (isShortlisted) {
         await removeFromShortlist(profileId);
+        toast.success("Removed from shortlist");
       } else {
         await addToShortlist(profileId);
+        toast.success("Added to shortlist");
       }
 
       const updated = await getShortlist();
       setShortlist(updated);
     } catch (err) {
       console.error("Shortlist error:", err);
+      toast.error("Failed to update shortlist");
+    }
+  };
+
+  const handleInterest = async (profileId) => {
+    try {
+      await sendInterest({ receiverId: profileId });
+      // Logic to refresh interest status if needed, 
+      // but MatchCard handles its own status if no prop is passed.
+      // However, for consistency we could fetch new interests
+      const interests = await getNewInterests();
+      setReceived(interests);
+      toast.success("Interest sent successfully!");
+    } catch (err) {
+      console.error(err);
+      const errorMsg = err.message || err.response?.data?.message || "Failed to send interest";
+      if (errorMsg === "Upgrade required") {
+        toast.error("Please upgrade your membership to send more interests.");
+      } else {
+        toast.error(errorMsg);
+      }
     }
   };
   const pendingInterests = received.filter((i) => i.status === "pending");
@@ -153,14 +162,14 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
-              Welcome Back, {user.name}!
+              Welcome Back, {user.fullName || user.name}!
             </h1>
             <p className="text-gray-500 mt-1">Here's your daily match update</p>
           </div>
 
           <img
-            src={user?.avatar || "/default-avatar.png"}
-            alt={user?.name}
+            src={user?.profilePhoto || "/default-avatar.png"}
+            alt={user?.fullName || user?.name}
             className="w-14 h-14 rounded-full object-cover border-4 border-white"
           />
         </div>
@@ -318,21 +327,13 @@ const Dashboard = () => {
 
                   return (
                     <div key={profile._id} className="shrink-0 w-52">
-                      <Link to={`/user-details/${profile._id}`}>
-                        <MatchCard
-                          profile={{
-                            ...profile,
-                            name: `${profile.firstName || ""} ${profile.lastName || ""}`,
-                            image:
-                              profile.profilePhoto ||
-                              profile.photos?.[0] ||
-                              "/default-avatar.png",
-                            location: profile.jobLocation,
-                            age,
-                          }}
-                          layout="vertical"
-                        />
-                      </Link>
+                      <MatchCard
+                        profile={profile}
+                        layout="vertical"
+                        isShortlisted={shortlist.some((s) => s.userId?._id === profile._id)}
+                        onShortlist={() => handleShortlist(profile._id)}
+                        onInterest={() => handleInterest(profile._id)}
+                      />
                     </div>
                   );
                 })
@@ -370,32 +371,15 @@ const Dashboard = () => {
                   );
 
                   return (
-                    <Link
-                      key={profile._id}
-                      to={`/user-details/${profile._id}`}
-                      state={{ profile }}
-                      className="block"
-                    >
+                    <div key={profile._id}>
                       <MatchCard
-                        profile={{
-                          ...profile,
-                          name: `${profile.firstName || ""} ${
-                            profile.lastName || ""
-                          }`,
-                          image:
-                            profile.profilePhoto ||
-                            profile.photos?.[0] ||
-                            "/default-avatar.png",
-                          location: profile.jobLocation,
-                          age,
-                        }}
+                        profile={profile}
                         layout="vertical"
                         isShortlisted={isShortlisted}
-                        onShortlist={() =>
-                          handleShortlist(profile._id, isShortlisted)
-                        }
+                        onShortlist={() => handleShortlist(profile._id)}
+                        onInterest={() => handleInterest(profile._id)}
                       />
-                    </Link>
+                    </div>
                   );
                 })
               ) : (
@@ -434,15 +418,15 @@ const Dashboard = () => {
                   to="/user/interests"
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-pink-50 transition-colors"
                 >
-                  <img
-                    src={user?.profilePhoto || "/default-avatar.png"}
-                    alt={user?.firstName}
-                    className="w-10 h-10 rounded-full object-cover"
-                  />
+                    <img
+                      src={user?.profilePhoto || "/default-avatar.png"}
+                      alt={user?.fullName}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
 
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-gray-800 truncate">
-                      {user?.firstName} {user?.lastName}
+                      {user?.fullName}
                     </p>
 
                     <p className="text-sm text-gray-500">
@@ -485,12 +469,12 @@ const Dashboard = () => {
                         visitor.photos?.[0] ||
                         "/default-avatar.png"
                       }
-                      alt={visitor.firstName}
+                      alt={visitor.fullName}
                       className="w-14 h-14 rounded-full object-cover mb-1.5 border-2 border-transparent group-hover:border-pink-400 transition-all"
                     />
 
                     <p className="text-xs text-gray-700 truncate w-14">
-                      {visitor.firstName.split(" ")[0]}
+                      {visitor.fullName ? visitor.fullName.split(" ")[0] : "User"}
                     </p>
                   </Link>
                 ))}

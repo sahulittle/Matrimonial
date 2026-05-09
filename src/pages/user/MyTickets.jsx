@@ -27,9 +27,7 @@ const DetailsModal = ({
         <div className="grid grid-cols-2 gap-4 text-sm mb-4">
           <div>
             <strong>Submitted by:</strong>{" "}
-            {ticket.userId?.firstName
-              ? `${ticket.userId.firstName} ${ticket.userId.lastName || ""}`
-              : "You"}
+            {ticket.userId?.fullName || "You"}
           </div>
           <div>
             <strong>Priority:</strong> {ticket.priority}

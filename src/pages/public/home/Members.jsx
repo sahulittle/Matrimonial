@@ -484,9 +484,7 @@ const Members = () => {
               {/* Member Details */}
               <div className="flex-grow">
                 <h3 className="text-2xl font-bold text-pink-600">
-                  {(member.fullName && member.fullName.trim()) ||
-                    `${member.firstName || ""} ${member.lastName || ""}`.trim() ||
-                    member.username}
+                  {member.fullName || member.username}
                 </h3>
                 <p className="text-gray-500 mb-4">
                   {member.caste ? `${member.caste}` : ""}{" "}

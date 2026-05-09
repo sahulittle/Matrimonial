@@ -97,7 +97,7 @@ const Shortlist = () => {
                       profile?.photos?.[0] ||
                       "/default-avatar.png"
                     }
-                    alt={profile?.firstName}
+                    alt={profile?.fullName}
                     className="w-full h-full object-cover"
                   />
 
@@ -120,7 +120,7 @@ const Shortlist = () => {
                     className="block"
                   >
                     <h3 className="font-semibold text-gray-900 text-lg mb-1">
-                      {profile?.firstName} {profile?.lastName}
+                      {profile?.fullName}
                     </h3>
 
                     <p className="text-gray-500 text-sm mb-3">
