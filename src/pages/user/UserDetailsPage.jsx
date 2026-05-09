@@ -206,14 +206,14 @@ const UserDetailsPage = () => {
     }
 
     const phone = user?.phone;
-    if (!phone) {
-      // no phone to call
-      setShowUpgradeModal(true);
+    if (!phone || phone === "Not specified" || phone === "N/A") {
+      toast.error("Contact number not available for this profile");
       return;
     }
 
-    // open native dialer
-    window.location.href = `tel:${phone}`;
+    // normalize phone digits for dialer
+    const digits = phone.replace(/[^0-9+]/g, "");
+    window.location.href = `tel:${digits}`;
   };
 
   const handleWhatsAppClick = () => {
@@ -235,21 +235,21 @@ const UserDetailsPage = () => {
     }
 
     const phone = user?.phone;
-    if (!phone) {
-      setShowUpgradeModal(true);
+    if (!phone || phone === "Not specified" || phone === "N/A") {
+      toast.error("Contact number not available for this profile");
       return;
     }
 
     // normalize phone digits
-    const digits = phone.replace(/[^0-9+]/g, "");
+    const digits = phone.replace(/[^0-9]/g, "");
     // If no country code and 10 digits, assume India (91)
     let waNumber = digits;
-    const plain = digits.replace(/^\+/, "");
-    if (!plain.startsWith("91") && plain.length === 10) {
-      waNumber = `91${plain}`;
+    if (!digits.startsWith("91") && digits.length === 10) {
+      waNumber = `91${digits}`;
     }
 
-    const url = `https://wa.me/${waNumber}`;
+    const message = encodeURIComponent(`Hi ${user?.fullName || "there"}, I'm interested in your profile on Marathi Shubha Vivah. Let's connect!`);
+    const url = `https://wa.me/${waNumber}?text=${message}`;
     window.open(url, "_blank");
   };
 
@@ -579,109 +579,153 @@ const UserDetailsPage = () => {
                       </p>
                     </div>
                   </TimelineBlock>
+                  {/* PHYSICAL ATTRIBUTES */}
+                  <TimelineBlock icon="👤" title="Physical Attributes">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600">
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Height:</span>
+                        <span>{user?.height || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Weight:</span>
+                        <span>{user?.weight ? `${user.weight} kg` : "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Complexion:</span>
+                        <span>{user?.complexion || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Body Type:</span>
+                        <span>{user?.bodyType || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Blood Group:</span>
+                        <span>{user?.bloodGroup || "Not specified"}</span>
+                      </div>
+                    </div>
+                  </TimelineBlock>
+
                   {/* LIFESTYLE */}
-                  <TimelineBlock icon="🍗" title="Lifestyle">
-                    <div className="flex flex-col items-start w-full border rounded-lg p-4 bg-gray-50">
-                      <div className="flex items-center gap-3">
-                        <span className="text-2xl">🍽️</span>
-                        <div className="text-sm text-gray-600">
-                          {user?.diet ||
-                            user?.foodPreference ||
-                            "Diet: Not specified"}
-                        </div>
+                  <TimelineBlock icon="🍕" title="Lifestyle">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600">
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Diet:</span>
+                        <span>{user?.diet || user?.food || "Not specified"}</span>
                       </div>
-
-                      <div className="mt-3 flex items-center gap-3">
-                        <span className="text-2xl">🚬</span>
-                        <div className="text-sm text-gray-600">
-                          Smoking: {user?.smoking || "Not specified"}
-                        </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Smoking:</span>
+                        <span>{user?.smoking || "Not specified"}</span>
                       </div>
-
-                      <div className="mt-3 flex items-center gap-3">
-                        <span className="text-2xl">🍷</span>
-                        <div className="text-sm text-gray-600">
-                          Drinking: {user?.drinking || "Not specified"}
-                        </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Drinking:</span>
+                        <span>{user?.drinking || "Not specified"}</span>
                       </div>
-
-                      {user?.presentAddress ||
-                      (user?.languages && user.languages.length) ? (
-                        <div className="mt-3 text-sm text-gray-600">
-                          {/* moved Address/Languages to Contact Details */}
-                        </div>
-                      ) : null}
                     </div>
                   </TimelineBlock>
 
                   {/* BACKGROUND */}
-                  <TimelineBlock icon="🎓" title="Background">
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <p>🕌 {user?.religion || "Not specified"}</p>
-                      <p>👑 {user?.caste || "Not specified"}</p>
-                      <p>
-                        📍 Lives in{" "}
-                        {user?.jobLocation ||
-                          user?.city ||
-                          "Location not added"}
-                        , India
-                      </p>
-                      {user?.state ? <p>🏠 State: {user.state}</p> : null}
-                      {user?.presentAddress ? (
-                        <p>🏠 Address: {user.presentAddress}</p>
-                      ) : null}
-                      {user?.languages ? (
-                        <p>
-                          🗣️ Languages:{" "}
-                          {Array.isArray(user.languages)
-                            ? user.languages.join(", ")
-                            : user.languages}
-                        </p>
-                      ) : null}
+                  <TimelineBlock icon="🕌" title="Background">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600">
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Religion:</span>
+                        <span>{user?.religion || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Caste:</span>
+                        <span>{user?.caste || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Mother Tongue:</span>
+                        <span>{user?.motherTongue || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Birth Time:</span>
+                        <span>{user?.birthTime || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Birth Name:</span>
+                        <span>{user?.birthName || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Rashi:</span>
+                        <span>{user?.rashi || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">City/State:</span>
+                        <span>{user?.city ? `${user.city}${user.state ? `, ${user.state}` : ""}` : (user?.jobLocation || "Not specified")}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[100px]">Native Place:</span>
+                        <span>{user?.nativePlace || "Not specified"}</span>
+                      </div>
                     </div>
                   </TimelineBlock>
 
                   {/* FAMILY */}
                   <TimelineBlock icon="👨‍👩‍👧" title="Family Details">
-                    <div className="text-sm text-gray-600 space-y-1">
-                      {user?.family && typeof user.family === "object" ? (
-                        <>
-                          {user.family.father && (
-                            <p>Father: {user.family.father}</p>
-                          )}
-                          {user.family.mother && (
-                            <p>Mother: {user.family.mother}</p>
-                          )}
-                          {user.family.siblings && (
-                            <p>Siblings: {user.family.siblings}</p>
-                          )}
-                          {user.family.income && (
-                            <p>Family income: {user.family.income}</p>
-                          )}
-                        </>
-                      ) : (
-                        <>
-                          <p>
-                            {user?.familyDetails ||
-                              "Family information not provided"}
-                          </p>
-                        </>
-                      )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600">
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Father's Name:</span>
+                        <span>{user?.fatherName || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Father's Job:</span>
+                        <span>{user?.fatherJob || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Mother's Name:</span>
+                        <span>{user?.motherName || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Mother's Job:</span>
+                        <span>{user?.motherJob || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Siblings:</span>
+                        <span>{user?.siblings || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Family Type:</span>
+                        <span>{user?.familyType || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Family Status:</span>
+                        <span>{user?.familyStatus || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Ancestral Origin:</span>
+                        <span>{user?.ancestralOrigin || "Not specified"}</span>
+                      </div>
                     </div>
                   </TimelineBlock>
 
                   {/* EDUCATION */}
-                  <TimelineBlock icon="🎓" title="Education & Career">
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <p>
-                        {user?.educationCategory} {user?.educationDetails ? `- ${user.educationDetails}` : ""}
-                      </p>
-                      <p>
-                        {user?.employmentStatus ||
-                          user?.job ||
-                          "Not working / Not specified"}
-                      </p>
-                      {user?.jobLocation && <p>Works in: {user.jobLocation}</p>}
+                  <TimelineBlock icon="💼" title="Education & Career">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 text-sm text-gray-600">
+                      <div className="flex gap-2 col-span-full">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Education:</span>
+                        <span>{user?.educationCategory} {user?.educationDetails ? `- ${user.educationDetails}` : ""}</span>
+                      </div>
+                      <div className="flex gap-2 col-span-full">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">College:</span>
+                        <span>{user?.college || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Employed In:</span>
+                        <span>{user?.employedIn || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Occupation:</span>
+                        <span>{user?.job || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Annual Income:</span>
+                        <span>{user?.annualIncome || "Not specified"}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <span className="font-semibold text-gray-800 min-w-[120px]">Working City:</span>
+                        <span>{user?.jobLocation || "Not specified"}</span>
+                      </div>
                     </div>
                   </TimelineBlock>
                 </div>
