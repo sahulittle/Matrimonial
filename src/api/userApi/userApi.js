@@ -251,19 +251,8 @@ export const getVisitors = async () => {
   return Array.isArray(res?.data) ? res.data : [];
 };
 
-// TRACK VISIT
-export const trackVisit = async (profileId) => {
-  try {
-    const res = await axios.post(
-      `${BASE_URL}/dashboard/visit/${profileId}`,
-      {},
-      authHeader(),
-    );
-    return res.data;
-  } catch (error) {
-    console.error("Track visit error:", error);
-  }
-};
+export const trackVisit = (profileId) =>
+  axios.post(`${DASHBOARD}/visit/${profileId}`, {}, authHeader());
 export const toggleLike = async (profileId) => {
   return axios.post(
     `${BASE_URL}/dashboard/like/${profileId}`,

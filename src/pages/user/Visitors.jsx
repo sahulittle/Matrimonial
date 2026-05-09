@@ -26,8 +26,9 @@ const Visitors = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  const visibleVisitors = isPremium ? visitors : visitors.slice(0, 3);
-  const lockedVisitors = isPremium ? [] : visitors.slice(3);
+  // If premium: show all. If not: show 0 unblurred, all blurred.
+  const visibleVisitors = isPremium ? visitors : [];
+  const lockedVisitors = isPremium ? [] : visitors;
 
   // 🔥 ADD THIS
   useEffect(() => {
@@ -57,12 +58,7 @@ const Visitors = () => {
         sentInterests: Array.isArray(sentRes) ? sentRes.length : (sentRes?.interests?.length || 0)
       });
     } catch (error) {
-      if (error?.response?.status === 403) {
-        toast.error("🔒 Please upgrade to premium to view visitors");
-        navigate("/user/packages"); // ✅ FIXED
-      } else {
-        console.error("Error fetching visitors:", error);
-      }
+      console.error("Error fetching visitors:", error);
     } finally {
       setLoading(false);
     }
