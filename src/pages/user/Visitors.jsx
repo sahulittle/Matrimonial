@@ -44,11 +44,11 @@ const Visitors = () => {
       ]);
 
       const formatted = (visitorData || []).map((v) => ({
-        id: v._id,
+        id: v._id || v.id,
         name: v.fullName || "Unknown User",
         avatar: v.profilePhoto,
-        profession: v.job || v.jobLocation || "Not specified",
-        viewedAt: v.visitedAt || new Date().toISOString(),
+        profession: v.job || "Not specified",
+        viewedAt: v.visitedAt, // Don't default to now here, it masks issues
         isLiked: v.isLiked || false,
       }));
 
@@ -85,12 +85,18 @@ const Visitors = () => {
   const formatTime = (time) => {
     if (!time) return "Recently";
 
-    const diff = Date.now() - new Date(time).getTime();
+    const date = new Date(time);
+    if (isNaN(date.getTime())) return "Recently";
+
+    const diff = Date.now() - date.getTime();
+    
+    // If the difference is negative or less than 1 minute
+    if (diff < 60000) return "Just now";
+    
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-    if (minutes < 1) return "Just now";
     if (minutes < 60) return `${minutes} minutes ago`;
     if (hours < 24) return `${hours} hours ago`;
 
