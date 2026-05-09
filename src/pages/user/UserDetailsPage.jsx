@@ -485,55 +485,29 @@ const UserDetailsPage = () => {
                         <p className="text-sm text-gray-700">
                           📞 Contact Number <br />
                           <span
-                            onClick={() => {
-                              if (
-                                currentUser?.subscriptionStatus !== "active"
-                              ) {
-                                setShowUpgradeModal(true);
-                              }
-                            }}
-                            className="text-gray-500 cursor-pointer"
-                          >
-                            {currentUser &&
-                            (currentUser.subscriptionStatus === "active" ||
-                              (currentUser.subscriptionEndDate &&
-                                new Date(currentUser.subscriptionEndDate) >
-                                  new Date()))
-                              ? user?.phone || "Not available"
-                              : ""}
-                          </span>
-                          <span
                             onClick={async () => {
                               if (!currentUser) {
                                 setShowUpgradeModal(true);
                                 return;
                               }
 
-                              // If already active and server-side remainingViews present, try unlock
+                              if (
+                                currentUser.subscriptionStatus !== "active" &&
+                                !(
+                                  currentUser.subscriptionEndDate &&
+                                  new Date(currentUser.subscriptionEndDate) >
+                                    new Date()
+                                )
+                              ) {
+                                setShowUpgradeModal(true);
+                                return;
+                              }
+
+                              // Try unlock if active
                               try {
                                 const res = await searchApi.unlockProfile(id);
                                 if (res && res.contact) {
-                                  // show returned phone/email immediately
                                   toast.success("Contact unlocked");
-                                  // update local storage current user remainingViews if provided
-                                  try {
-                                    const raw =
-                                      localStorage.getItem("user") ||
-                                      localStorage.getItem("currentUser");
-                                    if (raw) {
-                                      const u = JSON.parse(raw);
-                                      if (
-                                        typeof res.remainingViews === "number"
-                                      ) {
-                                        u.remainingViews = res.remainingViews;
-                                        setCurrentUser(u);
-                                      }
-                                    }
-                                  } catch (e) {
-                                    // ignore
-                                  }
-                                  // update displayed user data on page
-                                  // mutate `user` in place (the page reads `user` prop/state)
                                   if (res.contact.phone)
                                     user.phone = res.contact.phone;
                                   if (res.contact.email)
@@ -541,11 +515,12 @@ const UserDetailsPage = () => {
                                   return;
                                 }
                               } catch (err) {
-                                // API returns 403 if upgrade required
-                                toast.error(
-                                  err.message || "Failed to unlock contact",
-                                );
-                                setShowUpgradeModal(true);
+                                const errorMsg =
+                                  err.message || "Failed to unlock contact";
+                                toast.error(errorMsg);
+                                if (errorMsg === "Upgrade required") {
+                                  setShowUpgradeModal(true);
+                                }
                               }
                             }}
                             className="text-gray-500 cursor-pointer"
