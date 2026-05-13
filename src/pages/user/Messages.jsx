@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Send, Search, MoreVertical, Phone, Video } from "lucide-react";
 import ChatMessage from "../../components/ui/ChatMessage";
 import { useAuth } from "../../context/AuthContext";
+import { getAvatarFallback } from "../../utils/avatar";
 
 import {
   sendMessage as socketSendMessage,
@@ -39,7 +40,7 @@ const Messages = () => {
     p?.profilePhoto ||
     p?.profilePhotoUrl ||
     p?.profileImage ||
-    "/default-avatar.png";
+    getAvatarFallback(p?.gender);
 
   useEffect(() => {
     if (!user) return;
@@ -260,11 +261,7 @@ const Messages = () => {
         if (!mounted) return;
 
         const profile = res.user || res || {};
-        const pname =
-          profile.name ||
-          (profile.firstName
-            ? `${profile.firstName} ${profile.lastName || ""}`.trim()
-            : "");
+        const pname = profile.fullName || profile.name || "";
 
         const conv = {
           userId: profile._id || activeConversationId,
@@ -276,7 +273,7 @@ const Messages = () => {
               profile.profilePhoto ||
               profile.profilePhotoUrl ||
               profile.profileImage ||
-              "/default-avatar.png",
+              "/default-avatar.jpg",
           },
           lastMessage: { text: "" },
           unreadCount: 0,

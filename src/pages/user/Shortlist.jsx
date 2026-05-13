@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Star, Trash2, MapPin, Briefcase } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { getAvatarFallback } from "../../utils/avatar";
 
 // ✅ API
 import { getShortlist, removeFromShortlist } from "../../api/userApi/userApi";
@@ -95,7 +96,7 @@ const Shortlist = () => {
                     src={
                       profile?.profilePhoto ||
                       profile?.photos?.[0] ||
-                      "/default-avatar.png"
+                      getAvatarFallback(profile?.gender)
                     }
                     alt={profile?.fullName}
                     className="w-full h-full object-cover"
@@ -125,7 +126,7 @@ const Shortlist = () => {
 
                     <p className="text-gray-500 text-sm mb-3">
                       <span className="font-medium text-gray-700">Age: </span>
-                      {age ? `${age} years` : "N/A"}
+                      {age ? `${age} years` : ""}
                     </p>
                   </Link>
 

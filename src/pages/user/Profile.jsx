@@ -7,6 +7,7 @@ import {
 import { userDataApi } from "../../services/api";
 import { casteOptions } from "../../utils/options";
 import { useAuth } from "../../context/AuthContext";
+import { getAvatarFallback } from "../../utils/avatar";
 import PhotoManager from "../../components/PhotoManager";
 
 const Section = ({ title, children, onEdit }) => (
@@ -391,13 +392,13 @@ export default function Profile() {
         smoking: user.smoking || "",
         drinking: user.drinking || "",
         // PREFERENCES
-        preferredGender: user.preferredGender || "",
+        preferredGender: user.preferredGender || "Any",
         preferredMinAge: user.preferredMinAge ?? "",
         preferredMaxAge: user.preferredMaxAge ?? "",
         preferredHeight: user.preferredHeight || "",
         preferredMaritalStatus: user.preferredMaritalStatus || "",
-        preferredReligion: user.preferredReligion || "",
-        preferredCaste: user.preferredCaste || "",
+        preferredReligion: user.preferredReligion || "Any",
+        preferredCaste: user.preferredCaste || "Any",
         preferredEducation: user.preferredEducation || "",
       });
     }
@@ -713,13 +714,13 @@ export default function Profile() {
       }
 
       const prefs = {
-        preferredGender: formData.preferredGender || "",
+        preferredGender: formData.preferredGender || "Any",
         preferredMinAge: minAge,
         preferredMaxAge: maxAge,
         preferredHeight: formData.preferredHeight || "",
         preferredMaritalStatus: formData.preferredMaritalStatus || "",
-        preferredReligion: formData.preferredReligion || "",
-        preferredCaste: formData.preferredCaste || "",
+        preferredReligion: formData.preferredReligion || "Any",
+        preferredCaste: formData.preferredCaste || "Any",
         preferredEducation: formData.preferredEducation || "",
       };
 
@@ -777,13 +778,20 @@ export default function Profile() {
 
     if (prefs.preferredReligion) {
       total++;
-      if (safe(currentUserObj.religion) === safe(prefs.preferredReligion))
+      if (
+        prefs.preferredReligion === "Any" ||
+        safe(currentUserObj.religion) === safe(prefs.preferredReligion)
+      )
         match++;
     }
 
     if (prefs.preferredCaste) {
       total++;
-      if (safe(currentUserObj.caste) === safe(prefs.preferredCaste)) match++;
+      if (
+        prefs.preferredCaste === "Any" ||
+        safe(currentUserObj.caste) === safe(prefs.preferredCaste)
+      )
+        match++;
     }
 
     if (prefs.preferredEducation) {
@@ -860,7 +868,7 @@ export default function Profile() {
         <div className="flex items-center gap-4">
           <div className="relative">
             <img
-              src={preview || user?.profilePhoto || "/default-avatar.png"}
+              src={preview || user?.profilePhoto || getAvatarFallback(user?.gender)}
               alt="profile"
               className="w-28 h-28 object-cover rounded-full ring-2 ring-blue-50"
             />
@@ -1456,7 +1464,7 @@ export default function Profile() {
                     }
                     className="border p-2 rounded mt-1 w-full"
                   >
-                    <option value="">Any</option>
+                    <option value="Any">Any</option>
                     {religionsList.map((r, i) => {
                       const o = normalizeOption(r, i);
                       return (
@@ -1488,7 +1496,7 @@ export default function Profile() {
                   }
                   className="border p-2 rounded mt-1 w-full"
                 >
-                  <option value="">Any</option>
+                  <option value="Any">Any</option>
                   {casteOptions.map((c) => (
                     <option key={c} value={c}>
                       {c}
@@ -1953,14 +1961,14 @@ export default function Profile() {
                       <option value="" disabled>
                         Select Religion
                       </option>
-                        {religionsList.map((r, i) => {
-                          const o = normalizeOption(r, i);
-                          return (
-                            <option key={o.key} value={o.value}>
-                              {o.label}
-                            </option>
-                          );
-                        })}
+                      {religionsList.map((r, i) => {
+                        const o = normalizeOption(r, i);
+                        return (
+                          <option key={o.key} value={o.value}>
+                            {o.label}
+                          </option>
+                        );
+                      })}
                     </select>
                   ) : (
                     <input
@@ -2523,15 +2531,14 @@ export default function Profile() {
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">Job Location (City)</label>
+                <label className="text-sm text-gray-600">Job Location</label>
                 {Array.isArray(jobCitiesList) && jobCitiesList.length > 0 ? (
                   <select
-                    value={formData.jobLocation || formData.jobCity || ""}
+                    value={formData.jobLocation || ""}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
                         jobLocation: e.target.value,
-                        jobCity: e.target.value,
                       })
                     }
                     className="border p-2 rounded mt-1 w-full"

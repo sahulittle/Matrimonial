@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
+import { getAvatarFallback } from "../../utils/avatar";
 const NavbarIconButton = ({ icon: Icon, onClick, badge, className = "" }) => {
   return (
     <button
@@ -176,17 +177,11 @@ const Navbar = ({ toggleSidebar }) => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 p-2 rounded-full hover:bg-white/10"
               >
-                {currentProfile?.avatar ? (
-                  <img
-                    src={currentProfile?.avatar || "/default-avatar.png"}
-                    alt={currentProfile?.name}
-                    className="w-8 h-8 rounded-full object-cover border-2 border-white/50"
-                  />
-                ) : (
-                  <div className="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center text-white font-bold">
-                    {currentProfile?.name?.charAt(0) || "U"}
-                  </div>
-                )}
+                <img
+                  src={currentProfile?.avatar || getAvatarFallback(currentProfile?.gender)}
+                  alt={currentProfile?.name}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-white/50"
+                />
 
                 <ChevronDown className="text-white hidden sm:block" />
               </button>

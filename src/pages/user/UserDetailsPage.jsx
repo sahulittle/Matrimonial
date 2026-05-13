@@ -1,5 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
+import { getAvatarFallback } from "../../utils/avatar";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import {
@@ -282,7 +283,7 @@ const UserDetailsPage = () => {
           {/* PROFILE CARD */}
           <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-lg border border-white/40 overflow-hidden">
             <img
-              src={user?.profilePhoto || "https://via.placeholder.com/300"}
+              src={user?.profilePhoto || getAvatarFallback(user?.gender)}
               alt="profile"
               className="w-full h-64 object-cover"
             />
@@ -890,6 +891,7 @@ const ModernPreferences = ({ user, currentUser }) => {
       value: user?.preferredReligion || null,
       matches: () => {
         if (!currentUser || !user?.preferredReligion) return false;
+        if (user.preferredReligion === "Any") return true;
         return (
           String(currentUser.religion || "").toLowerCase() ===
           String(user.preferredReligion).toLowerCase()
@@ -902,6 +904,7 @@ const ModernPreferences = ({ user, currentUser }) => {
       value: user?.preferredCaste || null,
       matches: () => {
         if (!currentUser || !user?.preferredCaste) return false;
+        if (user.preferredCaste === "Any") return true;
         return (
           String(currentUser.caste || "").toLowerCase() ===
           String(user.preferredCaste).toLowerCase()

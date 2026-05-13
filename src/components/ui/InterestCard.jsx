@@ -1,5 +1,6 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getAvatarFallback } from "../../utils/avatar";
 import { Heart, Check, X, Clock, MapPin, Briefcase } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -110,7 +111,7 @@ const InterestCard = ({
             src={
               profile?.profilePhoto ||
               profile?.photos?.[0] ||
-              "/default-avatar.png"
+              getAvatarFallback(profile?.gender)
             }
             alt={profile?.fullName || "User"}
             className="w-20 h-20 rounded-2xl object-cover"
@@ -138,7 +139,7 @@ const InterestCard = ({
 
               <p className="text-gray-500 text-sm">
                 <span className="font-medium text-gray-700">Age: </span>
-                {age ? `${age} years` : "N/A"}
+                {age ? `${age} years` : ""}
               </p>
             </div>
 

@@ -67,8 +67,7 @@ const AnsweredTicket = () => {
 
   const filteredTickets = tickets.filter((ticket) => {
     const subj = (ticket.subject || ticket.title || "").toLowerCase();
-    const name =
-      `${ticket.userId?.firstName || ""} ${ticket.userId?.lastName || ""}`.toLowerCase();
+    const name = (ticket.userId?.fullName || "").toLowerCase();
     return (
       subj.includes(searchTerm.toLowerCase()) ||
       name.includes(searchTerm.toLowerCase())
@@ -177,15 +176,15 @@ const AnsweredTicket = () => {
                             ticket.userId?.avatar || ticket.submittedBy?.avatar
                           }
                           alt={
-                            ticket.userId?.firstName || ticket.submittedBy?.name
+                            ticket.userId?.fullName || ticket.submittedBy?.name
                           }
                           className="w-10 h-10 rounded-full mr-4"
                         /> */}
                         <div>
                           <p className="font-medium text-gray-800">
-                            {ticket.userId?.firstName
-                              ? `${ticket.userId.firstName} ${ticket.userId.lastName || ""}`
-                              : ticket.submittedBy?.name || "N/A"}
+                            {ticket.userId?.fullName
+                              ? ticket.userId.fullName
+                              : ticket.submittedBy?.name || ""}
                           </p>
                           <p className="text-sm text-gray-500">
                             
@@ -286,9 +285,9 @@ const AnsweredTicket = () => {
               <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                 <p className="text-gray-600">
                   <strong>Submitted by:</strong>{" "}
-                  {selectedTicket.userId?.firstName
-                    ? `${selectedTicket.userId.firstName} ${selectedTicket.userId.lastName || ""}`
-                    : selectedTicket.submittedBy?.name || "N/A"}
+                  {selectedTicket.userId?.fullName
+                    ? selectedTicket.userId.fullName
+                    : selectedTicket.submittedBy?.name || ""}
                 </p>
                 <p className="text-gray-600">
                   <strong>Last Reply:</strong>{" "}

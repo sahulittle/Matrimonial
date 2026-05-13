@@ -83,8 +83,7 @@ const PendingTicket = () => {
 
   const filteredTickets = tickets.filter((ticket) => {
     const subj = (ticket.subject || ticket.title || "").toLowerCase();
-    const name =
-      `${ticket.userId?.firstName || ""} ${ticket.userId?.lastName || ""}`.toLowerCase();
+    const name = (ticket.userId?.fullName || "").toLowerCase();
     return (
       subj.includes(searchTerm.toLowerCase()) ||
       name.includes(searchTerm.toLowerCase())
@@ -204,8 +203,8 @@ const PendingTicket = () => {
               const userObj =
                 ticket.submittedBy || ticket.user || ticket.userId || {};
               const userName =
+                userObj.fullName ||
                 userObj.name ||
-                `${userObj.firstName || ""} ${userObj.lastName || ""}`.trim() ||
                 "Unknown User";
               const userAvatar =
                 userObj.avatar || userObj.profilePhoto || userObj.image || "";
@@ -225,7 +224,7 @@ const PendingTicket = () => {
                   <td className="py-3 px-4">
                     <div className="flex items-center">
                       <img
-                        src={userAvatar || `/default-avatar.png`}
+                        src={userAvatar || `/default-avatar.jpg`}
                         alt={userName}
                         className="w-10 h-10 rounded-full mr-4"
                       />
@@ -317,8 +316,10 @@ const PendingTicket = () => {
               <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                 <p className="text-gray-600">
                   <strong>Submitted by:</strong>{" "}
-                  {selectedTicket.submittedBy?.name ||
-                    selectedTicket.userId?.firstName ||
+                  {selectedTicket.submittedBy?.fullName ||
+                    selectedTicket.submittedBy?.name ||
+                    selectedTicket.userId?.fullName ||
+                    selectedTicket.userId?.name ||
                     "Unknown"}
                 </p>
                 <p className="text-gray-600">

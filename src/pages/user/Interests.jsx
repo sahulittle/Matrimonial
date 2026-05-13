@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getAvatarFallback } from "../../utils/avatar";
 import { onMatchCreated, off } from "../../services/socketService";
 import { Heart, Send } from "lucide-react";
 import InterestCard from "../../components/ui/InterestCard";
@@ -34,7 +35,7 @@ const Interests = () => {
           image:
             i.senderId?.profilePhoto ||
             i.senderId?.photos?.[0] ||
-            "/default-avatar.png",
+            getAvatarFallback(i.senderId?.gender),
           age: i.senderId?.dateOfBirth
             ? new Date().getFullYear() -
               new Date(i.senderId.dateOfBirth).getFullYear()
@@ -51,7 +52,7 @@ const Interests = () => {
           image:
             i.receiverId?.profilePhoto ||
             i.receiverId?.photos?.[0] ||
-            "/default-avatar.png",
+            getAvatarFallback(i.receiverId?.gender),
           age: i.receiverId?.dateOfBirth
             ? new Date().getFullYear() -
               new Date(i.receiverId.dateOfBirth).getFullYear()

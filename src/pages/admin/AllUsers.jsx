@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FiSearch, FiEye } from 'react-icons/fi';
+import { getAvatarFallback } from '../../utils/avatar';
 import { getAllUsers } from '../../api/adminApi/adminApi'; // ✅ API
 import { on, off } from '../../services/socketService';
 
@@ -98,7 +99,7 @@ const AllUsers = () => {
                                         <td className="py-3 px-4">
                                             <div className="flex items-center">
                                                 <img
-                                                    src={user.avatar || "https://i.pravatar.cc/150"}
+                                                    src={user.avatar || getAvatarFallback(user.gender)}
                                                     alt={user.fullName}
                                                     className="w-10 h-10 rounded-full mr-4"
                                                 />

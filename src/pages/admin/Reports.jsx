@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch, FiEye, FiSlash, FiX } from "react-icons/fi";
+import { getAvatarFallback } from "../../utils/avatar";
 import {
   banUser,
   getAllReports,
@@ -137,8 +138,7 @@ const Reports = () => {
               r.reportedByUserId?.email?.split("@")[0] ||
               "user",
             avatar:
-              r.reportedByUserId?.profilePhoto ||
-              `https://i.pravatar.cc/150?u=${r.reportedByUserId?._id}`,
+              r.reportedByUserId?.profilePhoto || getAvatarFallback(r.reportedByUserId?.gender),
           },
           profile: {
             _id: r.reportedUserId?._id,
@@ -148,8 +148,7 @@ const Reports = () => {
               r.reportedUserId?.email?.split("@")[0] ||
               "user",
             avatar:
-              r.reportedUserId?.profilePhoto ||
-              `https://i.pravatar.cc/150?u=${r.reportedUserId?._id}`,
+              r.reportedUserId?.profilePhoto || getAvatarFallback(r.reportedUserId?.gender),
           },
           title: r.title || "User Report",
           details: r.description || r.reason || "Reported content",
@@ -176,9 +175,7 @@ const Reports = () => {
             r.reportedBy?.username ||
             r.reportedBy?.email?.split("@")[0] ||
             "user",
-          avatar:
-            r.reportedBy?.profilePhoto ||
-            `https://i.pravatar.cc/150?u=${r.reportedBy?._id}`,
+          avatar: r.reportedBy?.profilePhoto || "/default-avatar.jpg",
         },
         profile: {
           _id: r.reportedUser?._id,
@@ -187,9 +184,7 @@ const Reports = () => {
             r.reportedUser?.username ||
             r.reportedUser?.email?.split("@")[0] ||
             "user",
-          avatar:
-            r.reportedUser?.profilePhoto ||
-            `https://i.pravatar.cc/150?u=${r.reportedUser?._id}`,
+          avatar: r.reportedUser?.profilePhoto || "/default-avatar.jpg",
         },
         title: r.reason || "User Report",
         details: r.description || r.reason || "Reported content",

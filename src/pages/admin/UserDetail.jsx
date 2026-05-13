@@ -4,6 +4,7 @@ import { FiLogIn, FiUsers, FiChevronRight, FiCreditCard, FiHeart, FiEye, FiImage
 import toast from "react-hot-toast";
 import { getUserDetails, banUser, unbanUser } from "../../api/adminApi/adminApi";
 import { on, off } from "../../services/socketService";
+import { getAvatarFallback } from "../../utils/avatar";
 
 // Simple RelatedTabs component (renders populated relations from admin GET)
 const RelatedTabs = ({ user }) => {
@@ -12,7 +13,7 @@ const RelatedTabs = ({ user }) => {
   const renderProfileItem = (u) => {
     if (!u) return null;
     const person = u.userId || u; // support both shapes
-    const avatar = person.profilePhoto || (person.photos && person.photos.find(p=>p.isProfile)?.url) || person.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(person.fullName)}&background=ddd`;
+    const avatar = person.profilePhoto || (person.photos && person.photos.find(p=>p.isProfile)?.url) || person.image || getAvatarFallback(person.gender);
     return (
       <div className="bg-white rounded-lg shadow-sm p-3 hover:shadow-md transition-shadow">
         <div className="flex items-center gap-3">
@@ -168,10 +169,10 @@ const UserDetail = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <img src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${user.firstName} ${user.lastName}`)}&background=fff&color=333&size=128`} alt="avatar" className="w-20 h-20 rounded-full object-cover" />
+          <img src={user.avatar || getAvatarFallback(user.gender)} alt="avatar" className="w-20 h-20 rounded-full object-cover" />
           <div>
-            <h2 className="text-2xl font-bold">{user.firstName} {user.lastName}</h2>
-            <p className="text-sm text-gray-500">@{user.username || ""}</p>
+            <h2 className="text-2xl font-bold">{user.fullName}</h2>
+            <p className="text-sm text-gray-500">{user.username || ""}</p>
             <p className="text-sm text-gray-600">{user.email || ""} • {user.phone || ""}</p>
           </div>
         </div>

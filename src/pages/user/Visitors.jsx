@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getAvatarFallback } from "../../utils/avatar";
 import { Eye, Clock, Heart, MessageCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { 
@@ -47,6 +48,7 @@ const Visitors = () => {
         id: v._id,
         name: v.fullName || "Unknown User",
         avatar: v.profilePhoto,
+        gender: v.gender,
         profession: v.job || "Not specified",
         location: v.jobLocation || "Not specified",
         age: v.age || "N/A",
@@ -178,7 +180,7 @@ const Visitors = () => {
               <div className="flex items-start gap-4">
                 <Link to={`/user/user-details/${visitor.id}`}>
                   <img
-                    src={visitor.avatar || "/default-avatar.jpg"}
+                    src={visitor.avatar || getAvatarFallback(visitor.gender)}
                     alt={visitor.name}
                     className="w-16 h-16 rounded-xl object-cover border border-gray-200"
                   />
@@ -245,7 +247,7 @@ const Visitors = () => {
                 <div className="blur-sm">
                   <div className="flex items-start gap-4">
                     <img
-                      src={visitor.avatar || "/default-avatar.jpg"}
+                      src={visitor.avatar || getAvatarFallback(visitor.gender)}
                       className="w-16 h-16 rounded-xl object-cover"
                     />
 
@@ -255,7 +257,7 @@ const Visitors = () => {
                       </h3>
                       <p className="text-gray-500 text-sm">
                         <span className="font-medium text-gray-700">Age: </span>
-                        {visitor.age ? `${visitor.age} years` : "N/A"}
+                        {visitor.age ? `${visitor.age} years` : ""}
                       </p>
                       <p className="text-gray-500 text-xs">
                         <span className="font-medium text-gray-700">Profession: </span>
@@ -272,7 +274,7 @@ const Visitors = () => {
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70">
                     <p className="text-gray-500 text-sm mb-3">
                       <span className="font-medium text-gray-700">Age: </span>
-                      {visitor.age ? `${visitor.age} years` : "N/A"}
+                      {visitor.age ? `${visitor.age} years` : ""}
                     </p>
 
                   <button

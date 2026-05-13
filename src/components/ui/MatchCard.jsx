@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { getAvatarFallback } from "../../utils/avatar";
 import {
   Heart,
   Star,
@@ -161,7 +162,7 @@ const MatchCard = ({
               profile.image ||
               profile.profilePhoto ||
               profile.photos?.[0] ||
-              "/default-avatar.png"
+              getAvatarFallback(profile.gender)
             }
             alt={profile.fullName}
             className="w-full h-full object-cover"
@@ -191,7 +192,7 @@ const MatchCard = ({
             profile.image ||
             profile.profilePhoto ||
             profile.photos?.[0] ||
-            "/default-avatar.png"
+            getAvatarFallback(profile.gender)
           }
           alt={profile.fullName}
           className="w-full h-full object-cover"
@@ -218,7 +219,7 @@ const MatchCard = ({
           <h3 className="font-semibold truncate">{profile.fullName}</h3>
           <p className="text-sm text-gray-500">
             <span className="font-medium text-gray-700">Age: </span>
-            {profile.age || "N/A"} yrs
+            {profile.age || ""} yrs
           </p>
           
           <div className="flex items-center gap-1.5 text-xs text-gray-600 truncate mt-1">

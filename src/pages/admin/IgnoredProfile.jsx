@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch } from "react-icons/fi";
+import { getAvatarFallback } from "../../utils/avatar";
 import { getIgnoredProfiles } from "../../api/adminApi/adminApi";
 
 const IgnoredProfile = () => {
@@ -203,7 +204,7 @@ const IgnoredProfile = () => {
                         src={
                           user.profilePhoto ||
                           user.avatar ||
-                          `https://i.pravatar.cc/150?u=${user._id || user.username || index}`
+                          getAvatarFallback(user.gender)
                         }
                         alt={user.fullName || user.name}
                         className="w-10 h-10 rounded-full mr-4"
@@ -224,7 +225,7 @@ const IgnoredProfile = () => {
                         src={
                           profile.profilePhoto ||
                           profile.avatar ||
-                          `https://i.pravatar.cc/150?u=${profile._id || profile.username || index}`
+                          getAvatarFallback(profile.gender)
                         }
                         alt={profile.fullName || profile.name}
                         className="w-10 h-10 rounded-full mr-4"

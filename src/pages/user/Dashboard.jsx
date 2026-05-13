@@ -5,6 +5,7 @@ import { ArrowRight, Heart, MessageCircle, Eye, Star } from "lucide-react";
 import MatchCard from "../../components/ui/MatchCard";
 import { useAuth } from "../../context/AuthContext";
 import { Link } from "react-router-dom";
+import { getAvatarFallback } from "../../utils/avatar";
 import {
   getDashboardStats,
   getRecommendedProfiles,
@@ -168,7 +169,7 @@ const Dashboard = () => {
           </div>
 
           <img
-            src={user?.profilePhoto || "/default-avatar.png"}
+            src={user?.profilePhoto || getAvatarFallback(user?.gender)}
             alt={user?.fullName || user?.name}
             className="w-14 h-14 rounded-full object-cover border-4 border-white"
           />
@@ -419,7 +420,7 @@ const Dashboard = () => {
                   className="flex items-center gap-3 p-2 rounded-lg hover:bg-pink-50 transition-colors"
                 >
                     <img
-                      src={user?.profilePhoto || "/default-avatar.png"}
+                      src={user?.profilePhoto || getAvatarFallback(user?.gender)}
                       alt={user?.fullName}
                       className="w-10 h-10 rounded-full object-cover"
                     />
@@ -467,7 +468,7 @@ const Dashboard = () => {
                       src={
                         visitor.profilePhoto ||
                         visitor.photos?.[0] ||
-                        "/default-avatar.png"
+                        getAvatarFallback(visitor.gender)
                       }
                       alt={visitor.fullName}
                       className="w-14 h-14 rounded-full object-cover mb-1.5 border-2 border-transparent group-hover:border-pink-400 transition-all"

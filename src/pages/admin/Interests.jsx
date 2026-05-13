@@ -100,7 +100,7 @@ const Interests = () => {
                         <img
                           src={
                             interest.senderId?.profilePhoto ||
-                            "https://i.pravatar.cc/150"
+                            "/default-avatar.jpg"
                           }
                           alt={interest.senderId?.fullName}
                           className="w-10 h-10 rounded-full mr-4"
@@ -122,7 +122,7 @@ const Interests = () => {
                         <img
                           src={
                             interest.receiverId?.profilePhoto ||
-                            "https://i.pravatar.cc/150"
+                            "/default-avatar.jpg"
                           }
                           alt={interest.receiverId?.fullName}
                           className="w-10 h-10 rounded-full mr-4"

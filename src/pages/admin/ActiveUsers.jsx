@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FiSearch, FiEye } from "react-icons/fi";
+import { getAvatarFallback } from "../../utils/avatar";
 import { getAllUsers } from "../../api/adminApi/adminApi";
 import { on, off } from "../../services/socketService";
 
@@ -63,7 +64,7 @@ const ActiveUsers = () => {
   // ✅ Search filter
   const filteredUsers = users.filter(
     (user) =>
-      `${user.firstName || ""} ${user.lastName || ""}`
+      (user.fullName || "")
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
       (user.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -115,15 +116,13 @@ const ActiveUsers = () => {
                     <td className="py-3 px-4">
                       <div className="flex items-center">
                         <img
-                          src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                            `${user.firstName} ${user.lastName}`,
-                          )}&background=ddd&color=555`}
-                          alt={user.firstName}
+                          src={user.avatar || getAvatarFallback(user.gender)}
+                          alt={user.fullName}
                           className="w-10 h-10 rounded-full mr-4 object-cover"
                         />
                         <div>
-                          <p className="font-medium text-gray-800">{user.firstName} {user.lastName}</p>
-                          <p className="text-sm text-gray-500">@{user.username || "N/A"}</p>
+                          <p className="font-medium text-gray-800">{user.fullName}</p>
+                          <p className="text-sm text-gray-500">{user.username || ""}</p>
                         </div>
                       </div>
                     </td>
@@ -132,7 +131,7 @@ const ActiveUsers = () => {
 
                     <td className="py-3 px-4">{user.phone || "—"}</td>
 
-                    <td className="py-3 px-4">{user.country || "N/A"}</td>
+                    <td className="py-3 px-4">{user.country || ""}</td>
 
                     <td className="py-3 px-4">{user.createdAt ? new Date(user.createdAt).toLocaleString() : "—"}</td>
 

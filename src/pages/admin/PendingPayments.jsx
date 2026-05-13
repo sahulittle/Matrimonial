@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FiSearch, FiEye, FiX } from "react-icons/fi";
 import { getAllPayments } from "../../api/adminApi/adminApi";
+import { getAvatarFallback } from "../../utils/avatar";
 
 // Helper to format date and calculate relative time
 const formatInitiated = (isoDate) => {
@@ -64,8 +65,7 @@ const PendingPayments = () => {
   }, []);
 
   const filteredPayments = payments.filter((payment) => {
-    const userName =
-      `${payment.userId?.firstName || ""} ${payment.userId?.lastName || ""}`.toLowerCase();
+    const userName = (payment.userId?.fullName || "").toLowerCase();
     const username =
       payment.userId?.username || payment.userId?.email?.split("@")[0] || "";
     const userMatch =
@@ -106,25 +106,25 @@ const PendingPayments = () => {
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg shadow-md">
+    <div className="bg-white p-4 md:p-8 rounded-lg shadow-md">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-        <h4 className="text-2xl font-bold text-gray-800">Pending Payments</h4>
-        <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-          <div className="relative w-full md:w-64">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-6 gap-4">
+        <h4 className="text-xl md:text-2xl font-bold text-gray-800">Pending Payments</h4>
+        <div className="flex flex-col lg:flex-row gap-4 w-full xl:w-auto">
+          <div className="relative w-full lg:w-64">
             <input
               type="text"
-              placeholder="Search by username..."
+              placeholder="Search by user..."
               value={usernameSearch}
               onChange={(e) => {
                 setUsernameSearch(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full pl-10 pr-4 py-2 border rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full pl-10 pr-4 py-2 border rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
             />
             <FiSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full lg:w-auto">
             <input
               type="date"
               value={startDate}
@@ -132,9 +132,9 @@ const PendingPayments = () => {
                 setStartDate(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2 border rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full sm:w-auto px-3 py-2 border rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
             />
-            <span>-</span>
+            <span className="hidden sm:inline">-</span>
             <input
               type="date"
               value={endDate}
@@ -142,128 +142,188 @@ const PendingPayments = () => {
                 setEndDate(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full px-3 py-2 border rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full sm:w-auto px-3 py-2 border rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-pink-500 text-sm"
             />
           </div>
         </div>
       </div>
 
-      {/* Payments Table */}
-      <div className="overflow-x-auto">
+      {/* Mobile Card View (visible on small screens) */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {currentPayments.length > 0 ? (
+          currentPayments.map((payment) => {
+            const initiatedTime = formatInitiated(payment.createdAt);
+            const user = payment.userId || {};
+            return (
+              <div key={payment.id || payment._id} className="bg-gray-50 p-4 rounded-xl border border-gray-200 shadow-sm">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex items-center">
+                    <img
+                      src={user.profilePhoto || getAvatarFallback(user.gender)}
+                      alt={user.fullName}
+                      className="w-10 h-10 rounded-full mr-3 border border-gray-200"
+                    />
+                    <div className="overflow-hidden">
+                      <p className="font-bold text-gray-800 truncate max-w-[150px]">
+                        {user.fullName || "Unknown User"}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate max-w-[150px]">
+                        {user.username || user.email?.split("@")[0] || "unknown"}
+                      </p>
+                    </div>
+                  </div>
+                  <span className="bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                    {payment.status}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-sm border-t border-gray-100 pt-3">
+                  <div>
+                    <p className="text-gray-400 text-[10px] uppercase font-bold">Amount</p>
+                    <p className="font-bold text-gray-900">₹{payment.amount}</p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400 text-[10px] uppercase font-bold">Gateway</p>
+                    <p className="text-gray-700">{payment.paymentMethod?.toUpperCase() || "CCAVENUE"}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-gray-400 text-[10px] uppercase font-bold">Date</p>
+                    <p className="text-gray-700">{initiatedTime.full}</p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => openModal(payment)}
+                  className="w-full mt-4 flex items-center justify-center bg-blue-50 text-blue-600 py-2.5 rounded-lg text-sm font-semibold hover:bg-blue-100 transition-colors border border-blue-100"
+                >
+                  <FiEye className="mr-2" /> View Details
+                </button>
+              </div>
+            );
+          })
+        ) : (
+          <div className="text-center py-10 text-gray-500 bg-gray-50 rounded-lg">
+            No pending payments found.
+          </div>
+        )}
+      </div>
+
+      {/* Desktop Table View (hidden on small screens) */}
+      <div className="hidden md:block overflow-x-auto">
         <table className="min-w-full bg-white">
           <thead className="bg-gray-100">
             <tr>
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
+              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
                 Gateway | Transaction
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
+              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
                 Initiated
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
+              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
                 User
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
+              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
                 Amount
               </th>
-              {/* <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 uppercase">
-                Conversion
-              </th> */}
-              <th className="py-3 px-4 text-center text-sm font-semibold text-gray-600 uppercase">
+              <th className="py-3 px-4 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider">
                 Status
               </th>
-              <th className="py-3 px-4 text-center text-sm font-semibold text-gray-600 uppercase">
+              <th className="py-3 px-4 text-center text-sm font-semibold text-gray-600 uppercase tracking-wider">
                 Action
               </th>
             </tr>
           </thead>
           <tbody className="text-gray-700">
-            {currentPayments.map((payment) => {
-              const initiatedTime = formatInitiated(payment.createdAt);
-              const user = payment.userId || {}; // ✅ ADD THIS LINE
-              return (
-                <tr
-                  key={payment._id || payment.id}
-                  className="border-b border-gray-200 hover:bg-gray-50"
-                >
-                  <td className="py-3 px-4">
-                    <p className="font-medium text-gray-800">
-                      {payment.paymentMethod?.toUpperCase() || "CCAVENUE"}
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {payment.transactionId ||
-                        payment.ccavenueOrderId ||
-                        payment._id}
-                    </p>
-                  </td>
-                  <td className="py-3 px-4">
-                    <p className="font-medium">{initiatedTime.full}</p>
-                    <p className="text-sm text-gray-500">
-                      {initiatedTime.relative}
-                    </p>
-                  </td>
-                  <td className="py-3 px-4">
-                    <div className="flex items-center">
-                      <img
-                        src={
-                          user.profilePhoto ||
-                          `https://i.pravatar.cc/150?u=${user._id}`
-                        }
-                        alt={user.firstName || "user"}
-                        className="w-10 h-10 rounded-full mr-4"
-                      />
-
-                      <div>
-                        <p className="font-medium text-gray-800">
-                          {`${user.firstName || ""} ${user.lastName || ""}`.trim()}
-                        </p>
-
-                        <p className="text-sm text-gray-500">
-                          @{user.username || user.email?.split("@")[0]}
-                        </p>
+            {currentPayments.length > 0 ? (
+              currentPayments.map((payment) => {
+                const initiatedTime = formatInitiated(payment.createdAt);
+                const user = payment.userId || {};
+                return (
+                  <tr
+                    key={payment._id || payment.id}
+                    className="border-b border-gray-200 hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="py-3 px-4">
+                      <p className="font-medium text-gray-800">
+                        {payment.paymentMethod?.toUpperCase() || "CCAVENUE"}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {payment.transactionId || payment.ccavenueOrderId || payment._id}
+                      </p>
+                    </td>
+                    <td className="py-3 px-4 text-sm">
+                      <p className="font-medium text-gray-700">{initiatedTime.full}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">
+                        {initiatedTime.relative}
+                      </p>
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center">
+                        <img
+                          src={user.profilePhoto || getAvatarFallback(user.gender)}
+                          alt={user.fullName}
+                          className="w-10 h-10 rounded-full mr-3 border border-gray-100 shadow-sm"
+                        />
+                        <div className="overflow-hidden">
+                          <p className="font-medium text-gray-800 truncate max-w-[200px]">
+                            {user.fullName || "Unknown"}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {user.username || user.email || ""}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4">
-                    <p className="font-bold text-gray-800">₹{payment.amount}</p>
-                  </td>
-                  {/* <td className="py-3 px-4">{payment.conversion}</td> */}
-                  <td className="py-3 px-4 text-center">
-                    <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold">
-                      {payment.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-center">
-                    <button
-                      onClick={() => openModal(payment)}
-                      className="flex items-center justify-center mx-auto bg-blue-500 text-white px-3 py-1 rounded-md text-sm hover:bg-blue-600"
-                    >
-                      <FiEye className="mr-1" /> Details
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
+                    </td>
+                    <td className="py-3 px-4">
+                      <p className="font-bold text-gray-900">
+                        ₹{payment.amount}
+                      </p>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <span className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">
+                        {payment.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <button
+                        onClick={() => openModal(payment)}
+                        className="inline-flex items-center justify-center bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-blue-600 shadow-sm transition-all active:scale-95"
+                      >
+                        <FiEye className="mr-1.5" /> Details
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="6" className="text-center py-12 text-gray-500 italic">
+                  No pending payments found matching your criteria.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center mt-6">
+        <div className="flex justify-center items-center mt-8 gap-1 md:gap-2">
           <button
             onClick={() => paginate(currentPage - 1)}
             disabled={currentPage === 1}
-            className="px-4 py-2 mx-1 border rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 md:px-4 md:py-2 border rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium transition-colors"
           >
-            Previous
+            Prev
           </button>
-          <span className="px-4 py-2">
-            Page {currentPage} of {totalPages}
-          </span>
+          <div className="flex items-center px-2 md:px-4 text-sm font-semibold text-gray-600">
+            <span className="md:hidden">{currentPage}/{totalPages}</span>
+            <span className="hidden md:inline">Page {currentPage} of {totalPages}</span>
+          </div>
           <button
             onClick={() => paginate(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 mx-1 border rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3 py-1.5 md:px-4 md:py-2 border rounded-xl hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed text-sm font-medium transition-colors"
           >
             Next
           </button>
@@ -272,70 +332,68 @@ const PendingPayments = () => {
 
       {/* Details Modal */}
       {isModalOpen && selectedPayment && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-full max-w-lg">
-            <div className="flex justify-between items-center mb-4 border-b pb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6 border-b pb-4">
               <h4 className="text-xl font-bold text-gray-800">
                 Payment Details
               </h4>
               <button
                 onClick={closeModal}
-                className="text-gray-500 hover:text-gray-800"
+                className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded-full transition-colors"
               >
                 <FiX size={24} />
               </button>
             </div>
-            <div className="space-y-3">
-              <div className="flex justify-between border-b py-2">
-                <p className="font-semibold text-gray-600">User</p>
-                <p className="text-gray-800">
-                  {selectedPayment.userId?.firstName}{" "}
-                  {selectedPayment.userId?.lastName}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-50 py-3 gap-1">
+                <p className="font-semibold text-gray-500 text-xs uppercase tracking-wider">User</p>
+                <p className="text-gray-800 font-medium sm:text-right">
+                  {selectedPayment.userId?.fullName || "Unknown User"}
                 </p>
               </div>
 
-              <div className="flex justify-between border-b py-2">
-                <p className="font-semibold text-gray-600">Email</p>
-                <p className="text-gray-800">{selectedPayment.userId?.email}</p>
+              <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-50 py-3 gap-1">
+                <p className="font-semibold text-gray-500 text-xs uppercase tracking-wider">Email</p>
+                <p className="text-gray-800 font-medium sm:text-right break-all">{selectedPayment.userId?.email}</p>
               </div>
 
-              <div className="flex justify-between border-b py-2">
-                <p className="font-semibold text-gray-600">Amount</p>
-                <p className="text-gray-800">₹{selectedPayment.amount}</p>
+              <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-50 py-3 gap-1">
+                <p className="font-semibold text-gray-500 text-xs uppercase tracking-wider">Amount</p>
+                <p className="text-gray-800 font-medium sm:text-right">₹{selectedPayment.amount}</p>
               </div>
 
-              <div className="flex justify-between border-b py-2">
-                <p className="font-semibold text-gray-600">Gateway</p>
-                <p className="text-gray-800">
+              <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-50 py-3 gap-1">
+                <p className="font-semibold text-gray-500 text-xs uppercase tracking-wider">Gateway</p>
+                <p className="text-gray-800 font-medium sm:text-right">
                   {selectedPayment.paymentMethod?.toUpperCase()}
                 </p>
               </div>
 
-              <div className="flex justify-between border-b py-2">
-                <p className="font-semibold text-gray-600">Transaction ID</p>
-                <p className="text-gray-800">
-                  {selectedPayment.transactionId ||
-                    selectedPayment.ccavenueOrderId}
+              <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-50 py-3 gap-1">
+                <p className="font-semibold text-gray-500 text-xs uppercase tracking-wider">Transaction ID</p>
+                <p className="text-gray-800 font-medium sm:text-right break-all">
+                  {selectedPayment.transactionId || selectedPayment.ccavenueOrderId}
                 </p>
               </div>
 
-              <div className="flex justify-between border-b py-2">
-                <p className="font-semibold text-gray-600">Status</p>
-                <p className="text-gray-800">{selectedPayment.status}</p>
+              <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-50 py-3 gap-1">
+                <p className="font-semibold text-gray-500 text-xs uppercase tracking-wider">Status</p>
+                <p className="text-gray-800 font-medium sm:text-right">{selectedPayment.status}</p>
               </div>
 
-              <div className="flex justify-between border-b py-2">
-                <p className="font-semibold text-gray-600">Date</p>
-                <p className="text-gray-800">
+              <div className="flex flex-col sm:flex-row sm:justify-between border-b border-gray-50 py-3 gap-1">
+                <p className="font-semibold text-gray-500 text-xs uppercase tracking-wider">Date</p>
+                <p className="text-gray-800 font-medium sm:text-right">
                   {new Date(selectedPayment.createdAt).toLocaleString()}
                 </p>
               </div>
             </div>
-            <div className="mt-6 flex justify-end">
+            <div className="mt-8 flex justify-end">
               <button
                 type="button"
                 onClick={closeModal}
-                className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300"
+                className="w-full sm:w-auto bg-gray-100 text-gray-700 px-8 py-2.5 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
               >
                 Close
               </button>

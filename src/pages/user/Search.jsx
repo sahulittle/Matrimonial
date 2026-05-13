@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
+import { getAvatarFallback } from "../../utils/avatar";
 import ProfileCard from "../../components/ui/ProfileCard";
 import toast from "react-hot-toast";
 // import { searchProfiles } from "../../api/userApi/userApi";
@@ -600,7 +601,7 @@ const SearchPage = () => {
                         {/* Image */}
                         <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden mb-3">
                           <img
-                            src={profile.profilePhoto || "/default-avatar.png"}
+                            src={profile.profilePhoto || getAvatarFallback(profile.gender)}
                             alt="profile"
                             className="w-full h-full object-cover"
                           />
@@ -617,17 +618,17 @@ const SearchPage = () => {
                         </p>
 
                         <p className="text-sm text-gray-500">
-                          {profile.religion || "N/A"}
+                          {profile.religion || ""}
                         </p>
 
                         <p className="text-sm text-gray-500">
-                          {profile.jobLocation || "N/A"}
+                          {profile.jobLocation || ""}
                         </p>
 
                         {/* Extra info (like template) */}
                         <p className="text-xs text-gray-400 mt-1">
                           {profile.maritalStatus || "Single"} •{" "}
-                          {profile.caste || "N/A"}
+                          {profile.caste || ""}
                         </p>
 
                         {/* Actions */}

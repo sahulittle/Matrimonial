@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FiMail, FiMessageSquare, FiSearch } from "react-icons/fi";
+import { getAvatarFallback } from "../../utils/avatar";
 import { getRenewals } from "../../api/adminApi/adminApi";
 import { on, off } from "../../services/socketService";
 
@@ -119,9 +120,7 @@ const RenewList = () => {
               <div className="flex items-center gap-3">
                 <img
                   src={
-                    renewal.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                      renewal.userName,
-                    )}&background=ddd&color=555&size=64`
+                    renewal.photo || getAvatarFallback(renewal.gender)
                   }
                   alt={renewal.userName}
                   className="w-10 h-10 rounded-full object-cover"
@@ -131,7 +130,7 @@ const RenewList = () => {
                     {renewal.userName}
                   </p>
                   <p className="text-sm text-gray-500">
-                    @{renewal.userName?.toLowerCase().replace(" ", "")}
+                    {renewal.userName?.toLowerCase().replace(" ", "")}
                   </p>
                 </div>
               </div>

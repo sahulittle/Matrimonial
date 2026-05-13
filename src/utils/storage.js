@@ -1,3 +1,5 @@
+import { getAvatarFallback } from "./avatar";
+
 /* ---------- USERS ---------- */
 
 export function getUsers() {
@@ -76,7 +78,7 @@ export function createDefaultProfile(user) {
       city: ""
     },
     aboutMe: "",
-    avatar: user.avatar || "/default-avatar.png"
+    avatar: user.avatar || getAvatarFallback(user.gender)
   }
 
   saveUserProfile(user.id, profile)

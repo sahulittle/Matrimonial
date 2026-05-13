@@ -60,8 +60,7 @@ const ClosedTicket = () => {
 
   const filteredTickets = tickets.filter((ticket) => {
     const subj = (ticket.subject || ticket.title || "").toLowerCase();
-    const name =
-      `${ticket.userId?.firstName || ""} ${ticket.userId?.lastName || ""}`.toLowerCase();
+    const name = (ticket.userId?.fullName || "").toLowerCase();
     return (
       subj.includes(searchTerm.toLowerCase()) ||
       name.includes(searchTerm.toLowerCase())
@@ -164,23 +163,13 @@ const ClosedTicket = () => {
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center">
-                      {/* <img
-                        src={
-                          ticket.userId?.avatar || ticket.submittedBy?.avatar
-                        }
-                        alt={
-                          ticket.userId?.firstName || ticket.submittedBy?.name
-                        }
-                        className="w-10 h-10 rounded-full mr-4"
-                      /> */}
                       <div>
                         <p className="font-medium text-gray-800">
-                          {ticket.userId?.firstName
-                            ? `${ticket.userId.firstName} ${ticket.userId.lastName || ""}`
-                            : ticket.submittedBy?.name || "N/A"}
+                          {ticket.userId?.fullName
+                            ? ticket.userId.fullName
+                            : ticket.submittedBy?.name || ""}
                         </p>
                         <p className="text-sm text-gray-500">
-                          
                           {(
                             ticket.userId?.username ||
                             ticket.submittedBy?.username ||
@@ -264,16 +253,16 @@ const ClosedTicket = () => {
               </button>
             </div>
 
-            <div>
+            <div className="space-y-4">
               <h5 className="font-bold text-lg mb-2">
                 {selectedTicket.subject}
               </h5>
               <div className="grid grid-cols-2 gap-4 mb-4 text-sm">
                 <p className="text-gray-600">
                   <strong>Submitted by:</strong>{" "}
-                  {selectedTicket.userId?.firstName
-                    ? `${selectedTicket.userId.firstName} ${selectedTicket.userId.lastName || ""}`
-                    : selectedTicket.submittedBy?.name || "N/A"}
+                  {selectedTicket.userId?.fullName
+                    ? selectedTicket.userId.fullName
+                    : selectedTicket.submittedBy?.name || ""}
                 </p>
                 <p className="text-gray-600">
                   <strong>Last Reply:</strong>{" "}
@@ -302,41 +291,16 @@ const ClosedTicket = () => {
                   </span>
                 </p>
               </div>
-
-              <p className="text-gray-700 bg-gray-50 p-4 rounded-md">
-                {selectedTicket.details}
-              </p>
-
-              {/* Replies */}
-              <div className="mt-6">
-                <h6 className="font-semibold mb-3">Replies</h6>
-                <div className="space-y-3 max-h-48 overflow-auto p-2 bg-gray-50 rounded">
-                  {(selectedTicket.replies || []).map((r, idx) => (
-                    <div key={idx} className="p-2 bg-white rounded shadow-sm">
-                      <div className="text-sm text-gray-700">
-                        <strong>
-                          {r.senderType === "admin"
-                            ? "Admin"
-                            : r.senderName || "User"}
-                        </strong>
-                      </div>
-                      <div className="text-sm text-gray-600">{r.message}</div>
-                      <div className="text-xs text-gray-400">
-                        {new Date(
-                          r.createdAt || r.date || Date.now(),
-                        ).toLocaleString()}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="border-t pt-4">
+                <p className="text-gray-700 whitespace-pre-wrap">
+                  {selectedTicket.message || "No message content."}
+                </p>
               </div>
             </div>
-
-            <div className="mt-6 flex justify-end">
+            <div className="mt-8 flex justify-end">
               <button
-                type="button"
                 onClick={closeModal}
-                className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300"
+                className="bg-gray-100 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Close
               </button>
