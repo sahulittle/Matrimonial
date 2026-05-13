@@ -57,6 +57,9 @@ const About = () => {
         <div className="grid grid-cols-1 gap-8 place-items-center">
           <div className="w-full max-w-3xl">
             <div className="bg-white rounded-xl shadow-lg mt-10 p-8">
+              <h2 className="highlight-text text-2xl md:text-3xl font-bold text-center text-pink-500 mb-6">
+                विदर्भ वैभव मंदिर व विदर्भ समाज संघ
+              </h2>
               <div
                 className="text-gray-700 leading-relaxed text-justify"
                 dangerouslySetInnerHTML={{ __html: content }}
