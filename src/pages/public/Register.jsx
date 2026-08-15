@@ -475,10 +475,6 @@ const Register = () => {
     if (!formData.educationCategory)
       newErrors.educationCategory = "Education category required";
 
-    if (!formData.employedIn) newErrors.employedIn = "Employment is required";
-
-    if (!formData.annualIncome) newErrors.annualIncome = "Income is required";
-
     if (!formData.job) newErrors.job = "Job/Designation is required";
 
     setErrors((prev) => ({ ...prev, ...newErrors }));
@@ -1612,20 +1608,16 @@ const Register = () => {
                     htmlFor="annual-income"
                     className="block text-sm font-medium text-gray-700"
                   >
-                    Annual Income <span className="text-red-500">*</span>
+                    Annual Income
                   </label>
                   <div className="mt-1 relative">
                     <select
                       name="annualIncome"
                       value={formData.annualIncome || ""}
                       onChange={handleChange}
-                      className={`appearance-none mt-1 block w-full px-3 py-3 border rounded-md ${
-                        errors.annualIncome
-                          ? "border-red-500"
-                          : "border-gray-300"
-                      }`}
+                      className="appearance-none mt-1 block w-full px-3 py-3 border border-gray-300 rounded-md"
                     >
-                      <option value="" disabled>
+                      <option value="">
                         Select Annual Income
                       </option>
                       {incomeOptions.map((income) => (
@@ -1634,11 +1626,6 @@ const Register = () => {
                         </option>
                       ))}
                     </select>
-                    {errors.annualIncome && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.annualIncome}
-                      </p>
-                    )}
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                       <FaChevronDown className="h-4 w-4" />
                     </div>

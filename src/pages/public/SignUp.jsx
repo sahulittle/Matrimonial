@@ -133,7 +133,7 @@ const SignUp = () => {
                 {/* Annual Income */}
                 <div className="md:col-span-2">
                   <label htmlFor="annual-income" className="block text-sm font-medium text-gray-700">Annual Income</label>
-                  <div className="mt-1 relative"><select id="annual-income" name="annualIncome" required onChange={handleChange} value={formData.annualIncome || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"><option value="" disabled selected>Select Annual Income</option>{incomeOptions.map(income => <option key={income} value={income}>{income}</option>)}</select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div></div>
+                  <div className="mt-1 relative"><select id="annual-income" name="annualIncome" onChange={handleChange} value={formData.annualIncome || ''} className="appearance-none block w-full px-3 py-3 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-pink-500 focus:border-pink-500 sm:text-sm pr-8"><option value="">Select Annual Income</option>{incomeOptions.map(income => <option key={income} value={income}>{income}</option>)}</select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"><FaChevronDown className="h-4 w-4" /></div></div>
                 </div>
               </div>
 
